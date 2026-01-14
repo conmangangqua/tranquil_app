@@ -143,11 +143,11 @@ jobs:
           for APP_ID in $APP_IDS; do
             echo "Processing app: $APP_ID"
             
-            # Find URLs for this app
-            DEV_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_dev\\.apk$\")) | .browser_download_url // empty" | head -n 1)
-            PROD_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_prod\\.apk$\")) | .browser_download_url // empty" | head -n 1)
-            AAB_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}\\.aab$\")) | .browser_download_url // empty" | head -n 1)
-            ICON_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_icon\\.png$\")) | .browser_download_url // empty" | head -n 1)
+            # Find URLs for this app - use exact string match instead of regex
+            DEV_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_dev.apk")) | .browser_download_url // empty' | head -n 1)
+            PROD_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_prod.apk")) | .browser_download_url // empty' | head -n 1)
+            AAB_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + ".aab")) | .browser_download_url // empty' | head -n 1)
+            ICON_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_icon.png")) | .browser_download_url // empty' | head -n 1)
             
             # Format app name from app_id (video_downloader -> Video Downloader, photo_ai -> Photo AI)
             APP_NAME=$(echo "$APP_ID" | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
