@@ -2,392 +2,131 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <meta http-equiv="Last-Modified" content="0" />
-  <title>Danh sách ứng dụng</title>
+  <title>Android Apps</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 24px;
     }
 
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    .header h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .header p {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.5;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+    .app-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 25px;
-      padding: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
     }
 
     .app-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      animation: fadeInUp 0.8s ease-out;
-      animation-fill-mode: both;
-    }
-
-    .app-card:nth-child(1) { animation-delay: 0.1s; }
-    .app-card:nth-child(2) { animation-delay: 0.2s; }
-    .app-card:nth-child(3) { animation-delay: 0.3s; }
-    .app-card:nth-child(4) { animation-delay: 0.4s; }
-    .app-card:nth-child(5) { animation-delay: 0.5s; }
-    .app-card:nth-child(6) { animation-delay: 0.6s; }
-
-    .app-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .app-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+      position: relative;
     }
 
     .app-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 20px;
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
     }
-
-
 
     .platform-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 15px;
+      position: absolute;
+      top: 12px;
+      right: 12px;
       font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
-    }
-
-    .platform-badge.android {
-      background: linear-gradient(135deg, #3ddc84, #2bb673);
-      color: white;
-    }
-
-    .platform-badge.ios {
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      color: white;
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 4px 8px;
+      border-radius: 6px;
     }
 
     .app-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #333;
-      text-align: center;
-    }
-
-    .app-description {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 20px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-
-
-    .app-features {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-
-    .feature-tag {
-      padding: 5px 12px;
-      background: rgba(0, 122, 255, 0.1);
-      color: #007aff;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .install-button {
-      display: block;
-      width: 100%;
-      padding: 15px 25px;
-      font-size: 16px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      color: white;
-      text-decoration: none;
-      border-radius: 50px;
-      box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-      transition: all 0.3s ease;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-
-    .install-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 25px rgba(0, 122, 255, 0.4);
-    }
-
-    .install-button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .install-button:hover::before {
-      left: 100%;
-    }
-
-    .install-button.dev {
-      background: linear-gradient(135deg, #ff9500, #ff6b35);
-      box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);
-    }
-
-    .install-button.dev:hover {
-      box-shadow: 0 12px 25px rgba(255, 149, 0, 0.4);
-    }
-
-    .install-button.live {
-      background: linear-gradient(135deg, #34c759, #30d158);
-      box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
-    }
-
-    .install-button.live:hover {
-      box-shadow: 0 12px 25px rgba(52, 199, 89, 0.4);
-    }
-
-    .install-button.aab {
-      background: linear-gradient(135deg, #ff6b35, #f7931e);
-      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
-    }
-
-    .install-button.aab:hover {
-      box-shadow: 0 12px 25px rgba(255, 107, 53, 0.4);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .button-group .install-button {
-      flex: 1;
-      margin-bottom: 0;
-      min-width: 80px;
-    }
-
-
-
-    .note {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-    }
-
-    .note b {
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .telegram-warning {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 30px;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    .telegram-warning h3 {
-      margin-bottom: 10px;
+      margin: 12px 0 4px;
       font-size: 18px;
     }
 
-    .telegram-warning p {
-      margin-bottom: 15px;
-      line-height: 1.5;
+    .app-description {
+      color: #555;
+      font-size: 14px;
+      margin-bottom: 10px;
     }
 
-    .open-browser-btn {
+    .feature-tag {
       display: inline-block;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 25px;
+      background: #f1f3f4;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin: 2px;
+    }
+
+    .button-group {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .install-button {
       text-decoration: none;
-      font-weight: 600;
-      transition: all 0.3s ease;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #fff;
     }
 
-    .open-browser-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-
-          @media (max-width: 768px) {
-        .container {
-          grid-template-columns: 1fr;
-          padding: 10px;
-        }
-        
-        .header h1 {
-          font-size: 28px;
-        }
-        
-        .header p {
-          font-size: 16px;
-        }
-        
-        .app-card {
-          padding: 25px 20px;
-        }
-
-        .button-group {
-          flex-direction: column;
-        }
-      }
+    .install-button.dev { background: #6c757d; }
+    .install-button.live { background: #28a745; }
+    .install-button.aab { background: #fd7e14; }
   </style>
 </head>
+
 <body>
-  <div class="header">
-    <h1>📱 Danh sách ứng dụng</h1>
-    <p>Chọn và cài đặt ứng dụng bạn muốn sử dụng</p>
-  </div>
+  <h1>📱 Android Apps</h1>
+  <div class="app-grid" id="appGrid"></div>
 
-  <div class="container">
-    <!-- App 1: Video Downloader -->
-    <div class="app-card">
-      <div class="app-icon">
-        <img src="video_downloader_logo.png" alt="Video Downloader Logo">
-      </div>
-      <span class="platform-badge ios">Android</span>
-      <h2 class="app-title">Video Downloader</h2>
-      <p class="app-description">Ứng dụng tải video từ nhiều nguồn khác nhau</p>
-      <div class="app-features">
-        <span class="feature-tag">🎥 Video</span>
-        <span class="feature-tag">💾 Lưu video</span>
-        <span class="feature-tag">🔍 Tìm kiếm</span>
-      </div>
-      <div class="button-group">
-        <a class="install-button dev" href="https://github.com/conmangangqua/android_app/releases/download/dev/video_downloader_dev.apk">
-          🔧 Dev
-        </a>
-        <a class="install-button live" href="https://github.com/conmangangqua/android_app/releases/download/prod/video_downloader_prod.apk">
-          🚀 Live
-        </a>
-        <a class="install-button aab" href="https://github.com/conmangangqua/android_app/releases/download/aab/video_downloader.aab">
-          📦 AAB
-        </a>
-      </div>
-    </div>
+  <script>
+    fetch("apps.json")
+      .then(res => res.json())
+      .then(data => {
+        const grid = document.getElementById("appGrid")
 
-     <!-- App 2: Photo AI -->
-     <div class="app-card">
-      <div class="app-icon">
-        <img src="photo_ai_logo.png" alt="Photo AI Logo">
-      </div>
-      <span class="platform-badge ios">Android</span>
-      <h2 class="app-title">Photo AI</h2>
-      <p class="app-description">Ứng dụng xử lý ảnh với AI</p>
-      <div class="app-features">
-        <span class="feature-tag">🎨 Xử lý ảnh</span>
-        <span class="feature-tag">🔍 AI</span>
-        <span class="feature-tag">💄 Làm đẹp</span>
-      </div>
-      <div class="button-group">
-        <a class="install-button dev" href="https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai_dev.apk">
-          🔧 Dev
-        </a>
-        <a class="install-button live" href="https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai_prod.apk">
-          🚀 Live
-        </a>
-        <a class="install-button aab" href="https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai.aab">
-          📦 AAB
-        </a>
-      </div>
-    </div>
-  </div>
+        data.apps.forEach(app => {
+          const features = app.features
+            .map(f => `<span class="feature-tag">${f}</span>`)
+            .join("")
+
+          const html = `
+            <div class="app-card">
+              <span class="platform-badge">${app.platform}</span>
+
+              <div class="app-icon">
+                <img src="${app.icon}" alt="${app.name}">
+              </div>
+
+              <h2 class="app-title">${app.name}</h2>
+              <p class="app-description">${app.description}</p>
+
+              <div class="app-features">${features}</div>
+
+              <div class="button-group">
+                ${app.downloads.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🔧 Dev</a>` : ""}
+                ${app.downloads.prod ? `<a class="install-button live" href="${app.downloads.prod}">🚀 Live</a>` : ""}
+                ${app.downloads.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
+              </div>
+            </div>
+          `
+          grid.insertAdjacentHTML("beforeend", html)
+        })
+      })
+      .catch(err => {
+        document.body.innerHTML = "<h2>❌ Không load được apps.json</h2>"
+        console.error(err)
+      })
+  </script>
 </body>
 </html>
