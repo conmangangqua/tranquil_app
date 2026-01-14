@@ -1,3 +1,28 @@
 {
-  "apps": []
+  "apps": [
+    {
+      "id": "photo_ai",
+      "name": "Photo Ai",
+      "icon": "",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai_dev.apk",
+        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/photo_ai_prod.apk"
+      }
+    },
+    {
+      "id": "video_downloader",
+      "name": "Video Downloader",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/video_downloader_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/video_downloader_dev.apk",
+        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/video_downloader_prod.apk"
+      }
+    }
+  ]
 }
