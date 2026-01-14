@@ -203,6 +203,8 @@ jobs:
           done
           
           echo "Updated apps.json with all apps"
+          echo "Current apps.json content:"
+          cat apps.json | jq '.'
 
       # ===================== COMMIT & PUSH =====================
       - name: Commit and push changes
@@ -210,10 +212,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          echo "Git status before add:"
+          git status
+          
           git add apps.json
+
+          echo "Git status after add:"
+          git status
+          
+          echo "Git diff --cached:"
+          git diff --cached || true
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
+            echo "Checking if apps.json changed:"
+            git diff apps.json || echo "No diff in apps.json"
             exit 0
           fi
 
