@@ -4,6 +4,11 @@ on:
   release:
     types: [published, released]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (leave empty to use latest release)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -29,28 +34,47 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq curl
-          type -p gh >/dev/null || (
-            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-            && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-            && apt-get update \
-            && apt-get install gh -y
-          )
+          if ! command -v gh &> /dev/null; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update
+            sudo apt-get install gh -y
+          fi
+          gh --version
+          echo "GitHub CLI installed successfully"
 
       # ===================== EXTRACT RELEASE INFO =====================
       - name: Extract release info
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          EVENT_NAME="${{ github.event_name }}"
+          echo "Event name: $EVENT_NAME"
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
-          if [ "${{ github.event_name }}" = "release" ]; then
+          
+          if [ "$EVENT_NAME" = "release" ]; then
+            # Trigger từ release event
+            echo "Using release event data"
             echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
             echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
           else
-            # For workflow_dispatch, get latest release
-            LATEST_RELEASE=$(gh api repos/${{ github.repository }}/releases/latest --jq '{tag_name: .tag_name, name: .name}')
-            echo "TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')" >> $GITHUB_ENV
-            echo "RELEASE_NAME=$(echo "$LATEST_RELEASE" | jq -r '.name')" >> $GITHUB_ENV
+            # Trigger từ workflow_dispatch (chạy thủ công)
+            RELEASE_TAG="${{ inputs.release_tag }}"
+            if [ -n "$RELEASE_TAG" ] && [ "$RELEASE_TAG" != "" ]; then
+              echo "Fetching specific release: $RELEASE_TAG"
+              RELEASE_DATA=$(gh api repos/${{ github.repository }}/releases/tags/$RELEASE_TAG --jq '{tag_name: .tag_name, name: .name}')
+            else
+              echo "Fetching latest release via API"
+              RELEASE_DATA=$(gh api repos/${{ github.repository }}/releases/latest --jq '{tag_name: .tag_name, name: .name}')
+            fi
+            
+            echo "Release data: $RELEASE_DATA"
+            TAG_NAME=$(echo "$RELEASE_DATA" | jq -r '.tag_name // empty')
+            RELEASE_NAME=$(echo "$RELEASE_DATA" | jq -r '.name // empty')
+            echo "TAG=$TAG_NAME" >> $GITHUB_ENV
+            echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
+            echo "Extracted TAG: $TAG_NAME, RELEASE_NAME: $RELEASE_NAME"
           fi
 
       # ===================== PARSE RELEASE ASSETS =====================
@@ -58,22 +82,45 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
+          EVENT_NAME="${{ github.event_name }}"
+          
+          if [ "$EVENT_NAME" = "release" ]; then
+            # Trigger từ release event - dùng data từ event
+            echo "Using release event assets"
             ASSETS='${{ toJson(github.event.release.assets) }}'
+            DEV_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
+            PROD_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
+            AAB_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
+            ICON_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
           else
-            # For workflow_dispatch, fetch latest release assets
-            ASSETS=$(gh api repos/${{ github.repository }}/releases/latest --jq '.assets')
+            # Trigger từ workflow_dispatch - tổng hợp từ tất cả releases (dev, prod, aab)
+            echo "Fetching assets from all releases (dev, prod, aab)..."
+            
+            # Fetch từ release 'dev'
+            echo "Fetching from 'dev' release..."
+            DEV_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/dev --jq '.assets' 2>/dev/null || echo "[]")
+            DEV_URL=$(echo "$DEV_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
+            DEV_ICON=$(echo "$DEV_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
+            
+            # Fetch từ release 'prod'
+            echo "Fetching from 'prod' release..."
+            PROD_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/prod --jq '.assets' 2>/dev/null || echo "[]")
+            PROD_URL=$(echo "$PROD_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
+            PROD_ICON=$(echo "$PROD_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
+            
+            # Fetch từ release 'aab'
+            echo "Fetching from 'aab' release..."
+            AAB_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/aab --jq '.assets' 2>/dev/null || echo "[]")
+            AAB_URL=$(echo "$AAB_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
+            
+            # Ưu tiên icon từ prod, nếu không có thì lấy từ dev
+            ICON_URL="$PROD_ICON"
+            if [ -z "$ICON_URL" ] || [ "$ICON_URL" = "" ]; then
+              ICON_URL="$DEV_ICON"
+            fi
+            
+            echo "Found URLs - DEV: ${DEV_URL:-none}, PROD: ${PROD_URL:-none}, AAB: ${AAB_URL:-none}, ICON: ${ICON_URL:-none}"
           fi
-
-          # Handle null or empty ASSETS
-          if [ "$ASSETS" = "null" ] || [ -z "$ASSETS" ] || [ "$ASSETS" = "[]" ]; then
-            ASSETS="[]"
-          fi
-
-          DEV_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
-          PROD_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
-          AAB_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
-          ICON_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
 
           # Use delimiter to safely set environment variables with URLs
           {
