@@ -2,7 +2,8 @@ name: Update apps.json on release
 
 on:
   release:
-    types: [published]
+    types: [published, released]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,6 +16,13 @@ jobs:
       # ===================== CHECKOUT =====================
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Checkout default branch
+        run: |
+          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@' || echo "main")
+          git checkout $DEFAULT_BRANCH || git checkout main || git checkout master
 
       # ===================== SETUP TOOLS =====================
       - name: Setup jq
@@ -24,18 +32,42 @@ jobs:
       - name: Extract release info
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
-          echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
-          echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+            echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+          else
+            # For workflow_dispatch, get latest release
+            LATEST_RELEASE=$(gh api repos/${{ github.repository }}/releases/latest --jq '{tag_name: .tag_name, name: .name}')
+            echo "TAG=$(echo "$LATEST_RELEASE" | jq -r '.tag_name')" >> $GITHUB_ENV
+            echo "RELEASE_NAME=$(echo "$LATEST_RELEASE" | jq -r '.name')" >> $GITHUB_ENV
+          fi
+
+      # ===================== SETUP GITHUB CLI =====================
+      - name: Setup GitHub CLI
+        run: |
+          type -p curl >/dev/null || (apt-get update && apt-get install curl -y)
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+          && apt-get update \
+          && apt-get install gh -y
 
       # ===================== PARSE RELEASE ASSETS =====================
       - name: Parse release assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ASSETS='${{ toJson(github.event.release.assets) }}'
+          if [ "${{ github.event_name }}" = "release" ]; then
+            ASSETS='${{ toJson(github.event.release.assets) }}'
+          else
+            # For workflow_dispatch, fetch latest release assets
+            ASSETS=$(gh api repos/${{ github.repository }}/releases/latest --jq '.assets')
+          fi
 
-          DEV_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_dev\\.apk$")) | .browser_download_url')
-          PROD_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_prod\\.apk$")) | .browser_download_url')
-          AAB_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("\\.aab$")) | .browser_download_url')
-          ICON_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_icon\\.png$")) | .browser_download_url')
+          DEV_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty')
+          PROD_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty')
+          AAB_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("\\.aab$")) | .browser_download_url // empty')
+          ICON_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty')
 
           echo "DEV_URL=$DEV_URL" >> $GITHUB_ENV
           echo "PROD_URL=$PROD_URL" >> $GITHUB_ENV
@@ -45,9 +77,8 @@ jobs:
       # ===================== PREPARE apps.json =====================
       - name: Ensure apps.json exists
         run: |
-          mkdir -p public
-          if [ ! -f public/apps.json ]; then
-            echo '{ "apps": [] }' > public/apps.json
+          if [ ! -f apps.json ]; then
+            echo '{ "apps": [] }' > apps.json
           fi
 
       # ===================== UPDATE apps.json =====================
@@ -69,10 +100,12 @@ jobs:
                 if any(.[]; .id == $id) then
                   map(
                     if .id == $id then
-                      .dev_url = ($dev // .dev_url)
-                      | .prod_url = ($prod // .prod_url)
-                      | .aab_url = ($aab // .aab_url)
-                      | .icon = ($icon // .icon)
+                      .downloads = {
+                        dev: (if $dev != "" then $dev else .downloads.dev // empty end),
+                        prod: (if $prod != "" then $prod else .downloads.prod // empty end),
+                        aab: (if $aab != "" then $aab else .downloads.aab // empty end)
+                      }
+                      | .icon = (if $icon != "" then $icon else .icon // empty end)
                       | .name = $name
                     else .
                     end
@@ -81,29 +114,34 @@ jobs:
                   . + [{
                     id: $id,
                     name: $name,
-                    icon: $icon,
-                    dev_url: $dev,
-                    prod_url: $prod,
-                    aab_url: $aab
+                    icon: (if $icon != "" then $icon else "" end),
+                    platform: "Android",
+                    description: "",
+                    features: [],
+                    downloads: {
+                      dev: (if $dev != "" then $dev else empty end),
+                      prod: (if $prod != "" then $prod else empty end),
+                      aab: (if $aab != "" then $aab else empty end)
+                    }
                   }]
                 end
               )
-            ' public/apps.json > public/apps.tmp.json
+            ' apps.json > apps.tmp.json
 
-          mv public/apps.tmp.json public/apps.json
+          mv apps.tmp.json apps.json
 
       # ===================== COMMIT & PUSH =====================
       - name: Commit and push changes
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add public/apps.json
+          git add apps.json
 
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
 
-          git commit -m "chore: update apps.json for ${{ github.event.release.tag_name }}"
+          git commit -m "chore: update apps.json for ${TAG:-latest release}"
           git push

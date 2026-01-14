@@ -96,27 +96,27 @@
         const grid = document.getElementById("appGrid")
 
         data.apps.forEach(app => {
-          const features = app.features
+          const features = (app.features || [])
             .map(f => `<span class="feature-tag">${f}</span>`)
             .join("")
 
           const html = `
             <div class="app-card">
-              <span class="platform-badge">${app.platform}</span>
+              <span class="platform-badge">${app.platform || "Android"}</span>
 
               <div class="app-icon">
-                <img src="${app.icon}" alt="${app.name}">
+                <img src="${app.icon || ""}" alt="${app.name || ""}" onerror="this.style.display='none'">
               </div>
 
-              <h2 class="app-title">${app.name}</h2>
-              <p class="app-description">${app.description}</p>
+              <h2 class="app-title">${app.name || ""}</h2>
+              <p class="app-description">${app.description || ""}</p>
 
-              <div class="app-features">${features}</div>
+              ${features ? `<div class="app-features">${features}</div>` : ""}
 
               <div class="button-group">
-                ${app.downloads.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🔧 Dev</a>` : ""}
-                ${app.downloads.prod ? `<a class="install-button live" href="${app.downloads.prod}">🚀 Live</a>` : ""}
-                ${app.downloads.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
+                ${app.downloads?.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🔧 Dev</a>` : ""}
+                ${app.downloads?.prod ? `<a class="install-button live" href="${app.downloads.prod}">🚀 Live</a>` : ""}
+                ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
               </div>
             </div>
           `
