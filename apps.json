@@ -3,7 +3,7 @@
     {
       "id": "photo_ai",
       "name": "Photo Ai",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -15,7 +15,7 @@
     {
       "id": "video_downloader",
       "name": "Video Downloader",
-      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/video_downloader_icon.png",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/video_downloader_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
