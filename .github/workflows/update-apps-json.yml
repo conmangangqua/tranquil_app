@@ -65,15 +65,40 @@ jobs:
             ASSETS=$(gh api repos/${{ github.repository }}/releases/latest --jq '.assets')
           fi
 
-          DEV_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty')
-          PROD_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty')
-          AAB_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("\\.aab$")) | .browser_download_url // empty')
-          ICON_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty')
+          # Handle null or empty ASSETS
+          if [ "$ASSETS" = "null" ] || [ -z "$ASSETS" ] || [ "$ASSETS" = "[]" ]; then
+            ASSETS="[]"
+          fi
 
-          echo "DEV_URL=$DEV_URL" >> $GITHUB_ENV
-          echo "PROD_URL=$PROD_URL" >> $GITHUB_ENV
-          echo "AAB_URL=$AAB_URL" >> $GITHUB_ENV
-          echo "ICON_URL=$ICON_URL" >> $GITHUB_ENV
+          DEV_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
+          PROD_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
+          AAB_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
+          ICON_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
+
+          # Use delimiter to safely set environment variables with URLs
+          {
+            echo "DEV_URL<<EOF"
+            echo "$DEV_URL"
+            echo "EOF"
+          } >> $GITHUB_ENV
+          
+          {
+            echo "PROD_URL<<EOF"
+            echo "$PROD_URL"
+            echo "EOF"
+          } >> $GITHUB_ENV
+          
+          {
+            echo "AAB_URL<<EOF"
+            echo "$AAB_URL"
+            echo "EOF"
+          } >> $GITHUB_ENV
+          
+          {
+            echo "ICON_URL<<EOF"
+            echo "$ICON_URL"
+            echo "EOF"
+          } >> $GITHUB_ENV
 
       # ===================== PREPARE apps.json =====================
       - name: Ensure apps.json exists
