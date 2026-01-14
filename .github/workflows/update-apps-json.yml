@@ -158,7 +158,7 @@ jobs:
             echo "  ICON: ${ICON_URL:-none}"
             
             # Update apps.json for this app
-            jq \
+            if ! jq \
               --arg id "$APP_ID" \
               --arg name "$APP_NAME" \
               --arg dev "$DEV_URL" \
@@ -197,9 +197,23 @@ jobs:
                     }]
                   end
                 )
-              ' apps.json > apps.tmp.json
+              ' apps.json > apps.tmp.json; then
+              echo "ERROR: jq failed for app $APP_ID"
+              echo "Current apps.json:"
+              cat apps.json
+              exit 1
+            fi
+            
+            # Verify the temp file is valid JSON
+            if ! jq empty apps.tmp.json 2>/dev/null; then
+              echo "ERROR: Invalid JSON generated for app $APP_ID"
+              echo "Temp file content:"
+              cat apps.tmp.json
+              exit 1
+            fi
             
             mv apps.tmp.json apps.json
+            echo "  Updated apps.json successfully"
           done
           
           echo "Updated apps.json with all apps"
