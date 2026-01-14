@@ -93,21 +93,20 @@ jobs:
             # Trigger từ workflow_dispatch - tổng hợp từ tất cả releases (dev, prod, aab)
             echo "Fetching assets from all releases (dev, prod, aab)..."
             
-            # Fetch từ release 'dev'
+            # Fetch và save từng release assets vào temp files
             echo "Fetching from 'dev' release..."
-            DEV_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/dev --jq '.assets' 2>/dev/null || echo "[]")
+            gh api repos/${{ github.repository }}/releases/tags/dev --jq '.assets // []' > /tmp/dev_assets.json 2>/dev/null || echo "[]" > /tmp/dev_assets.json
             
-            # Fetch từ release 'prod'
             echo "Fetching from 'prod' release..."
-            PROD_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/prod --jq '.assets' 2>/dev/null || echo "[]")
+            gh api repos/${{ github.repository }}/releases/tags/prod --jq '.assets // []' > /tmp/prod_assets.json 2>/dev/null || echo "[]" > /tmp/prod_assets.json
             
-            # Fetch từ release 'aab'
             echo "Fetching from 'aab' release..."
-            AAB_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/aab --jq '.assets' 2>/dev/null || echo "[]")
+            gh api repos/${{ github.repository }}/releases/tags/aab --jq '.assets // []' > /tmp/aab_assets.json 2>/dev/null || echo "[]" > /tmp/aab_assets.json
             
-            # Combine all assets
-            ALL_ASSETS=$(echo "[$DEV_ASSETS, $PROD_ASSETS, $AAB_ASSETS]" | jq 'flatten | unique_by(.id)')
+            # Combine all assets using jq -s (slurp mode)
+            ALL_ASSETS=$(jq -s 'flatten | unique_by(.id)' /tmp/dev_assets.json /tmp/prod_assets.json /tmp/aab_assets.json)
             echo "$ALL_ASSETS" > /tmp/all_assets.json
+            echo "Combined assets count: $(echo "$ALL_ASSETS" | jq 'length')"
           fi
 
       # ===================== PREPARE apps.json =====================
