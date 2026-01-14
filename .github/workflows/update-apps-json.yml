@@ -25,11 +25,22 @@ jobs:
           git checkout $DEFAULT_BRANCH || git checkout main || git checkout master
 
       # ===================== SETUP TOOLS =====================
-      - name: Setup jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Setup jq and GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+          type -p gh >/dev/null || (
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+            && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+            && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+            && apt-get update \
+            && apt-get install gh -y
+          )
 
       # ===================== EXTRACT RELEASE INFO =====================
       - name: Extract release info
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
           if [ "${{ github.event_name }}" = "release" ]; then
@@ -42,20 +53,10 @@ jobs:
             echo "RELEASE_NAME=$(echo "$LATEST_RELEASE" | jq -r '.name')" >> $GITHUB_ENV
           fi
 
-      # ===================== SETUP GITHUB CLI =====================
-      - name: Setup GitHub CLI
-        run: |
-          type -p curl >/dev/null || (apt-get update && apt-get install curl -y)
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-          && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-          && apt-get update \
-          && apt-get install gh -y
-
       # ===================== PARSE RELEASE ASSETS =====================
       - name: Parse release assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             ASSETS='${{ toJson(github.event.release.assets) }}'
