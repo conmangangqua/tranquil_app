@@ -1,0 +1,109 @@
+name: Update apps.json on release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-apps-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ===================== CHECKOUT =====================
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ===================== SETUP TOOLS =====================
+      - name: Setup jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      # ===================== EXTRACT RELEASE INFO =====================
+      - name: Extract release info
+        run: |
+          echo "REPO=${{ github.repository }}" >> $GITHUB_ENV
+          echo "TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          echo "RELEASE_NAME=${{ github.event.release.name }}" >> $GITHUB_ENV
+
+      # ===================== PARSE RELEASE ASSETS =====================
+      - name: Parse release assets
+        run: |
+          ASSETS='${{ toJson(github.event.release.assets) }}'
+
+          DEV_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_dev\\.apk$")) | .browser_download_url')
+          PROD_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_prod\\.apk$")) | .browser_download_url')
+          AAB_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("\\.aab$")) | .browser_download_url')
+          ICON_URL=$(echo "$ASSETS" | jq -r '.[] | select(.name | test("_icon\\.png$")) | .browser_download_url')
+
+          echo "DEV_URL=$DEV_URL" >> $GITHUB_ENV
+          echo "PROD_URL=$PROD_URL" >> $GITHUB_ENV
+          echo "AAB_URL=$AAB_URL" >> $GITHUB_ENV
+          echo "ICON_URL=$ICON_URL" >> $GITHUB_ENV
+
+      # ===================== PREPARE apps.json =====================
+      - name: Ensure apps.json exists
+        run: |
+          mkdir -p public
+          if [ ! -f public/apps.json ]; then
+            echo '{ "apps": [] }' > public/apps.json
+          fi
+
+      # ===================== UPDATE apps.json =====================
+      - name: Update apps.json
+        run: |
+          APP_ID=$(echo "$REPO" | cut -d'/' -f2)
+          APP_NAME=$(echo "$RELEASE_NAME" | sed 's/Android //g')
+
+          jq \
+            --arg id "$APP_ID" \
+            --arg name "$APP_NAME" \
+            --arg dev "$DEV_URL" \
+            --arg prod "$PROD_URL" \
+            --arg aab "$AAB_URL" \
+            --arg icon "$ICON_URL" \
+            '
+            .apps |=
+              (
+                if any(.[]; .id == $id) then
+                  map(
+                    if .id == $id then
+                      .dev_url = ($dev // .dev_url)
+                      | .prod_url = ($prod // .prod_url)
+                      | .aab_url = ($aab // .aab_url)
+                      | .icon = ($icon // .icon)
+                      | .name = $name
+                    else .
+                    end
+                  )
+                else
+                  . + [{
+                    id: $id,
+                    name: $name,
+                    icon: $icon,
+                    dev_url: $dev,
+                    prod_url: $prod,
+                    aab_url: $aab
+                  }]
+                end
+              )
+            ' public/apps.json > public/apps.tmp.json
+
+          mv public/apps.tmp.json public/apps.json
+
+      # ===================== COMMIT & PUSH =====================
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add public/apps.json
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update apps.json for ${{ github.event.release.tag_name }}"
+          git push
