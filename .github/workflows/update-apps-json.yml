@@ -88,10 +88,7 @@ jobs:
             # Trigger từ release event - dùng data từ event
             echo "Using release event assets"
             ASSETS='${{ toJson(github.event.release.assets) }}'
-            DEV_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
-            PROD_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
-            AAB_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
-            ICON_URL=$(echo "$ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
+            echo "$ASSETS" > /tmp/all_assets.json
           else
             # Trigger từ workflow_dispatch - tổng hợp từ tất cả releases (dev, prod, aab)
             echo "Fetching assets from all releases (dev, prod, aab)..."
@@ -99,53 +96,19 @@ jobs:
             # Fetch từ release 'dev'
             echo "Fetching from 'dev' release..."
             DEV_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/dev --jq '.assets' 2>/dev/null || echo "[]")
-            DEV_URL=$(echo "$DEV_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_dev\\.apk$")) | .browser_download_url // empty else empty end')
-            DEV_ICON=$(echo "$DEV_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
             
             # Fetch từ release 'prod'
             echo "Fetching from 'prod' release..."
             PROD_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/prod --jq '.assets' 2>/dev/null || echo "[]")
-            PROD_URL=$(echo "$PROD_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_prod\\.apk$")) | .browser_download_url // empty else empty end')
-            PROD_ICON=$(echo "$PROD_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("_icon\\.png$")) | .browser_download_url // empty else empty end')
             
             # Fetch từ release 'aab'
             echo "Fetching from 'aab' release..."
             AAB_ASSETS=$(gh api repos/${{ github.repository }}/releases/tags/aab --jq '.assets' 2>/dev/null || echo "[]")
-            AAB_URL=$(echo "$AAB_ASSETS" | jq -r 'if type == "array" then .[] | select(.name | test("\\.aab$")) | .browser_download_url // empty else empty end')
             
-            # Ưu tiên icon từ prod, nếu không có thì lấy từ dev
-            ICON_URL="$PROD_ICON"
-            if [ -z "$ICON_URL" ] || [ "$ICON_URL" = "" ]; then
-              ICON_URL="$DEV_ICON"
-            fi
-            
-            echo "Found URLs - DEV: ${DEV_URL:-none}, PROD: ${PROD_URL:-none}, AAB: ${AAB_URL:-none}, ICON: ${ICON_URL:-none}"
+            # Combine all assets
+            ALL_ASSETS=$(echo "[$DEV_ASSETS, $PROD_ASSETS, $AAB_ASSETS]" | jq 'flatten | unique_by(.id)')
+            echo "$ALL_ASSETS" > /tmp/all_assets.json
           fi
-
-          # Use delimiter to safely set environment variables with URLs
-          {
-            echo "DEV_URL<<EOF"
-            echo "$DEV_URL"
-            echo "EOF"
-          } >> $GITHUB_ENV
-          
-          {
-            echo "PROD_URL<<EOF"
-            echo "$PROD_URL"
-            echo "EOF"
-          } >> $GITHUB_ENV
-          
-          {
-            echo "AAB_URL<<EOF"
-            echo "$AAB_URL"
-            echo "EOF"
-          } >> $GITHUB_ENV
-          
-          {
-            echo "ICON_URL<<EOF"
-            echo "$ICON_URL"
-            echo "EOF"
-          } >> $GITHUB_ENV
 
       # ===================== PREPARE apps.json =====================
       - name: Ensure apps.json exists
@@ -157,51 +120,90 @@ jobs:
       # ===================== UPDATE apps.json =====================
       - name: Update apps.json
         run: |
-          APP_ID=$(echo "$REPO" | cut -d'/' -f2)
-          APP_NAME=$(echo "$RELEASE_NAME" | sed 's/Android //g')
-
-          jq \
-            --arg id "$APP_ID" \
-            --arg name "$APP_NAME" \
-            --arg dev "$DEV_URL" \
-            --arg prod "$PROD_URL" \
-            --arg aab "$AAB_URL" \
-            --arg icon "$ICON_URL" \
-            '
-            .apps |=
-              (
-                if any(.[]; .id == $id) then
-                  map(
-                    if .id == $id then
-                      .downloads = {
-                        dev: (if $dev != "" then $dev else .downloads.dev // empty end),
-                        prod: (if $prod != "" then $prod else .downloads.prod // empty end),
-                        aab: (if $aab != "" then $aab else .downloads.aab // empty end)
+          # Read all assets
+          ALL_ASSETS=$(cat /tmp/all_assets.json)
+          
+          # Extract all app IDs from file names (_dev.apk, _prod.apk, .aab, _icon.png)
+          APP_IDS=$(echo "$ALL_ASSETS" | jq -r '.[] | .name | 
+            if test("_dev\\.apk$") then 
+              gsub("_dev\\.apk$"; "") 
+            elif test("_prod\\.apk$") then 
+              gsub("_prod\\.apk$"; "") 
+            elif test("\\.aab$") then 
+              gsub("\\.aab$"; "") 
+            elif test("_icon\\.png$") then 
+              gsub("_icon\\.png$"; "") 
+            else 
+              empty 
+            end' | sort -u)
+          
+          echo "Found app IDs:"
+          echo "$APP_IDS"
+          
+          # Process each app
+          for APP_ID in $APP_IDS; do
+            echo "Processing app: $APP_ID"
+            
+            # Find URLs for this app
+            DEV_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_dev\\.apk$\")) | .browser_download_url // empty" | head -n 1)
+            PROD_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_prod\\.apk$\")) | .browser_download_url // empty" | head -n 1)
+            AAB_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}\\.aab$\")) | .browser_download_url // empty" | head -n 1)
+            ICON_URL=$(echo "$ALL_ASSETS" | jq -r ".[] | select(.name | test(\"^${APP_ID}_icon\\.png$\")) | .browser_download_url // empty" | head -n 1)
+            
+            # Format app name from app_id (video_downloader -> Video Downloader, photo_ai -> Photo AI)
+            APP_NAME=$(echo "$APP_ID" | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
+            
+            echo "  DEV: ${DEV_URL:-none}"
+            echo "  PROD: ${PROD_URL:-none}"
+            echo "  AAB: ${AAB_URL:-none}"
+            echo "  ICON: ${ICON_URL:-none}"
+            
+            # Update apps.json for this app
+            jq \
+              --arg id "$APP_ID" \
+              --arg name "$APP_NAME" \
+              --arg dev "$DEV_URL" \
+              --arg prod "$PROD_URL" \
+              --arg aab "$AAB_URL" \
+              --arg icon "$ICON_URL" \
+              '
+              .apps |=
+                (
+                  if any(.[]; .id == $id) then
+                    map(
+                      if .id == $id then
+                        .downloads = {
+                          dev: (if $dev != "" then $dev else (.downloads.dev // empty) end),
+                          prod: (if $prod != "" then $prod else (.downloads.prod // empty) end),
+                          aab: (if $aab != "" then $aab else (.downloads.aab // empty) end)
+                        }
+                        | .icon = (if $icon != "" then $icon else (.icon // empty) end)
+                        | .name = (if .name != "" then .name else $name end)
+                      else .
+                      end
+                    )
+                  else
+                    . + [{
+                      id: $id,
+                      name: $name,
+                      icon: (if $icon != "" then $icon else "" end),
+                      platform: "Android",
+                      description: "",
+                      features: [],
+                      downloads: {
+                        dev: (if $dev != "" then $dev else empty end),
+                        prod: (if $prod != "" then $prod else empty end),
+                        aab: (if $aab != "" then $aab else empty end)
                       }
-                      | .icon = (if $icon != "" then $icon else .icon // empty end)
-                      | .name = $name
-                    else .
-                    end
-                  )
-                else
-                  . + [{
-                    id: $id,
-                    name: $name,
-                    icon: (if $icon != "" then $icon else "" end),
-                    platform: "Android",
-                    description: "",
-                    features: [],
-                    downloads: {
-                      dev: (if $dev != "" then $dev else empty end),
-                      prod: (if $prod != "" then $prod else empty end),
-                      aab: (if $aab != "" then $aab else empty end)
-                    }
-                  }]
-                end
-              )
-            ' apps.json > apps.tmp.json
-
-          mv apps.tmp.json apps.json
+                    }]
+                  end
+                )
+              ' apps.json > apps.tmp.json
+            
+            mv apps.tmp.json apps.json
+          done
+          
+          echo "Updated apps.json with all apps"
 
       # ===================== COMMIT & PUSH =====================
       - name: Commit and push changes
