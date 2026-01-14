@@ -112,73 +112,92 @@ jobs:
       # ===================== BUILD apps.json =====================
       - name: Build apps.json from scratch
         run: |
+          python3 << 'PYTHON_SCRIPT'
+          import json
+          import sys
+          
           # Read all assets
-          ALL_ASSETS=$(cat /tmp/all_assets.json)
+          with open('/tmp/all_assets.json', 'r') as f:
+              all_assets = json.load(f)
           
-          # Extract all app IDs from file names (_dev.apk, _prod.apk, .aab, _icon.png)
-          APP_IDS=$(echo "$ALL_ASSETS" | jq -r '.[] | .name | 
-            if test("_dev\\.apk$") then 
-              gsub("_dev\\.apk$"; "") 
-            elif test("_prod\\.apk$") then 
-              gsub("_prod\\.apk$"; "") 
-            elif test("\\.aab$") then 
-              gsub("\\.aab$"; "") 
-            elif test("_icon\\.png$") then 
-              gsub("_icon\\.png$"; "") 
-            else 
-              empty 
-            end' | sort -u)
+          # Extract all app IDs from file names
+          app_ids = set()
+          for asset in all_assets:
+              name = asset.get('name', '')
+              if name.endswith('_dev.apk'):
+                  app_ids.add(name.replace('_dev.apk', ''))
+              elif name.endswith('_prod.apk'):
+                  app_ids.add(name.replace('_prod.apk', ''))
+              elif name.endswith('.aab'):
+                  app_ids.add(name.replace('.aab', ''))
+              elif name.endswith('_icon.png'):
+                  app_ids.add(name.replace('_icon.png', ''))
           
-          echo "Found app IDs:"
-          echo "$APP_IDS"
+          app_ids = sorted(list(app_ids))
+          print(f"Found app IDs: {', '.join(app_ids)}")
           
-          # Start with empty apps.json
-          echo '{"apps":[]}' > apps.json
+          # Build apps array
+          apps = []
+          for app_id in app_ids:
+              # Find URLs for this app
+              dev_url = ""
+              prod_url = ""
+              aab_url = ""
+              icon_url = ""
+              
+              for asset in all_assets:
+                  name = asset.get('name', '')
+                  url = asset.get('browser_download_url', '')
+                  
+                  if name == f"{app_id}_dev.apk":
+                      dev_url = url
+                  elif name == f"{app_id}_prod.apk":
+                      prod_url = url
+                  elif name == f"{app_id}.aab":
+                      aab_url = url
+                  elif name == f"{app_id}_icon.png":
+                      icon_url = url
+              
+              # Format app name (video_downloader -> Video Downloader)
+              app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
+              
+              print(f"Processing app: {app_id}")
+              print(f"  DEV: {dev_url or 'none'}")
+              print(f"  PROD: {prod_url or 'none'}")
+              print(f"  AAB: {aab_url or 'none'}")
+              print(f"  ICON: {icon_url or 'none'}")
+              
+              # Build downloads dict (only include non-empty values)
+              downloads = {}
+              if dev_url:
+                  downloads['dev'] = dev_url
+              if prod_url:
+                  downloads['prod'] = prod_url
+              if aab_url:
+                  downloads['aab'] = aab_url
+              
+              app = {
+                  'id': app_id,
+                  'name': app_name,
+                  'icon': icon_url,
+                  'platform': 'Android',
+                  'description': '',
+                  'features': [],
+                  'downloads': downloads
+              }
+              apps.append(app)
           
-          # Process each app and add to apps.json
-          for APP_ID in $APP_IDS; do
-            echo "Processing app: $APP_ID"
-            
-            # Find URLs for this app
-            DEV_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_dev.apk")) | .browser_download_url // empty' | head -n 1)
-            PROD_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_prod.apk")) | .browser_download_url // empty' | head -n 1)
-            AAB_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + ".aab")) | .browser_download_url // empty' | head -n 1)
-            ICON_URL=$(echo "$ALL_ASSETS" | jq -r --arg app_id "$APP_ID" '.[] | select(.name == ($app_id + "_icon.png")) | .browser_download_url // empty' | head -n 1)
-            
-            # Format app name from app_id (video_downloader -> Video Downloader, photo_ai -> Photo Ai)
-            APP_NAME=$(echo "$APP_ID" | sed 's/_/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
-            
-            echo "  DEV: ${DEV_URL:-none}"
-            echo "  PROD: ${PROD_URL:-none}"
-            echo "  AAB: ${AAB_URL:-none}"
-            echo "  ICON: ${ICON_URL:-none}"
-            
-            # Add app to apps.json using jq
-            jq \
-              --arg id "$APP_ID" \
-              --arg name "$APP_NAME" \
-              --arg dev "$DEV_URL" \
-              --arg prod "$PROD_URL" \
-              --arg aab "$AAB_URL" \
-              --arg icon "$ICON_URL" \
-              '.apps += [{
-                id: $id,
-                name: $name,
-                icon: (if $icon != "" then $icon else "" end),
-                platform: "Android",
-                description: "",
-                features: [],
-                downloads: {
-                  dev: (if $dev != "" then $dev else empty end),
-                  prod: (if $prod != "" then $prod else empty end),
-                  aab: (if $aab != "" then $aab else empty end)
-                }
-              }]' apps.json > apps.tmp.json && mv apps.tmp.json apps.json
-          done
+          # Create final JSON
+          result = {'apps': apps}
           
-          echo "Created new apps.json"
-          echo "apps.json content:"
-          cat apps.json | jq '.'
+          # Write to file
+          with open('apps.json', 'w') as f:
+              json.dump(result, f, indent=2)
+          
+          print(f"\nCreated new apps.json with {len(apps)} apps")
+          print("apps.json content:")
+          print(json.dumps(result, indent=2))
+          PYTHON_SCRIPT
 
       # ===================== COMMIT & PUSH =====================
       - name: Commit and push changes
