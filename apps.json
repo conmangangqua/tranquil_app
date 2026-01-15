@@ -1,6 +1,17 @@
 {
   "apps": [
     {
+      "id": "8bit-games",
+      "name": "8bit-games",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/8bit-games_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/8bit-games_dev.apk"
+      }
+    },
+    {
       "id": "photo_ai",
       "name": "Photo Ai",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/photo_ai_icon.png",
