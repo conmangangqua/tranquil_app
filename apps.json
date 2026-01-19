@@ -13,6 +13,17 @@
       }
     },
     {
+      "id": "puller_file_downloader",
+      "name": "Puller File Downloader",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/puller_file_downloader_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/puller_file_downloader_dev.apk"
+      }
+    },
+    {
       "id": "video_downloader",
       "name": "Video Downloader",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/video_downloader_icon.png",
