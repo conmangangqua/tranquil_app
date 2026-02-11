@@ -9,7 +9,8 @@
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/fluxvpn_dev.apk",
-        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/fluxvpn_prod.apk"
+        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/fluxvpn_prod.apk",
+        "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/fluxvpn.aab"
       }
     },
     {
