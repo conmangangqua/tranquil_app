@@ -25,6 +25,17 @@
         "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/puller_file_downloader_prod.apk",
         "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/puller_file_downloader.aab"
       }
+    },
+    {
+      "id": "turbovid",
+      "name": "Turbovid",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/turbovid_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/turbovid_dev.apk"
+      }
     }
   ]
 }
