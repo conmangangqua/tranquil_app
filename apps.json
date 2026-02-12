@@ -29,12 +29,13 @@
     {
       "id": "quickvid",
       "name": "Quickvid",
-      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_icon.png",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/quickvid_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_dev.apk"
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_dev.apk",
+        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/quickvid_prod.apk"
       }
     },
     {
