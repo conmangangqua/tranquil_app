@@ -27,6 +27,17 @@
       }
     },
     {
+      "id": "quickvid",
+      "name": "Quickvid",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_dev.apk"
+      }
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/turbovid_icon.png",
