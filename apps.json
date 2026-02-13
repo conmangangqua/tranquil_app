@@ -1,17 +1,6 @@
 {
   "apps": [
     {
-      "id": "beat_maker_pro",
-      "name": "Beat Maker Pro",
-      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/beat_maker_pro_icon.png",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/beat_maker_pro_dev.apk"
-      }
-    },
-    {
       "id": "fluxvpn",
       "name": "Fluxvpn",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/fluxvpn_icon.png",
