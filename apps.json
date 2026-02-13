@@ -35,7 +35,8 @@
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/quickvid_dev.apk",
-        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/quickvid_prod.apk"
+        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/quickvid_prod.apk",
+        "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/quickvid.aab"
       }
     },
     {
