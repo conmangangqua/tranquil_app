@@ -3,13 +3,12 @@
     {
       "id": "beat_maker_pro",
       "name": "Beat Maker Pro",
-      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/beat_maker_pro_icon.png",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/beat_maker_pro_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/beat_maker_pro_dev.apk",
-        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/beat_maker_pro_prod.apk"
+        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/beat_maker_pro_dev.apk"
       }
     },
     {
