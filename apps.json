@@ -3,13 +3,11 @@
     {
       "id": "fluxvpn",
       "name": "Fluxvpn",
-      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/fluxvpn_icon.png",
+      "icon": "",
       "platform": "Android",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/android_app/releases/download/dev/fluxvpn_dev.apk",
-        "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/fluxvpn_prod.apk",
         "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/fluxvpn.aab"
       }
     },
