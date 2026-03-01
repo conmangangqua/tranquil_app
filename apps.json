@@ -1,17 +1,6 @@
 {
   "apps": [
     {
-      "id": "fluxvpn",
-      "name": "Fluxvpn",
-      "icon": "",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/fluxvpn.aab"
-      }
-    },
-    {
       "id": "puller_file_downloader",
       "name": "Puller File Downloader",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/puller_file_downloader_icon.png",
