@@ -12,6 +12,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   update-apps-json:
@@ -225,3 +226,11 @@ jobs:
 
           git commit -m "chore: update apps.json for ${TAG:-latest release}"
           git push
+
+      # ===================== TRIGGER DEPLOY =====================
+      - name: Trigger deploy workflow
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh workflow run deploy-pages.yml --repo ${{ github.repository }}
+  
