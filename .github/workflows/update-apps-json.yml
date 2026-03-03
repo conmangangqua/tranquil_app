@@ -224,13 +224,21 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore: update apps.json for ${TAG:-latest release}"
-          git push
+          # 1. Commit first to make the tree clean
+          git commit -m "chore: update apps.json for ${TAG:-latest release}" || echo "Nothing to commit"
 
-      # ===================== TRIGGER DEPLOY =====================
-      - name: Trigger deploy workflow
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          gh workflow run deploy-pages.yml --repo ${{ github.repository }}
-  
+          # 2. Detect branch for pull/push
+          TARGET_BRANCH=${CURRENT_BRANCH:-main}
+          if [ "$TARGET_BRANCH" = "HEAD" ] || [ -z "$TARGET_BRANCH" ]; then
+            TARGET_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5 || echo "main")
+          fi
+          echo "Target branch for sync: $TARGET_BRANCH"
+
+          # 3. Pull with rebase and autostash to avoid conflicts
+          git pull --rebase --autostash origin $TARGET_BRANCH
+
+          # 4. Push to the target branch
+          git push origin HEAD:$TARGET_BRANCH
+
+          # Trigger deploy workflow manually since GITHUB_TOKEN doesn't trigger other workflows
+          GH_TOKEN=${{ secrets.PAT_TOKEN }} gh workflow run deploy-pages.yml --repo ${{ github.repository }}
