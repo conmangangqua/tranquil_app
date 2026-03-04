@@ -16,7 +16,7 @@
     {
       "id": "puller_file_downloader_dev",
       "name": "Puller File Downloader Dev",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/puller_file_downloader_dev_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
