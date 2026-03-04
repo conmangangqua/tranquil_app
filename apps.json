@@ -25,6 +25,15 @@
       }
     },
     {
+      "id": "puller_file_downloader_prod",
+      "name": "Puller File Downloader Prod",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/puller_file_downloader_prod_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {}
+    },
+    {
       "id": "quickvid",
       "name": "Quickvid",
       "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/quickvid_icon.png",
