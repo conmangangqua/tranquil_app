@@ -60,6 +60,15 @@
         "prod": "https://github.com/conmangangqua/android_app/releases/download/prod/turbovid_prod.apk",
         "aab": "https://github.com/conmangangqua/android_app/releases/download/aab/turbovid.aab"
       }
+    },
+    {
+      "id": "turbovid_dev",
+      "name": "Turbovid Dev",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/dev/turbovid_dev_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {}
     }
   ]
 }
