@@ -69,6 +69,15 @@
       "description": "",
       "features": [],
       "downloads": {}
+    },
+    {
+      "id": "turbovid_prod",
+      "name": "Turbovid Prod",
+      "icon": "https://github.com/conmangangqua/android_app/releases/download/prod/turbovid_prod_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {}
     }
   ]
 }
