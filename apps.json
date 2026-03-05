@@ -1,6 +1,17 @@
 {
   "apps": [
     {
+      "id": "puller",
+      "name": "Puller",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/puller_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/puller_dev.apk"
+      }
+    },
+    {
       "id": "puller_file_downloader",
       "name": "Puller File Downloader",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/puller_file_downloader_icon.png",
