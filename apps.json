@@ -29,7 +29,7 @@
     {
       "id": "turbovid",
       "name": "Turbovid",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
