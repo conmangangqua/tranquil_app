@@ -16,7 +16,7 @@
     {
       "id": "quickvid",
       "name": "Quickvid",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/quickvid_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/quickvid_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
