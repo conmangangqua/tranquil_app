@@ -9,6 +9,7 @@
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/puller_file_downloader_dev.apk",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/puller_file_downloader_prod.apk",
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/puller_file_downloader.aab"
       }
     },
