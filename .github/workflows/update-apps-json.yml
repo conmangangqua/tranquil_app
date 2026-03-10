@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   update-apps-json:
@@ -27,8 +26,10 @@ jobs:
       
       - name: Checkout default branch
         run: |
-          DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@' || echo "main")
-          git checkout $DEFAULT_BRANCH || git checkout main || git checkout master
+          # Try to get default branch from remote, fallback to current or main
+          DEFAULT_BRANCH=$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5 || echo "main")
+          echo "Default branch detected as: $DEFAULT_BRANCH"
+          git checkout $DEFAULT_BRANCH || git checkout -b $DEFAULT_BRANCH || echo "Already on branch or failed checkout"
 
       # ===================== SETUP TOOLS =====================
       - name: Setup jq and GitHub CLI
@@ -67,7 +68,7 @@ jobs:
               RELEASE_DATA=$(gh api repos/${{ github.repository }}/releases/tags/$RELEASE_TAG --jq '{tag_name: .tag_name, name: .name}')
             else
               echo "Fetching latest release via API"
-              RELEASE_DATA=$(gh api repos/${{ github.repository }}/releases/latest --jq '{tag_name: .tag_name, name: .name}' 2>/dev/null || echo '{"tag_name": "", "name": ""}')
+              RELEASE_DATA=$(gh api repos/${{ github.repository }}/releases/latest --jq '{tag_name: .tag_name, name: .name}')
             fi
             
             echo "Release data: $RELEASE_DATA"
@@ -125,14 +126,23 @@ jobs:
           app_ids = set()
           for asset in all_assets:
               name = asset.get('name', '')
+              if not name: continue
+              
+              base_id = ""
               if name.endswith('_dev.apk'):
-                  app_ids.add(name.replace('_dev.apk', ''))
+                  base_id = name.replace('_dev.apk', '')
               elif name.endswith('_prod.apk'):
-                  app_ids.add(name.replace('_prod.apk', ''))
+                  base_id = name.replace('_prod.apk', '')
               elif name.endswith('.aab'):
-                  app_ids.add(name.replace('.aab', ''))
+                  base_id = name.replace('.aab', '')
               elif name.endswith('_icon.png'):
-                  app_ids.add(name.replace('_icon.png', ''))
+                  base_id = name.replace('_icon.png', '')
+              
+              if base_id:
+                  # Clean up double _dev suffixes or similar if they exist
+                  if base_id.endswith('_dev'):
+                      base_id = base_id[:-4]
+                  app_ids.add(base_id)
           
           app_ids = sorted(list(app_ids))
           print(f"Found app IDs: {', '.join(app_ids)}")
@@ -234,11 +244,11 @@ jobs:
           fi
           echo "Target branch for sync: $TARGET_BRANCH"
 
-          # 3. Pull with rebase and autostash to avoid conflicts
-          git pull --rebase --autostash origin $TARGET_BRANCH
+          # 3. Pull with rebase and autostash to avoid conflicts, if conflicts occur, assume ours (since we generated from scratch)
+          git pull --rebase --autostash origin $TARGET_BRANCH || (git rebase --skip && git checkout HEAD -- apps.json && git commit --amend --no-edit)
 
           # 4. Push to the target branch
-          git push origin HEAD:$TARGET_BRANCH
+          git push origin HEAD:$TARGET_BRANCH --force-with-lease || git push origin HEAD:$TARGET_BRANCH
 
-          # Trigger deploy workflow manually since GITHUB_TOKEN doesn't trigger other workflows
+          # Trigger deploy workflow manually using PAT_TOKEN to propagate workflow runs
           GH_TOKEN=${{ secrets.PAT_TOKEN }} gh workflow run deploy-pages.yml --repo ${{ github.repository }}
