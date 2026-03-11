@@ -38,18 +38,6 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_prod.apk",
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
       }
-    },
-    {
-      "id": "voicepal",
-      "name": "Voicepal",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_icon.png",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
-      }
     }
   ]
 }
