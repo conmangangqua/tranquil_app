@@ -198,13 +198,20 @@ jobs:
               if has_android and has_ios: platform = "Android / iOS"
               elif has_ios: platform = "iOS"
               
-              # Build downloads dict
-              downloads = {}
-              if dev_url: downloads['dev'] = dev_url
-              if prod_url: downloads['prod'] = prod_url
-              if aab_url: downloads['aab'] = aab_url
-              if ios_dev: downloads['ios_dev'] = ios_dev
-              if ios_prod: downloads['ios_prod'] = ios_prod
+              # Build downloads dict per platform (Platinum Nested)
+              downloads = {
+                  "android": {},
+                  "ios": {}
+              }
+              if dev_url: downloads["android"]["dev"] = dev_url
+              if prod_url: downloads["android"]["prod"] = prod_url
+              if aab_url: downloads["android"]["aab"] = aab_url
+              if ios_dev: downloads["ios"]["dev"] = ios_dev
+              if ios_prod: downloads["ios"]["prod"] = ios_prod
+              
+              # Clean up empty platforms
+              if not downloads["android"]: del downloads["android"]
+              if not downloads["ios"]: del downloads["ios"]
               
               app = {
                   'id': app_id,
