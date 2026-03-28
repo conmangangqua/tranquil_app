@@ -323,11 +323,11 @@
               <p class="app-description">${app.description || ""}</p>
               ${features ? `<div class="app-features">${features}</div>` : ""}
               <div class="button-group">
-                ${app.downloads?.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🤖 Dev</a>` : ""}
-                ${app.downloads?.prod ? `<a class="install-button live" href="${app.downloads.prod}">🤖 Live</a>` : ""}
-                ${app.downloads?.ios_dev ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios_dev}">🍎 iOS Dev</a>` : ""}
-                ${app.downloads?.ios_prod ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios_prod}">🍎 iOS Live</a>` : ""}
-                ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
+                ${app.downloads?.android?.dev ? `<a class="install-button dev" href="${app.downloads.android.dev}">🤖 Dev</a>` : ""}
+                ${app.downloads?.android?.prod ? `<a class="install-button live" href="${app.downloads.android.prod}">🤖 Live</a>` : ""}
+                ${app.downloads?.android?.aab ? `<a class="install-button aab" href="${app.downloads.android.aab}">📦 Android AAB</a>` : ""}
+                ${app.downloads?.ios?.dev ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios.dev}">🍎 iOS Dev</a>` : ""}
+                ${app.downloads?.ios?.prod ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios.prod}">🍎 iOS Live</a>` : ""}
               </div>
             </div>
           `;
