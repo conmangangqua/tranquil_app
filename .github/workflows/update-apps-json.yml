@@ -198,21 +198,16 @@ jobs:
               if has_android and has_ios: platform = "Android / iOS"
               elif has_ios: platform = "iOS"
               
-              # Build downloads dict per platform (Platinum Nested)
-              downloads = {
-                  "android": {},
-                  "ios": {}
-              }
-              if dev_url: downloads["android"]["dev"] = dev_url
-              if prod_url: downloads["android"]["prod"] = prod_url
-              if aab_url: downloads["android"]["aab"] = aab_url
-              if ios_dev: downloads["ios"]["dev"] = ios_dev
-              if ios_prod: downloads["ios"]["prod"] = ios_prod
+              # Build downloads dict (Platinum Uniform Flat)
+              downloads = {}
+              # Priority logic: iOS plist takes dev/prod if it exists, else Android apk
+              if dev_url: downloads['dev'] = dev_url
+              if prod_url: downloads['prod'] = prod_url
+              if aab_url: downloads['aab'] = aab_url
               
-              # Clean up empty platforms
-              if not downloads["android"]: del downloads["android"]
-              if not downloads["ios"]: del downloads["ios"]
-              
+              # Override with iOS Manifest if present (for uniformity)
+              if ios_dev: downloads['dev'] = ios_dev
+              if ios_prod: downloads['prod'] = ios_prod
               app = {
                   'id': app_id,
                   'name': app_name,
