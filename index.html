@@ -224,8 +224,13 @@
       box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
     }
 
-    .install-button.aab:hover {
-      box-shadow: 0 12px 25px rgba(255, 107, 53, 0.4);
+    .install-button.ios {
+      background: linear-gradient(135deg, #000000, #434343);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .install-button.ios:hover {
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
     }
 
     .button-group {
@@ -318,8 +323,10 @@
               <p class="app-description">${app.description || ""}</p>
               ${features ? `<div class="app-features">${features}</div>` : ""}
               <div class="button-group">
-                ${app.downloads?.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🔧 Dev</a>` : ""}
-                ${app.downloads?.prod ? `<a class="install-button live" href="${app.downloads.prod}">🚀 Live</a>` : ""}
+                ${app.downloads?.dev ? `<a class="install-button dev" href="${app.downloads.dev}">🤖 Dev</a>` : ""}
+                ${app.downloads?.prod ? `<a class="install-button live" href="${app.downloads.prod}">🤖 Live</a>` : ""}
+                ${app.downloads?.ios_dev ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios_dev}">🍎 iOS Dev</a>` : ""}
+                ${app.downloads?.ios_prod ? `<a class="install-button ios" href="itms-services://?action=download-manifest&url=${app.downloads.ios_prod}">🍎 iOS Live</a>` : ""}
                 ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
               </div>
             </div>

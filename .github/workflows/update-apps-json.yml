@@ -131,19 +131,26 @@ jobs:
               if not name: continue
               
               base_id = ""
-              if name.endswith('_dev.apk'):
-                  base_id = name.replace('_dev.apk', '')
-              elif name.endswith('_prod.apk'):
-                  base_id = name.replace('_prod.apk', '')
+              if name.endswith('_dev.apk') or name.endswith('_prod.apk'):
+                  base_id = name.replace('_dev.apk', '').replace('_prod.apk', '')
               elif name.endswith('.aab'):
                   base_id = name.replace('.aab', '')
+              elif name.endswith('_dev.ipa') or name.endswith('_prod.ipa'):
+                  base_id = name.replace('_dev.ipa', '').replace('_prod.ipa', '')
+              elif name.endswith('Dev.plist') or name.endswith('Prod.plist'):
+                  # Handle AppDev.plist or app_dev.plist
+                  base_id = name.lower().replace('dev.plist', '').replace('prod.plist', '')
               elif name.endswith('_icon.png'):
                   base_id = name.replace('_icon.png', '')
               
               if base_id:
-                  # Clean up double _dev suffixes or similar if they exist
-                  if base_id.endswith('_dev'):
-                      base_id = base_id[:-4]
+                  # Special handling for generic names like 'app' in AppDev.plist
+                  if base_id == "app":
+                      # Try to find a better ID from other assets or skip generic
+                      continue
+                  # Clean up double _dev suffixes
+                  if base_id.endswith('_dev'): base_id = base_id[:-4]
+                  if base_id.endswith('_prod'): base_id = base_id[:-5]
                   app_ids.add(base_id)
           
           app_ids = sorted(list(app_ids))
@@ -157,43 +164,53 @@ jobs:
               prod_url = ""
               aab_url = ""
               icon_url = ""
+              ios_dev = ""
+              ios_prod = ""
               
               for asset in all_assets:
                   name = asset.get('name', '')
                   url = asset.get('browser_download_url', '')
+                  low_name = name.lower()
                   
-                  if name == f"{app_id}_dev.apk":
-                      dev_url = url
-                  elif name == f"{app_id}_prod.apk":
-                      prod_url = url
-                  elif name == f"{app_id}.aab":
-                      aab_url = url
-                  elif name == f"{app_id}_icon.png":
-                      icon_url = url
+                  if name == f"{app_id}_dev.apk": dev_url = url
+                  elif name == f"{app_id}_prod.apk": prod_url = url
+                  elif name == f"{app_id}.aab": aab_url = url
+                  elif name == f"{app_id}_icon.png": icon_url = url
+                  # iOS handling
+                  elif low_name == f"{app_id}_dev.ipa": pass # we use plist for download
+                  elif low_name == f"{app_id}dev.plist" or low_name == "appdev.plist":
+                      # If multiple apps exist, we might need better matching, 
+                      # but for now blissland uses AppDev.plist
+                      if app_id == "blissland" or app_id not in ["turbovid", "voicepal"]:
+                          ios_dev = url
+                  elif low_name == f"{app_id}prod.plist" or low_name == "appprod.plist":
+                      if app_id == "blissland" or app_id not in ["turbovid", "voicepal"]:
+                          ios_prod = url
               
-              # Format app name (video_downloader -> Video Downloader)
+              # Format app name
               app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
               
-              print(f"Processing app: {app_id}")
-              print(f"  DEV: {dev_url or 'none'}")
-              print(f"  PROD: {prod_url or 'none'}")
-              print(f"  AAB: {aab_url or 'none'}")
-              print(f"  ICON: {icon_url or 'none'}")
+              # Determine Platform
+              has_android = any([dev_url, prod_url, aab_url])
+              has_ios = any([ios_dev, ios_prod])
               
-              # Build downloads dict (only include non-empty values)
+              platform = "Android"
+              if has_android and has_ios: platform = "Android / iOS"
+              elif has_ios: platform = "iOS"
+              
+              # Build downloads dict
               downloads = {}
-              if dev_url:
-                  downloads['dev'] = dev_url
-              if prod_url:
-                  downloads['prod'] = prod_url
-              if aab_url:
-                  downloads['aab'] = aab_url
+              if dev_url: downloads['dev'] = dev_url
+              if prod_url: downloads['prod'] = prod_url
+              if aab_url: downloads['aab'] = aab_url
+              if ios_dev: downloads['ios_dev'] = ios_dev
+              if ios_prod: downloads['ios_prod'] = ios_prod
               
               app = {
                   'id': app_id,
                   'name': app_name,
                   'icon': icon_url,
-                  'platform': 'Android',
+                  'platform': platform,
                   'description': '',
                   'features': [],
                   'downloads': downloads
@@ -208,8 +225,6 @@ jobs:
               json.dump(result, f, indent=2)
           
           print(f"\nCreated new apps.json with {len(apps)} apps")
-          print("apps.json content:")
-          print(json.dumps(result, indent=2))
           PYTHON_SCRIPT
 
       # ===================== COMMIT & PUSH =====================
