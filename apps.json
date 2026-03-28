@@ -1,6 +1,15 @@
 {
   "apps": [
     {
+      "id": "blissland",
+      "name": "Blissland",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {}
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
