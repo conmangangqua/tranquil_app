@@ -4,10 +4,13 @@
       "id": "blissland",
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
-      "platform": "Android",
+      "platform": "iOS",
       "description": "",
       "features": [],
-      "downloads": {}
+      "downloads": {
+        "ios_dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/AppDev.plist",
+        "ios_prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/AppProd.plist"
+      }
     },
     {
       "id": "turbovid",
