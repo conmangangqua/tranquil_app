@@ -28,10 +28,7 @@
       font-size: 32px;
       font-weight: 700;
       margin-bottom: 10px;
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: #fff;
     }
 
     .header p {
@@ -189,17 +186,6 @@
       min-width: 80px;
     }
 
-    .note {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-    }
-
     @media (max-width: 768px) {
       .container { grid-template-columns: 1fr; }
       .button-group { flex-direction: column; }
@@ -221,10 +207,10 @@
         const container = document.getElementById("appContainer");
         data.apps.forEach(app => {
           const features = (app.features || []).map(f => `<span class="feature-tag">${f}</span>`).join("");
-          const platform = (app.platform || "Android").toLowerCase();
-          const isIOS = platform.includes("ios");
-          const devIcon = isIOS ? "🍎" : "🔧";
-          const liveIcon = isIOS ? "🍎" : "🚀";
+          const platformStr = app.platform || "Android";
+          const platformClass = platformStr.toLowerCase().includes("ios") ? "ios" : "android";
+          const isIOS = platformClass === "ios";
+          
           const devUrl = app.downloads?.dev || "";
           const prodUrl = app.downloads?.prod || "";
           
@@ -233,13 +219,13 @@
               <div class="app-icon">
                 <img src="${app.icon}" alt="${app.name}" onerror="this.style.display='none'">
               </div>
-              <span class="platform-badge ${isIOS ? 'ios' : 'android'}">${app.platform}</span>
+              <span class="platform-badge ${platformClass}">${platformStr}</span>
               <h2 class="app-title">${app.name}</h2>
               <p class="app-description">${app.description || ""}</p>
               ${features ? `<div class="app-features">${features}</div>` : ""}
               <div class="button-group">
-                ${devUrl ? `<a class="install-button dev" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + devUrl : devUrl}">${devIcon} Dev</a>` : ""}
-                ${prodUrl ? `<a class="install-button live" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + prodUrl : prodUrl}">${liveIcon} Live</a>` : ""}
+                ${devUrl ? `<a class="install-button dev" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + devUrl : devUrl}">🔧 Dev</a>` : ""}
+                ${prodUrl ? `<a class="install-button live" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + prodUrl : prodUrl}">🚀 Live</a>` : ""}
                 ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
               </div>
             </div>
