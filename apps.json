@@ -8,8 +8,10 @@
       "description": "",
       "features": [],
       "downloads": {
-        "ios_dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/AppDev.plist",
-        "ios_prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/AppProd.plist"
+        "ios": {
+          "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/AppDev.plist",
+          "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/AppProd.plist"
+        }
       }
     },
     {
@@ -20,9 +22,11 @@
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_prod.apk",
-        "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
+        "android": {
+          "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
+          "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_prod.apk",
+          "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
+        }
       }
     },
     {
@@ -33,8 +37,10 @@
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
+        "android": {
+          "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
+          "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
+        }
       }
     }
   ]
