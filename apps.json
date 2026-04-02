@@ -4,19 +4,24 @@
       "id": "blissland",
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
-      "platform": "Android",
+      "platform": "iOS",
       "description": "",
       "features": [],
-      "downloads": {}
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_prod.plist"
+      }
     },
     {
       "id": "emu_game",
       "name": "Emu Game",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
-      "platform": "Android",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_icon.png",
+      "platform": "iOS",
       "description": "",
       "features": [],
-      "downloads": {}
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist"
+      }
     },
     {
       "id": "turbovid",
