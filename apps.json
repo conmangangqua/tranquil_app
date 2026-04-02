@@ -15,12 +15,13 @@
     {
       "id": "emu_game",
       "name": "Emu Game",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
       "platform": "iOS",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist"
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_prod.plist"
       }
     },
     {
