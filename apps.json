@@ -13,6 +13,18 @@
       }
     },
     {
+      "id": "emu-game",
+      "name": "Emu-game",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu-game_icon.png",
+      "platform": "iOS",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/AppDev.plist",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/AppProd.plist"
+      }
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
