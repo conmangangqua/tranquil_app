@@ -137,9 +137,11 @@ jobs:
                   base_id = name.replace('.aab', '')
               elif name.endswith('_dev.ipa') or name.endswith('_prod.ipa'):
                   base_id = name.replace('_dev.ipa', '').replace('_prod.ipa', '')
-              elif name.endswith('Dev.plist') or name.endswith('Prod.plist'):
-                  # Handle AppDev.plist or app_dev.plist
+              elif name.lower().endswith('dev.plist') or name.lower().endswith('prod.plist'):
+                  # Handle AppDev.plist, app_dev.plist, emu_game_dev.plist
                   base_id = name.lower().replace('dev.plist', '').replace('prod.plist', '')
+                  # clean up suffix _
+                  if base_id.endswith('_'): base_id = base_id[:-1]
               elif name.endswith('_icon.png'):
                   base_id = name.replace('_icon.png', '')
               
@@ -178,14 +180,10 @@ jobs:
                   elif name == f"{app_id}_icon.png": icon_url = url
                   # iOS handling
                   elif low_name == f"{app_id}_dev.ipa": pass # we use plist for download
-                  elif low_name == f"{app_id}dev.plist" or low_name == "appdev.plist":
-                      # If multiple apps exist, we might need better matching, 
-                      # but for now blissland uses AppDev.plist
-                      if app_id == "blissland" or app_id not in ["turbovid", "voicepal"]:
-                          ios_dev = url
-                  elif low_name == f"{app_id}prod.plist" or low_name == "appprod.plist":
-                      if app_id == "blissland" or app_id not in ["turbovid", "voicepal"]:
-                          ios_prod = url
+                  elif low_name == f"{app_id}_dev.plist" or low_name == f"{app_id}dev.plist" or low_name == "appdev.plist":
+                      ios_dev = url
+                  elif low_name == f"{app_id}_prod.plist" or low_name == f"{app_id}prod.plist" or low_name == "appprod.plist":
+                      ios_prod = url
               
               # Format app name
               app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
