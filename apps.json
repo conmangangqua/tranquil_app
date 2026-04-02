@@ -12,7 +12,7 @@
     {
       "id": "emu_game",
       "name": "Emu Game",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
