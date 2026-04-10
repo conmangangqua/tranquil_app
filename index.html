@@ -201,6 +201,14 @@
   <div class="container" id="appContainer"></div>
 
   <script>
+    function formatUrl(url) {
+      if (!url) return "";
+      if (url.toLowerCase().endsWith(".plist")) {
+        return "itms-services://?action=download-manifest&url=" + encodeURIComponent(url);
+      }
+      return url;
+    }
+
     fetch("apps.json")
       .then(res => res.json())
       .then(data => {
@@ -209,7 +217,6 @@
           const features = (app.features || []).map(f => `<span class="feature-tag">${f}</span>`).join("");
           const platformStr = app.platform || "Android";
           const platformClass = platformStr.toLowerCase().includes("ios") ? "ios" : "android";
-          const isIOS = platformClass === "ios";
           
           const devUrl = app.downloads?.dev || "";
           const prodUrl = app.downloads?.prod || "";
@@ -224,8 +231,8 @@
               <p class="app-description">${app.description || ""}</p>
               ${features ? `<div class="app-features">${features}</div>` : ""}
               <div class="button-group">
-                ${devUrl ? `<a class="install-button dev" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + devUrl : devUrl}">🔧 Dev</a>` : ""}
-                ${prodUrl ? `<a class="install-button live" href="${isIOS ? 'itms-services://?action=download-manifest&url=' + prodUrl : prodUrl}">🚀 Live</a>` : ""}
+                ${devUrl ? `<a class="install-button dev" href="${formatUrl(devUrl)}">🔧 Dev</a>` : ""}
+                ${prodUrl ? `<a class="install-button live" href="${formatUrl(prodUrl)}">🚀 Live</a>` : ""}
                 ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
               </div>
             </div>
