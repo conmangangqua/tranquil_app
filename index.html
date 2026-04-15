@@ -1,245 +1,88 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>App Hub - tranquil-tmt</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Tranquil Hub - Peace & Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    :root {
+      --primary: #059669;
+      --primary-glow: rgba(5, 150, 105, 0.15);
+      --secondary: #6ee7b7;
+      --bg-main: #f0fdf4;
+      --card-bg: rgba(255, 255, 255, 0.9);
+      --text-main: #064e3b;
+      --text-muted: #14532d;
+      --glass-border: rgba(5, 150, 105, 0.1);
+      --card-radius: 100px; /* Nature Sage Style */
     }
-
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
-    }
-
-    .header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .header h1 {
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #fff;
-    }
-
-    .header p {
-      font-size: 18px;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.5;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 25px;
-      padding: 20px;
-    }
-
-    .app-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .app-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    .app-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      margin: 0 auto 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-    }
-
-    .app-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 20px;
-    }
-
-    .platform-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 15px;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 15px;
-      letter-spacing: 0.5px;
-    }
-
-    .platform-badge.android {
-      background: linear-gradient(135deg, #3ddc84, #2bb673);
-      color: white;
-    }
-
-    .platform-badge.ios {
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      color: white;
-    }
-
-    .app-title {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #333;
-      text-align: center;
-    }
-
-    .app-description {
-      font-size: 16px;
-      color: #666;
-      margin-bottom: 20px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    .app-features {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-
-    .feature-tag {
-      padding: 5px 12px;
-      background: rgba(0, 122, 255, 0.1);
-      color: #007aff;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .install-button {
-      display: block;
-      width: 100%;
-      padding: 15px 25px;
-      font-size: 16px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #007aff, #5856d6);
-      color: white;
-      text-decoration: none;
-      border-radius: 50px;
-      box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
-      transition: all 0.3s ease;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-
-    .install-button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 25px rgba(0, 122, 255, 0.4);
-    }
-
-    .install-button.dev {
-      background: linear-gradient(135deg, #ff9500, #ff6b35);
-      box-shadow: 0 8px 20px rgba(255, 149, 0, 0.3);
-    }
-
-    .install-button.live {
-      background: linear-gradient(135deg, #34c759, #30d158);
-      box-shadow: 0 8px 20px rgba(52, 199, 89, 0.3);
-    }
-
-    .install-button.aab {
-      background: linear-gradient(135deg, #ff6b35, #f7931e);
-      box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .button-group .install-button {
-      flex: 1;
-      margin-bottom: 0;
-      min-width: 80px;
-    }
-
-    @media (max-width: 768px) {
-      .container { grid-template-columns: 1fr; }
-      .button-group { flex-direction: column; }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; }
+    .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: var(--bg-main); }
+    .blob { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, rgba(110, 231, 183, 0.15) 0%, transparent 70%); border-radius: 50%; animation: drift 30s infinite alternate ease-in-out; }
+    @keyframes drift { from { transform: translate(-20%, -20%) scale(1); } to { transform: translate(30%, 40%) scale(1.1); } }
+    header { padding: 90px 20px 20px; text-align: center; }
+    header h1 { font-size: clamp(3rem, 10vw, 4.5rem); font-weight: 800; opacity: 0.9; color: var(--text-main); letter-spacing: -0.05em; }
+    .search-section { max-width: 500px; margin: 40px auto 30px; padding: 0 20px; position: sticky; top: 20px; z-index: 100; }
+    .search-wrapper { position: relative; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1.5px solid var(--glass-border); border-radius: 40px; box-shadow: 0 10px 30px rgba(5, 150, 105, 0.05); }
+    .search-wrapper input { width: 100%; background: transparent; border: none; padding: 18px 25px 18px 65px; color: var(--text-main); font-size: 1rem; font-weight: 600; outline: none; }
+    .search-wrapper::before { content: '🍃'; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
+    main { flex: 1; width: 100%; max-width: 1440px; margin: 0 auto; padding: 20px 40px 100px; }
+    #appContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 45px; }
+    .app-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 2px solid var(--glass-border); border-radius: var(--card-radius); padding: 50px; display: flex; flex-direction: column; transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: scale(0.9); animation: reveal 0.8s forwards; box-shadow: 0 20px 50px rgba(5, 150, 105, 0.03); }
+    .app-card:hover { transform: scale(1.03); background: #ffffff; border-color: var(--secondary); box-shadow: 0 40px 80px -20px rgba(5, 150, 105, 0.1); }
+    .app-icon-box { width: 120px; height: 120px; margin: 0 auto 35px; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; padding: 10px; background: #f0fdf4; box-shadow: 0 10px 20px rgba(5, 150, 105, 0.08); display: flex; align-items: center; justify-content: center; transition: 0.6s; }
+    .app-card:hover .app-icon-box { border-radius: 50%; background: var(--secondary); transform: rotate(15deg); }
+    .app-icon { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
+    .badge { font-size: 0.8rem; font-weight: 800; padding: 7px 18px; border-radius: 20px; text-transform: uppercase; margin-bottom: 25px; align-self: center; background: #ecfdf5; color: #065f46; }
+    .app-title { font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 12px; color: var(--text-main); }
+    .app-desc { font-size: 1.05rem; color: var(--text-muted); text-align: center; margin-bottom: 35px; flex-grow: 1; font-weight: 500; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .btn { padding: 18px 12px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.4s; }
+    .btn-dev { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+    .btn-live { background: var(--primary); color: #fff; box-shadow: 0 10px 20px var(--primary-glow); }
+    .btn-full { grid-column: span 2; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+    .btn-full:hover { background: var(--secondary); color: var(--text-main); }
+    footer { padding: 80px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; border-top: 1px solid var(--glass-border); }
+    @keyframes reveal { to { opacity: 1; transform: scale(1); } }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>📱 Danh sách ứng dụng</h1>
-    <p>Chọn và cài đặt ứng dụng bạn muốn sử dụng</p>
-  </div>
-
-  <div class="container" id="appContainer"></div>
-
+  <div class="bg-animation"><div class="blob"></div></div>
+  <header><h1>Tranquil Hub</h1></header>
+  <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Tìm ứng dụng thư giãn..." oninput="filterApps()"></div></section>
+  <main><div id="appContainer"></div></main>
+  <footer><p>© 2026 TRANQUIL PLATINUM • PEACEFUL DISTRIBUTION</p></footer>
   <script>
-    function formatUrl(url) {
-      if (!url) return "";
-      if (url.toLowerCase().endsWith(".plist")) {
-        return "itms-services://?action=download-manifest&url=" + encodeURIComponent(url);
-      }
-      return url;
-    }
-
-    fetch("apps.json")
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById("appContainer");
-        data.apps.forEach(app => {
-          const features = (app.features || []).map(f => `<span class="feature-tag">${f}</span>`).join("");
-          const platformStr = app.platform || "Android";
-          const platformClass = platformStr.toLowerCase().includes("ios") ? "ios" : "android";
-          
-          const devUrl = app.downloads?.dev || "";
-          const prodUrl = app.downloads?.prod || "";
-          
-          const html = `
-            <div class="app-card">
-              <div class="app-icon">
-                <img src="${app.icon}" alt="${app.name}" onerror="this.style.display='none'">
-              </div>
-              <span class="platform-badge ${platformClass}">${platformStr}</span>
-              <h2 class="app-title">${app.name}</h2>
-              <p class="app-description">${app.description || ""}</p>
-              ${features ? `<div class="app-features">${features}</div>` : ""}
-              <div class="button-group">
-                ${devUrl ? `<a class="install-button dev" href="${formatUrl(devUrl)}">🔧 Dev</a>` : ""}
-                ${prodUrl ? `<a class="install-button live" href="${formatUrl(prodUrl)}">🚀 Live</a>` : ""}
-                ${app.downloads?.aab ? `<a class="install-button aab" href="${app.downloads.aab}">📦 AAB</a>` : ""}
-              </div>
-            </div>
-          `;
-          container.insertAdjacentHTML("beforeend", html);
-        });
+    let allApps = [];
+    const formatUrl = (url, isIOS) => url && isIOS ? "itms-services://?action=download-manifest&url=" + encodeURIComponent(url) : url;
+    const renderApps = (apps) => {
+      const container = document.getElementById("appContainer"); container.innerHTML = "";
+      if (apps.length === 0) { container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted); font-weight: 700;">🍃 Chờ đợi sự bình yên, không có kết quả.</div>'; return; }
+      apps.forEach((app, index) => {
+        const isIOS = (app.platform || "").toLowerCase().includes("ios");
+        const devUrl = formatUrl(app.downloads?.dev, isIOS);
+        const prodUrl = formatUrl(app.downloads?.prod, isIOS);
+        const aabUrl = app.downloads?.aab || "";
+        const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`;
+        card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
+          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
+          <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || 'Giải pháp di động mượt mà chuẩn Platinum.'}</p>
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 Dev Build</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 Live Build</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 Tải bộ bản AAB</a>` : ""}</div>`;
+        container.appendChild(card);
       });
+    };
+    const filterApps = () => {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
+    };
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; renderApps(allApps); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Lỗi kết nối thiên nhiên.</div>'; });
   </script>
 </body>
 </html>
