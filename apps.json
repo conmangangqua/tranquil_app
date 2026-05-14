@@ -39,7 +39,8 @@
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
       },
       "versions": {
-        "dev": "1.0.1+26051401"
+        "dev": "1.0.1+26051401",
+        "prod": "1.0.1+26051401"
       }
     },
     {
