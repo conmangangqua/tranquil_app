@@ -49,6 +49,9 @@
     .btn-live { background: var(--primary); color: #fff; box-shadow: 0 10px 20px var(--primary-glow); }
     .btn-full { grid-column: span 2; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
     .btn-full:hover { background: var(--secondary); color: var(--text-main); }
+
+    .btn-stack { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1.1; }
+    .btn-stack .ver { font-size: 10px; font-weight: 600; opacity: 0.75; letter-spacing: 0; }
     footer { padding: 80px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; border-top: 1px solid var(--glass-border); }
     @keyframes reveal { to { opacity: 1; transform: scale(1); } }
   </style>
@@ -70,11 +73,15 @@
         const devUrl = formatUrl(app.downloads?.dev, isIOS);
         const prodUrl = formatUrl(app.downloads?.prod, isIOS);
         const aabUrl = app.downloads?.aab || "";
+        const v = app.versions || {};
+        const stack = (label, k) => v[k]
+          ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
+          : label;
         const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 Dev Build</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 Live Build</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 Download AAB</a>` : ""}</div>`;
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}</div>`;
         container.appendChild(card);
       });
     };
