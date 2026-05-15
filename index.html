@@ -87,6 +87,7 @@
       if (apps.length === 0) { container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted); font-weight: 700;">🍃 No apps found matching your search.</div>'; return; }
       apps.forEach((app, index) => {
         const isIOS = (app.platform || "").toLowerCase().includes("ios");
+        const isAndroid = !app.platform || app.platform.toLowerCase().includes("android");
         const devUrl = formatUrl(app.downloads?.dev, isIOS);
         const prodUrl = formatUrl(app.downloads?.prod, isIOS);
         const aabUrl = app.downloads?.aab || "";
@@ -99,7 +100,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 Build AAB</button></div>`;
+          ${isAndroid ? `<button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 Build AAB</button>` : ""}</div>`;
         container.appendChild(card);
       });
     };
