@@ -72,6 +72,16 @@
     .modal-status { margin-top: 16px; font-size: 0.85rem; font-weight: 600; text-align: center; min-height: 20px; word-break: break-word; }
     .modal-status a { color: var(--primary); font-weight: 800; }
   </style>
+  <style>/* AAB_BTNFIX */
+    .btn{min-width:0}
+    .btn-stack{min-width:0;max-width:100%;overflow:hidden}
+    .btn-stack .ver{white-space:nowrap;font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+    @media (max-width:480px){
+      .btn{padding-left:8px;padding-right:8px;gap:6px;font-size:.82rem}
+      .btn-stack .ver{font-size:8px}
+    }
+  </style>
+
 </head>
 <body>
   <div class="bg-animation"><div class="blob"></div></div>
