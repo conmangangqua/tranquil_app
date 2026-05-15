@@ -150,8 +150,9 @@
         $("bmTitle").textContent = "🔨 Build " + (d.build_label || "");
         $("bmApp").textContent = appName + " — " + (d.platform === "ios" ? "iOS TestFlight" : "Android AAB");
         $("bmName").value = d.version_name || "";
-        $("bmCode").value = d.version_code || "";
-        $("bmStatus").textContent = "";
+        $("bmCode").value = d.suggested_code || d.version_code || "";
+        $("bmStatus").style.color = "var(--text-muted)";
+        $("bmStatus").textContent = `Hiện tại: ${d.current_name}+${d.current_code} → đề xuất code mới: ${d.suggested_code}`;
       } catch (e) {
         $("bmStatus").style.color = "#ef4444";
         $("bmStatus").textContent = "⚠️ " + e.message;
