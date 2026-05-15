@@ -54,6 +54,23 @@
     .btn-stack .ver { font-size: 10px; font-weight: 600; opacity: 0.75; letter-spacing: 0; }
     footer { padding: 80px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; border-top: 1px solid var(--glass-border); }
     @keyframes reveal { to { opacity: 1; transform: scale(1); } }
+    .btn-build { grid-column: span 2; background: #064e3b; color: #fff; border: 1px solid #064e3b; }
+    .btn-build:hover { background: #047857; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(6, 78, 59, 0.45); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 32px; padding: 32px 26px; width: 100%; max-width: 380px; box-shadow: 0 30px 80px rgba(5, 150, 105, 0.2); }
+    .modal h3 { font-size: 1.3rem; color: var(--text-main); margin-bottom: 4px; }
+    .modal .sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; font-weight: 600; }
+    .modal label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .modal input { width: 100%; padding: 13px 16px; border: 1.5px solid var(--glass-border); border-radius: 16px; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; }
+    .modal input:focus { border-color: var(--primary); }
+    .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+    .modal-actions button { padding: 14px; border-radius: 20px; font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; font-family: inherit; }
+    .m-cancel { background: #f1f5f9; color: #475569; }
+    .m-ok { background: var(--primary); color: #fff; }
+    .m-ok:disabled { opacity: 0.55; cursor: not-allowed; }
+    .modal-status { margin-top: 16px; font-size: 0.85rem; font-weight: 600; text-align: center; min-height: 20px; word-break: break-word; }
+    .modal-status a { color: var(--primary); font-weight: 800; }
   </style>
 </head>
 <body>
@@ -81,7 +98,8 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}</div>`;
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 Build AAB</button></div>`;
         container.appendChild(card);
       });
     };
@@ -90,6 +108,91 @@
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
     };
     fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; renderApps(allApps); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+  </script>
+
+  <div class="modal-overlay" id="buildModal">
+    <div class="modal">
+      <h3>🔨 Build AAB</h3>
+      <p class="sub" id="bmApp"></p>
+      <label>Version Name</label>
+      <input type="text" id="bmName" placeholder="vd 1.0.1" autocomplete="off">
+      <label>Version Code</label>
+      <input type="text" id="bmCode" inputmode="numeric" placeholder="vd 26051401" autocomplete="off">
+      <label>Mã PIN</label>
+      <input type="password" id="bmPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+      <div class="modal-status" id="bmStatus"></div>
+      <div class="modal-actions">
+        <button type="button" class="m-cancel" onclick="closeBuildModal()">Huỷ</button>
+        <button type="button" class="m-ok" id="bmOk" onclick="submitBuild()">Build</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BUILD_API = "https://aab-trigger.vercel.app";
+    let bmAppId = "";
+    const $ = (id) => document.getElementById(id);
+
+    async function openBuildModal(appId, appName) {
+      bmAppId = appId;
+      $("bmApp").textContent = appName + " — kích build từ xa";
+      $("bmName").value = ""; $("bmCode").value = ""; $("bmPin").value = "";
+      $("bmStatus").textContent = "Đang lấy version hiện tại...";
+      $("bmOk").disabled = true;
+      $("buildModal").classList.add("open");
+      try {
+        const r = await fetch(`${BUILD_API}/api/version?app_id=${encodeURIComponent(appId)}`);
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Không lấy được version");
+        $("bmName").value = d.version_name || "";
+        $("bmCode").value = d.version_code || "";
+        $("bmStatus").textContent = "";
+      } catch (e) {
+        $("bmStatus").style.color = "#ef4444";
+        $("bmStatus").textContent = "⚠️ " + e.message;
+      } finally {
+        $("bmOk").disabled = false;
+      }
+    }
+
+    function closeBuildModal() { $("buildModal").classList.remove("open"); }
+
+    async function submitBuild() {
+      const payload = {
+        app_id: bmAppId,
+        version_name: $("bmName").value.trim(),
+        version_code: $("bmCode").value.trim(),
+        pin: $("bmPin").value.trim(),
+      };
+      if (!payload.version_name || !payload.version_code || !payload.pin) {
+        $("bmStatus").style.color = "#ef4444";
+        $("bmStatus").textContent = "⚠️ Điền đủ Version Name, Code và PIN.";
+        return;
+      }
+      $("bmOk").disabled = true;
+      $("bmStatus").style.color = "var(--text-muted)";
+      $("bmStatus").textContent = "⏳ Đang kích build...";
+      try {
+        const r = await fetch(`${BUILD_API}/api/build`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || "Build thất bại");
+        $("bmStatus").style.color = "var(--primary)";
+        $("bmStatus").innerHTML = `✅ ${d.message} <a href="${d.pipeline_url}" target="_blank">Xem pipeline</a>`;
+      } catch (e) {
+        $("bmStatus").style.color = "#ef4444";
+        $("bmStatus").textContent = "❌ " + e.message;
+      } finally {
+        $("bmOk").disabled = false;
+      }
+    }
+
+    $("buildModal").addEventListener("click", (e) => {
+      if (e.target.id === "buildModal") closeBuildModal();
+    });
   </script>
 </body>
 </html>
