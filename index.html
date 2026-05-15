@@ -88,6 +88,7 @@
       apps.forEach((app, index) => {
         const isIOS = (app.platform || "").toLowerCase().includes("ios");
         const isAndroid = !app.platform || app.platform.toLowerCase().includes("android");
+        const buildLabel = (isIOS && !isAndroid) ? "Build TestFlight" : "Build AAB";
         const devUrl = formatUrl(app.downloads?.dev, isIOS);
         const prodUrl = formatUrl(app.downloads?.prod, isIOS);
         const aabUrl = app.downloads?.aab || "";
@@ -100,7 +101,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}
-          ${isAndroid ? `<button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 Build AAB</button>` : ""}</div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 ${buildLabel}</button></div>`;
         container.appendChild(card);
       });
     };
@@ -113,7 +114,7 @@
 
   <div class="modal-overlay" id="buildModal">
     <div class="modal">
-      <h3>🔨 Build AAB</h3>
+      <h3 id="bmTitle">🔨 Build</h3>
       <p class="sub" id="bmApp"></p>
       <label>Version Name</label>
       <input type="text" id="bmName" placeholder="vd 1.0.1" autocomplete="off">
@@ -136,6 +137,7 @@
 
     async function openBuildModal(appId, appName) {
       bmAppId = appId;
+      $("bmTitle").textContent = "🔨 Build";
       $("bmApp").textContent = appName + " — kích build từ xa";
       $("bmName").value = ""; $("bmCode").value = ""; $("bmPin").value = "";
       $("bmStatus").textContent = "Đang lấy version hiện tại...";
@@ -145,6 +147,8 @@
         const r = await fetch(`${BUILD_API}/api/version?app_id=${encodeURIComponent(appId)}`);
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || "Không lấy được version");
+        $("bmTitle").textContent = "🔨 Build " + (d.build_label || "");
+        $("bmApp").textContent = appName + " — " + (d.platform === "ios" ? "iOS TestFlight" : "Android AAB");
         $("bmName").value = d.version_name || "";
         $("bmCode").value = d.version_code || "";
         $("bmStatus").textContent = "";
