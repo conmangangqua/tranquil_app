@@ -72,13 +72,14 @@
     .modal-status { margin-top: 16px; font-size: 0.85rem; font-weight: 600; text-align: center; min-height: 20px; word-break: break-word; }
     .modal-status a { color: var(--primary); font-weight: 800; }
   </style>
-  <style>/* AAB_BTNFIX */
-    .btn{min-width:0}
-    .btn-stack{min-width:0;max-width:100%;overflow:hidden}
-    .btn-stack .ver{white-space:nowrap;font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  <style>/* AAB_BTNFIX2 */
+    .btn{position:relative;gap:0}
+    .btn-ic{position:absolute;left:16px;top:50%;transform:translateY(-50%);display:flex;align-items:center;line-height:1;pointer-events:none}
+    .btn-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-width:0}
+    .btn-stack .ver{white-space:nowrap;font-size:10px}
     @media (max-width:480px){
-      .btn{padding-left:8px;padding-right:8px;gap:6px;font-size:.82rem}
-      .btn-stack .ver{font-size:8px}
+      .btn{padding-left:34px;padding-right:12px}
+      .btn-stack .ver{font-size:9px}
     }
   </style>
 
@@ -105,13 +106,13 @@
         const v = app.versions || {};
         const stack = (label, k) => v[k]
           ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
-          : label;
+          : `<span class="btn-stack">${label}</span>`;
         const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev">🔧 ${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live">🚀 ${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full">📦 ${stack('Download AAB','aab')}</a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')">🔨 ${buildLabel}</button></div>`;
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""}
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button></div>`;
         container.appendChild(card);
       });
     };
