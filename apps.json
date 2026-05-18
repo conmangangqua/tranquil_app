@@ -57,6 +57,20 @@
       }
     },
     {
+      "id": "restorex",
+      "name": "Restorex",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/restorex_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/restorex_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+26032901"
+      }
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
