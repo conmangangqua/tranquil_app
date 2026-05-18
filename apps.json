@@ -27,6 +27,20 @@
       "versions": {}
     },
     {
+      "id": "moo_insect_filter",
+      "name": "Moo Insect Filter",
+      "icon": "",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/moo_insect_filter_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      }
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
