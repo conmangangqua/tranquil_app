@@ -59,14 +59,18 @@
     {
       "id": "luminary_pdf",
       "name": "Luminary Pdf",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk"
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
       },
-      "versions": {}
+      "versions": {
+        "dev": "1.0.0+1",
+        "prod": "1.0.0+1"
+      }
     },
     {
       "id": "moo_insect_filter",
