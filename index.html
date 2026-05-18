@@ -304,7 +304,10 @@
     #vdMd{background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:440px;max-height:88vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.3);font-family:system-ui,-apple-system,sans-serif}
     #vdMd h3{margin:0 0 2px;font-size:1.15rem;color:#0f172a}
     #vdMd .s{font-size:.82rem;color:#64748b;margin:0 0 14px;font-weight:600}
-    #vdMd .lb{font-size:.72rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.04em;margin:14px 0 6px}
+    #vdMd .lbrow{display:flex;align-items:center;justify-content:space-between;margin:14px 0 6px}
+    #vdMd .lb{font-size:.72rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.04em}
+    #vdMd .cp{background:#ede9fe;color:#6d28d9;border:none;border-radius:8px;padding:5px 12px;font-size:.72rem;font-weight:800;cursor:pointer;font-family:inherit}
+    #vdMd .cp:active{transform:scale(.94)}
     #vdMd .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;font-size:.86rem;line-height:1.5;color:#0f172a;white-space:pre-wrap;word-break:break-word;max-height:38vh;overflow:auto}
     #vdMd input{width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;outline:none;margin-top:16px}
     #vdMd input:focus{border-color:#7c3aed}
@@ -318,9 +321,9 @@
   <div id="vdOv"><div id="vdMd">
     <h3>📄 Store Description</h3>
     <p class="s" id="vdApp"></p>
-    <div class="lb">Short description</div>
+    <div class="lbrow"><span class="lb">Short description</span><button type="button" class="cp" onclick="vdCopy('short',this)">Copy</button></div>
     <div class="box" id="vdShort">…</div>
-    <div class="lb">Long description</div>
+    <div class="lbrow"><span class="lb">Long description</span><button type="button" class="cp" onclick="vdCopy('long',this)">Copy</button></div>
     <div class="box" id="vdLong">…</div>
     <input id="vdPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off">
     <div id="vdMsg"></div>
@@ -335,6 +338,19 @@
         shortEl=document.getElementById("vdShort"),longEl=document.getElementById("vdLong"),
         pin=document.getElementById("vdPin"),msg=document.getElementById("vdMsg"),
         gb=document.getElementById("vdGenBtn");
+    window.vdCopy=function(kind,btn){
+      var t=(kind==="short"?shortEl:longEl).textContent||"";
+      function done(){ var o=btn.textContent; btn.textContent="Đã copy ✓"; setTimeout(function(){btn.textContent=o;},1500); }
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done).catch(function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    };
+    function fallback(t,cb){
+      var ta=document.createElement("textarea"); ta.value=t;
+      ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try{ document.execCommand("copy"); cb(); }catch(e){} document.body.removeChild(ta);
+    }
     window.openViewDesc=async function(id,nm){
       appId=id; appEl.textContent=nm; pin.value=""; msg.textContent="";
       shortEl.textContent="Đang tải…"; longEl.textContent="Đang tải…";
