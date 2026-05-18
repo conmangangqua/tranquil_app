@@ -114,7 +114,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button></div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openGenDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📝 Gen Description</button></div>`;
         container.appendChild(card);
       });
     };
@@ -292,6 +292,58 @@
       el.className=isErr?'err show':'show';
       el.querySelector(".x").onclick=function(){ el.classList.remove("show"); };
       t=setTimeout(function(){ el.classList.remove("show"); }, 8000);
+    };
+  })();</script>
+
+  <style>/* AAB_GENDESC */
+    .btn-gd{grid-column:span 2;background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
+    .btn-gd:hover{background:#6d28d9}
+    body.aab-authed .btn-gd{display:flex!important}
+    #gdOv{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100001;padding:20px}
+    #gdOv.open{display:flex}
+    #gdMd{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:340px;box-shadow:0 30px 80px rgba(0,0,0,.3);font-family:system-ui,-apple-system,sans-serif}
+    #gdMd h3{margin:0 0 4px;font-size:1.15rem;color:#0f172a}
+    #gdMd .s{font-size:.84rem;color:#64748b;margin:0 0 16px;font-weight:600}
+    #gdMd input{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:1rem;font-weight:600;outline:none}
+    #gdMd input:focus{border-color:#7c3aed}
+    #gdMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:600;text-align:center;color:#ef4444}
+    #gdAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+    #gdAct button{padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .gd-cancel{background:#f1f5f9;color:#475569}
+    .gd-ok{background:#7c3aed;color:#fff}
+    .gd-ok:disabled{opacity:.55;cursor:not-allowed}
+  </style>
+  <div id="gdOv"><div id="gdMd">
+    <h3>📝 Gen Store Description</h3>
+    <p class="s" id="gdApp"></p>
+    <input id="gdPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
+    <div id="gdMsg"></div>
+    <div id="gdAct">
+      <button type="button" class="gd-cancel" onclick="gdClose()">Huỷ</button>
+      <button type="button" class="gd-ok" id="gdOk" onclick="gdSubmit()">Gen</button>
+    </div>
+  </div></div>
+  <script>(function(){
+    var API="https://aab-trigger.vercel.app", appId="";
+    var ov=document.getElementById("gdOv"),pin=document.getElementById("gdPin"),
+        msg=document.getElementById("gdMsg"),ok=document.getElementById("gdOk"),
+        appEl=document.getElementById("gdApp");
+    window.openGenDesc=function(id,nm){ appId=id; appEl.textContent=nm+" — sinh mô tả store (ghi đè)"; pin.value=""; msg.textContent=""; ov.classList.add("open"); setTimeout(function(){pin.focus();},50); };
+    window.gdClose=function(){ ov.classList.remove("open"); };
+    ov.addEventListener("click",function(e){ if(e.target===ov) gdClose(); });
+    pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
+    window.gdSubmit=async function(){
+      var v=(pin.value||"").trim();
+      if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN."; return; }
+      ok.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đang kích...";
+      try{
+        var r=await fetch(API+"/api/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:appId,pin:v})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
+        gdClose();
+        if(window.showSnack) showSnack("📝 "+d.message, d.pipeline_url, false);
+      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      finally{ ok.disabled=false; }
     };
   })();</script>
 </body>
