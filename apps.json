@@ -41,6 +41,20 @@
       }
     },
     {
+      "id": "geosnap",
+      "name": "Geosnap",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      }
+    },
+    {
       "id": "ling_ai",
       "name": "Ling Ai",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ling_ai_icon.png",
