@@ -43,15 +43,17 @@
     {
       "id": "geosnap",
       "name": "Geosnap",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/geosnap_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_dev.apk"
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_dev.apk",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/geosnap_prod.apk"
       },
       "versions": {
-        "dev": "1.0.0+1"
+        "dev": "1.0.0+1",
+        "prod": "1.0.0+1"
       }
     },
     {
