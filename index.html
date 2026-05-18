@@ -213,5 +213,62 @@
       if (e.target.id === "buildModal") closeBuildModal();
     });
   </script>
+
+  <style>/* AAB_LOGIN */
+    .btn-build{display:none!important}
+    body.aab-authed .btn-build{display:flex!important}
+    #aablBtn{position:fixed;right:16px;bottom:16px;z-index:100000;background:#0f172a;color:#fff;border:none;border-radius:999px;padding:12px 18px;font:600 14px/1 system-ui,-apple-system,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25);cursor:pointer}
+    #aablOv{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100001;padding:20px}
+    #aablOv.open{display:flex}
+    #aablMd{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:340px;box-shadow:0 30px 80px rgba(0,0,0,.3);font-family:system-ui,-apple-system,sans-serif}
+    #aablMd h3{margin:0 0 14px;font-size:1.15rem;color:#0f172a}
+    #aablMd input{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:1rem;font-weight:600;outline:none}
+    #aablMd input:focus{border-color:#0f172a}
+    #aablMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:600;text-align:center;color:#ef4444}
+    #aablAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+    #aablAct button{padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .aabl-cancel{background:#f1f5f9;color:#475569}
+    .aabl-ok{background:#059669;color:#fff}
+  </style>
+  <button id="aablBtn" type="button">🔒 Đăng nhập</button>
+  <div id="aablOv"><div id="aablMd">
+    <h3>🔒 Đăng nhập Build</h3>
+    <input id="aablPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
+    <div id="aablMsg"></div>
+    <div id="aablAct">
+      <button type="button" class="aabl-cancel" id="aablCancel">Huỷ</button>
+      <button type="button" class="aabl-ok" id="aablOk">Đăng nhập</button>
+    </div>
+  </div></div>
+  <script>(function(){
+    var API="https://aab-trigger.vercel.app", KEY="aab_authed";
+    var b=document.body,
+        btn=document.getElementById("aablBtn"),
+        ov=document.getElementById("aablOv"),
+        pin=document.getElementById("aablPin"),
+        msg=document.getElementById("aablMsg"),
+        ok=document.getElementById("aablOk"),
+        cancel=document.getElementById("aablCancel");
+    function authed(){return localStorage.getItem(KEY)==="1";}
+    function render(){ if(authed()){b.classList.add("aab-authed");btn.textContent="🔓 Đăng xuất";} else {b.classList.remove("aab-authed");btn.textContent="🔒 Đăng nhập";} }
+    function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
+    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); render(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
+    cancel.onclick=close;
+    ov.addEventListener("click",function(e){ if(e.target===ov) close(); });
+    pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
+    ok.onclick=async function(){
+      var v=(pin.value||"").trim();
+      if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN."; return; }
+      ok.disabled=true; msg.style.color="#64748b"; msg.textContent="Đang kiểm tra...";
+      try{
+        var r=await fetch(API+"/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:v})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
+        localStorage.setItem(KEY,"1"); render(); close();
+      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      finally{ ok.disabled=false; }
+    };
+    render();
+  })();</script>
 </body>
 </html>
