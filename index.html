@@ -114,7 +114,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 View Description</button></div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 View Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Download Asset</button></div>`;
         container.appendChild(card);
       });
     };
@@ -377,6 +377,34 @@
         if(window.showSnack) showSnack("📝 "+d.message+" (vài phút có bản mới)", d.pipeline_url, false);
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ gb.disabled=false; }
+    };
+  })();</script>
+
+  <style>/* AAB_ASSETS */
+    .btn-as{grid-column:span 2;background:#0369a1;color:#fff;border:1px solid #0369a1;cursor:pointer;display:none!important}
+    .btn-as:hover{background:#075985}
+    .btn-as:disabled{opacity:.6;cursor:progress}
+    body.aab-authed .btn-as{display:flex!important}
+  </style>
+  <script>(function(){
+    var API="https://aab-trigger.vercel.app";
+    window.dlAssets=async function(id,nm,btn){
+      var old=btn.innerHTML; btn.disabled=true; btn.innerHTML="⏳ Đang tải asset…";
+      try{
+        var r=await fetch(API+"/api/assets?app_id="+encodeURIComponent(id));
+        if(!r.ok){ var e={}; try{e=await r.json();}catch(_){} throw new Error(e.error||("HTTP "+r.status)); }
+        var cnt=r.headers.get("X-Asset-Count")||"";
+        var blob=await r.blob();
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement("a");
+        a.href=url; a.download=id+"_assets.zip";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){URL.revokeObjectURL(url);},4000);
+        if(window.showSnack) showSnack("⬇️ Đã tải "+(cnt?cnt+" ":"")+"asset của "+nm,"",false);
+      }catch(e){
+        if(window.showSnack) showSnack("❌ "+e.message,"",true);
+        else alert("Lỗi: "+e.message);
+      }finally{ btn.disabled=false; btn.innerHTML=old; }
     };
   })();</script>
 </body>
