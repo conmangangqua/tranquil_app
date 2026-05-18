@@ -27,6 +27,20 @@
       "versions": {}
     },
     {
+      "id": "genify_ai",
+      "name": "Genify Ai",
+      "icon": "",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/genify_ai_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+26040201"
+      }
+    },
+    {
       "id": "ling_ai",
       "name": "Ling Ai",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ling_ai_icon.png",
@@ -52,9 +66,7 @@
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk"
       },
-      "versions": {
-        "dev": "1.0.0+1"
-      }
+      "versions": {}
     },
     {
       "id": "moo_insect_filter",
