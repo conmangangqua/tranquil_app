@@ -114,7 +114,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 View Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Download Asset</button></div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Assets</button></div>`;
         container.appendChild(card);
       });
     };
@@ -296,7 +296,7 @@
   })();</script>
 
   <style>/* AAB_GENDESC AAB_VIEWDESC */
-    .btn-gd{grid-column:span 2;background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
+    .btn-gd{background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
     .btn-gd:hover{background:#6d28d9}
     body.aab-authed .btn-gd{display:flex!important}
     #vdOv{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100001;padding:16px}
@@ -381,7 +381,7 @@
   })();</script>
 
   <style>/* AAB_ASSETS */
-    .btn-as{grid-column:span 2;background:#0369a1;color:#fff;border:1px solid #0369a1;cursor:pointer;display:none!important}
+    .btn-as{background:#0369a1;color:#fff;border:1px solid #0369a1;cursor:pointer;display:none!important}
     .btn-as:hover{background:#075985}
     .btn-as:disabled{opacity:.6;cursor:progress}
     body.aab-authed .btn-as{display:flex!important}
