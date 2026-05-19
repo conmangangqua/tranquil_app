@@ -11,7 +11,8 @@
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_prod.plist"
       },
-      "versions": {}
+      "versions": {},
+      "store": ""
     },
     {
       "id": "emu_game",
@@ -24,7 +25,8 @@
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_prod.plist"
       },
-      "versions": {}
+      "versions": {},
+      "store": ""
     },
     {
       "id": "genify_ai",
@@ -40,7 +42,8 @@
       "versions": {
         "dev": "1.0.0+26040201",
         "prod": "1.0.0+26040201"
-      }
+      },
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.aiart"
     },
     {
       "id": "geosnap",
@@ -56,7 +59,8 @@
       "versions": {
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
-      }
+      },
+      "store": ""
     },
     {
       "id": "ling_ai",
@@ -72,7 +76,8 @@
       "versions": {
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
-      }
+      },
+      "store": ""
     },
     {
       "id": "luminary_pdf",
@@ -88,7 +93,8 @@
       "versions": {
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
-      }
+      },
+      "store": ""
     },
     {
       "id": "moo_insect_filter",
@@ -104,7 +110,8 @@
       "versions": {
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
-      }
+      },
+      "store": ""
     },
     {
       "id": "restorex",
@@ -120,7 +127,8 @@
       "versions": {
         "dev": "1.0.0+26032901",
         "prod": "1.0.0+26032901"
-      }
+      },
+      "store": ""
     },
     {
       "id": "turbovid",
@@ -138,7 +146,8 @@
         "dev": "1.0.1+26051501",
         "prod": "1.0.1+26051501",
         "aab": "1.0.1+26051501"
-      }
+      },
+      "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader"
     },
     {
       "id": "voicepal",
@@ -151,7 +160,8 @@
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
       },
-      "versions": {}
+      "versions": {},
+      "store": ""
     }
   ]
 }
