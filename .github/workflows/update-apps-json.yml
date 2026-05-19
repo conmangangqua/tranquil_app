@@ -123,7 +123,28 @@ jobs:
           # Read all assets
           with open('/tmp/all_assets.json', 'r') as f:
               all_assets = json.load(f)
-          
+
+          # Manual store links (stores.json in repo root) — durable across regenerate
+          STORES = {}
+          try:
+              with open('stores.json') as _sf:
+                  STORES = json.load(_sf)
+          except Exception:
+              STORES = {}
+          import urllib.request as _ur
+          def validate_store(u):
+              if not u:
+                  return ""
+              try:
+                  _ur.urlopen(_ur.Request(u, headers={'User-Agent': 'Mozilla/5.0'}), timeout=12).read(1)
+                  return u
+              except Exception as e:
+                  if getattr(e, 'code', None) == 404:
+                      print(f"  store 404 -> drop: {u}")
+                      return ""
+                  print(f"  store check inconclusive, keep: {u} ({e})")
+                  return u
+
           # Extract all app IDs from file names
           app_ids = set()
           for asset in all_assets:
@@ -223,6 +244,9 @@ jobs:
               v = fetch_version(aab_version_url)
               if v: versions['aab'] = v
               store_link = fetch_version(store_url_sidecar)
+              if not store_link:
+                  store_link = STORES.get(app_id, "")
+              store_link = validate_store(store_link)
 
               # Format app name (video_downloader -> Video Downloader)
               app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
