@@ -116,7 +116,7 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><span class="btn-ic">🛒</span><span class="btn-stack">View on Store</span></a>` : ""}
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><span class="btn-ic">🛒</span><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">➕</span><span class="btn-stack">Add Store Link</span></button>
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Assets</button></div>`;
         container.appendChild(card);
       });
@@ -408,6 +408,62 @@
         if(window.showSnack) showSnack("❌ "+e.message,"",true);
         else alert("Lỗi: "+e.message);
       }finally{ btn.disabled=false; btn.innerHTML=old; }
+    };
+  })();</script>
+  <style>/* STORE_ADD */
+    .btn-addstore{display:none!important}
+    body.aab-authed .btn-addstore[data-has-store="0"]{display:flex!important;grid-column:span 2;background:#2563eb;color:#fff;border:1px solid #2563eb;cursor:pointer;font-family:inherit}
+    body.aab-authed .btn-addstore[data-has-store="0"]:hover{background:#1d4ed8}
+    #stOv{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100001;padding:20px}
+    #stOv.open{display:flex}
+    #stMd{background:#fff;border-radius:20px;padding:26px 22px;width:100%;max-width:380px;box-shadow:0 30px 80px rgba(0,0,0,.3);font-family:system-ui,-apple-system,sans-serif}
+    #stMd h3{margin:0 0 4px;font-size:1.15rem;color:#0f172a}
+    #stMd .sub{font-size:.82rem;color:#64748b;margin:0 0 16px;font-weight:600}
+    #stMd label{display:block;font-size:.72rem;font-weight:700;color:#64748b;margin:12px 0 6px;text-transform:uppercase;letter-spacing:.03em}
+    #stMd input{width:100%;box-sizing:border-box;padding:12px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;color:#0f172a;outline:none}
+    #stMd input:focus{border-color:#2563eb}
+    #stMsg{min-height:18px;margin-top:10px;font-size:.82rem;font-weight:600;text-align:center;color:#ef4444}
+    #stAct{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+    #stAct button{padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .st-cancel{background:#f1f5f9;color:#475569}
+    .st-ok{background:#2563eb;color:#fff}
+    .st-ok:disabled{opacity:.55;cursor:not-allowed}
+  </style>
+  <div id="stOv"><div id="stMd">
+    <h3>➕ Add Store Link</h3>
+    <p class="sub" id="stApp"></p>
+    <label>Store URL (Google Play / App Store)</label>
+    <input id="stUrl" type="url" placeholder="https://play.google.com/store/apps/details?id=..." autocomplete="off">
+    <label>Mã PIN</label>
+    <input id="stPin" type="password" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+    <div id="stMsg"></div>
+    <div id="stAct"><button type="button" class="st-cancel" onclick="stClose()">Huỷ</button><button type="button" class="st-ok" id="stOk" onclick="stSubmit()">Lưu</button></div>
+  </div></div>
+  <script>(function(){
+    var API="https://aab-trigger.vercel.app", appId="";
+    function repo(){
+      var im=document.querySelector('img[src*="github.com/conmangangqua/"]');
+      var m=im&&im.src&&im.src.match(/conmangangqua\/([A-Za-z0-9_-]+)/);
+      if(m) return m[1];
+      var a=document.querySelector('a[href*="github.com/conmangangqua/"]');
+      var m2=a&&a.href.match(/conmangangqua\/([A-Za-z0-9_-]+)/);
+      return m2?m2[1]:"";
+    }
+    window.openStoreModal=function(id,nm){ appId=id; document.getElementById('stApp').textContent=nm+" — dán link store"; document.getElementById('stUrl').value=""; document.getElementById('stPin').value=""; document.getElementById('stMsg').textContent=""; document.getElementById('stOv').classList.add('open'); };
+    window.stClose=function(){ document.getElementById('stOv').classList.remove('open'); };
+    document.getElementById('stOv').addEventListener('click',function(e){ if(e.target.id==='stOv') stClose(); });
+    window.stSubmit=async function(){
+      var url=document.getElementById('stUrl').value.trim(), pin=document.getElementById('stPin').value.trim(), msg=document.getElementById('stMsg'), ok=document.getElementById('stOk');
+      if(!url||!pin){ msg.style.color='#ef4444'; msg.textContent='Điền link và PIN.'; return; }
+      ok.disabled=true; msg.style.color='#64748b'; msg.textContent='⏳ Đang lưu...';
+      try{
+        var r=await fetch(API+"/api/store",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({repo:repo(),app_id:appId,url:url,pin:pin})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
+        stClose();
+        if(window.showSnack) showSnack("🛒 "+d.message,"",false); else alert(d.message);
+      }catch(e){ msg.style.color='#ef4444'; msg.textContent='❌ '+e.message; }
+      finally{ ok.disabled=false; }
     };
   })();</script>
 </body>
