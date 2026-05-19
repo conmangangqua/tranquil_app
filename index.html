@@ -56,6 +56,8 @@
     @keyframes reveal { to { opacity: 1; transform: scale(1); } }
     .btn-build { grid-column: span 2; background: #064e3b; color: #fff; border: 1px solid #064e3b; }
     .btn-build:hover { background: #047857; }
+    .btn-store { grid-column: span 2; background: #16a34a; color: #fff; border: 1px solid #16a34a; text-decoration: none; }
+    .btn-store:hover { background: #15803d; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(6, 78, 59, 0.45); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .modal-overlay.open { display: flex; }
     .modal { background: #fff; border-radius: 32px; padding: 32px 26px; width: 100%; max-width: 380px; box-shadow: 0 30px 80px rgba(5, 150, 105, 0.2); }
@@ -105,6 +107,7 @@
         const devUrl = formatUrl(app.downloads?.dev, isIOS);
         const prodUrl = formatUrl(app.downloads?.prod, isIOS);
         const aabUrl = app.downloads?.aab || "";
+        const storeUrl = app.store || "";
         const v = app.versions || {};
         const stack = (label, k) => v[k]
           ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
@@ -113,7 +116,7 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""}
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><span class="btn-ic">🛒</span><span class="btn-stack">View on Store</span></a>` : ""}
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Assets</button></div>`;
         container.appendChild(card);
       });

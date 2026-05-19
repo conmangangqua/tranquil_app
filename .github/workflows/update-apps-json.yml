@@ -146,6 +146,8 @@ jobs:
                   if base_id.endswith('_'): base_id = base_id[:-1]
               elif name.endswith('_icon.png'):
                   base_id = name.replace('_icon.png', '')
+              elif name.endswith('_store.url'):
+                  base_id = name.replace('_store.url', '')
               elif name.endswith('_aab.version'):
                   base_id = name.replace('_aab.version', '')
               elif name.endswith('.version'):
@@ -173,6 +175,7 @@ jobs:
               dev_version_url = ""
               prod_version_url = ""
               aab_version_url = ""
+              store_url_sidecar = ""
 
               for asset in all_assets:
                   name = asset.get('name', '')
@@ -193,6 +196,8 @@ jobs:
                       prod_version_url = url
                   elif name == f"{app_id}_aab.version":
                       aab_version_url = url
+                  elif name == f"{app_id}_store.url":
+                      store_url_sidecar = url
                   # iOS handling
                   elif low_name == f"{app_id}_dev.ipa": pass # we use plist for download
                   elif low_name == f"{app_id}_dev.plist" or low_name == f"{app_id}dev.plist" or low_name == "appdev.plist":
@@ -217,7 +222,8 @@ jobs:
               if v: versions['prod'] = v
               v = fetch_version(aab_version_url)
               if v: versions['aab'] = v
-              
+              store_link = fetch_version(store_url_sidecar)
+
               # Format app name (video_downloader -> Video Downloader)
               app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
               
@@ -257,7 +263,8 @@ jobs:
                   'description': '',
                   'features': [],
                   'downloads': downloads,
-                  'versions': versions
+                  'versions': versions,
+                  'store': store_link
               }
               apps.append(app)
           
