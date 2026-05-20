@@ -188,10 +188,12 @@
       "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/zentide_sleep_tracker_dev.apk"
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/zentide_sleep_tracker_dev.apk",
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/zentide_sleep_tracker_prod.apk"
       },
       "versions": {
-        "dev": "1.2.0+50"
+        "dev": "1.2.0+50",
+        "prod": "1.2.0+50"
       },
       "store": ""
     }
