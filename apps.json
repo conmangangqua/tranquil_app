@@ -17,7 +17,7 @@
     {
       "id": "calorie_fasting_tracker",
       "name": "Calorie Fasting Tracker",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/calorie_fasting_tracker_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -48,7 +48,7 @@
     {
       "id": "genify_ai",
       "name": "Genify Ai",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/genify_ai_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -116,7 +116,7 @@
     {
       "id": "moo_insect_filter",
       "name": "Moo Insect Filter",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/moo_insect_filter_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -183,7 +183,7 @@
     {
       "id": "zentide_sleep_tracker",
       "name": "Zentide Sleep Tracker",
-      "icon": "",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/zentide_sleep_tracker_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
