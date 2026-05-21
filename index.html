@@ -388,11 +388,22 @@
       var len=(value||"").length;
       var meta=limit?(" <span style=\"font-size:.7rem;color:"+(len>limit?"#ef4444":"#94a3b8")+";font-weight:600\">"+len+"/"+limit+"</span>"):"";
       var safeLabel=escapeHtml(label);
-      var safeVal=escapeHtml(value||"(trống)");
       var key=label.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+      // If field is a URL, render as clickable link
+      var trimmedVal=(value||"").trim();
+      var isUrl=/^https?:\/\//i.test(trimmedVal);
+      var safeVal;
+      var dataRaw="";
+      if(isUrl){
+        var safeHref=escapeHtml(trimmedVal);
+        safeVal='<a href="'+safeHref+'" target="_blank" rel="noopener noreferrer" style="color:#7c3aed;font-weight:700;word-break:break-all;text-decoration:underline">'+safeHref+' ↗</a>';
+        dataRaw=' data-raw="'+safeHref+'"';
+      } else {
+        safeVal=escapeHtml(trimmedVal||"(trống)");
+      }
       return '<div class="lbrow"><span class="lb">'+safeLabel+meta+'</span>'+
              '<button type="button" class="cp" data-cp="'+key+'">Copy</button></div>'+
-             '<div class="box" id="vdf_'+key+'">'+safeVal+'</div>';
+             '<div class="box" id="vdf_'+key+'"'+dataRaw+'>'+safeVal+'</div>';
     }
 
     function renderAppstore(d){
@@ -407,7 +418,8 @@
       // Attach copy handlers
       fieldsEl.querySelectorAll(".cp").forEach(function(b){
         b.addEventListener("click",function(){
-          var t=(document.getElementById("vdf_"+b.getAttribute("data-cp"))||{}).textContent||"";
+          var box=document.getElementById("vdf_"+b.getAttribute("data-cp"));
+          var t=(box&&box.getAttribute("data-raw"))||(box&&box.textContent)||"";
           doCopy(t,b);
         });
       });
@@ -439,7 +451,8 @@
       fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
       fieldsEl.querySelectorAll(".cp").forEach(function(b){
         b.addEventListener("click",function(){
-          var t=(document.getElementById("vdf_"+b.getAttribute("data-cp"))||{}).textContent||"";
+          var box=document.getElementById("vdf_"+b.getAttribute("data-cp"));
+          var t=(box&&box.getAttribute("data-raw"))||(box&&box.textContent)||"";
           doCopy(t,b);
         });
       });
