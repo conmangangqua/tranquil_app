@@ -176,14 +176,22 @@
               }
             }
           }
-          // Inject URL block sau .app-desc
+          // Chỉ inject URL block nếu CÓ URL hỏng (không hiển thị khi OK)
           if(h.has_desc){
+            const privacyBad = h.privacy_url && h.privacy_ok===false;
+            const termsBad = h.terms_url && h.terms_ok===false;
+            const privacyMissing = !h.privacy_url;
+            const termsMissing = !h.terms_url;
+            const needShow = privacyBad || termsBad || privacyMissing || termsMissing;
             const descEl = card.querySelector('.app-desc');
-            if(descEl && !card.querySelector('.health-urls')){
+            if(descEl && needShow && !card.querySelector('.health-urls')){
               const wrap = document.createElement("div");
               wrap.className="health-urls";
-              wrap.style.cssText="margin:6px 0 10px;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px";
-              wrap.innerHTML = urlRow("Privacy", h.privacy_url, h.privacy_ok) + urlRow("Terms", h.terms_url, h.terms_ok);
+              wrap.style.cssText="margin:6px 0 10px;padding:8px 10px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px";
+              let html="";
+              if(privacyBad || privacyMissing) html += urlRow("Privacy", h.privacy_url, h.privacy_ok);
+              if(termsBad || termsMissing) html += urlRow("Terms", h.terms_url, h.terms_ok);
+              wrap.innerHTML = html;
               descEl.after(wrap);
             }
           }
