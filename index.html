@@ -155,26 +155,17 @@
           if(!card) return;
           const badge = card.querySelector('.health-badge');
           if(badge){
-            if(!h.has_desc){
+            const broken = h.has_desc && (h.privacy_ok===false || h.terms_ok===false);
+            if(broken){
               badge.style.display="inline-flex";
-              badge.style.cssText += "background:#f1f5f9;color:#64748b;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;align-items:center;gap:3px";
-              badge.textContent="📄 No desc";
-            } else {
-              const broken = h.privacy_ok===false || h.terms_ok===false;
-              if(broken){
-                badge.style.display="inline-flex";
-                badge.style.cssText += "background:#fef2f2;color:#dc2626;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:8px;align-items:center;gap:3px;border:1px solid #fecaca";
-                const parts = [];
-                if(h.privacy_ok===false) parts.push("Privacy");
-                if(h.terms_ok===false) parts.push("Terms");
-                badge.textContent="⚠️ "+parts.join("+")+" URL hỏng";
-                card.style.boxShadow="0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.15)";
-              } else if(h.privacy_ok===true){
-                badge.style.display="inline-flex";
-                badge.style.cssText += "background:#f0fdf4;color:#16a34a;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;align-items:center;gap:3px";
-                badge.textContent="✓ URLs OK";
-              }
+              badge.style.cssText += "background:#fef2f2;color:#dc2626;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:8px;align-items:center;gap:3px;border:1px solid #fecaca";
+              const parts = [];
+              if(h.privacy_ok===false) parts.push("Privacy");
+              if(h.terms_ok===false) parts.push("Terms");
+              badge.textContent="⚠️ "+parts.join("+")+" URL hỏng";
+              card.style.boxShadow="0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.15)";
             }
+            // URL OK hoặc no_desc → ẩn badge (không nhiễu UI)
           }
           // Chỉ inject URL block nếu CÓ URL hỏng (không hiển thị khi OK)
           if(h.has_desc){
