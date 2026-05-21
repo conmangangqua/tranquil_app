@@ -332,11 +332,12 @@
     <p class="s" id="vdApp"></p>
     <p class="s" id="vdPlat" style="font-size:.75rem;color:#7c3aed;font-weight:700;margin:-6px 0 8px"></p>
     <div id="vdFields">Đang tải…</div>
+    <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="display:none;width:100%;margin-top:14px;padding:12px;border:none;border-radius:12px;font-weight:700;cursor:pointer;background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;font-family:inherit">🔁 Gen Privacy/Terms (URL hỏng)</button>
     <input id="vdPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off">
     <div id="vdMsg"></div>
     <div id="vdAct">
       <button type="button" class="vd-close" onclick="vdClose()">Đóng</button>
-      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()">🔁 Gen lại</button>
+      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()">🔁 Gen Description</button>
     </div>
   </div></div>
   <script>(function(){
@@ -382,45 +383,59 @@
       doCopy(t,btn);
     };
 
-    function renderRow(label, value, limit){
+    function renderRow(label, value, limit, urlStatus){
       var len=(value||"").length;
       var meta=limit?(" <span style=\"font-size:.7rem;color:"+(len>limit?"#ef4444":"#94a3b8")+";font-weight:600\">"+len+"/"+limit+"</span>"):"";
       var safeLabel=escapeHtml(label);
       var key=label.toLowerCase().replace(/[^a-z0-9]+/g,"_");
-      // If field is a URL, render as clickable link
       var trimmedVal=(value||"").trim();
       var isUrl=/^https?:\/\//i.test(trimmedVal);
       var safeVal;
       var dataRaw="";
+      var statusBadge="";
       if(isUrl){
         var safeHref=escapeHtml(trimmedVal);
+        // URL health badge: green ✓ if 200, red ⚠ if 404/403/error
+        if(urlStatus){
+          if(urlStatus.ok){
+            statusBadge=' <span style="font-size:.7rem;color:#16a34a;font-weight:700">✓ '+urlStatus.status+'</span>';
+          } else {
+            var st=urlStatus.status?String(urlStatus.status):(urlStatus.error||"unreachable");
+            statusBadge=' <span style="font-size:.7rem;color:#ef4444;font-weight:700;background:#fef2f2;padding:2px 6px;border-radius:4px">⚠️ '+escapeHtml(st)+'</span>';
+          }
+        }
         safeVal='<a href="'+safeHref+'" target="_blank" rel="noopener noreferrer" style="color:#7c3aed;font-weight:700;word-break:break-all;text-decoration:underline">'+safeHref+' ↗</a>';
         dataRaw=' data-raw="'+safeHref+'"';
       } else {
         safeVal=escapeHtml(trimmedVal||"(trống)");
       }
-      return '<div class="lbrow"><span class="lb">'+safeLabel+meta+'</span>'+
+      return '<div class="lbrow"><span class="lb">'+safeLabel+meta+statusBadge+'</span>'+
              '<button type="button" class="cp" data-cp="'+key+'">Copy</button></div>'+
              '<div class="box" id="vdf_'+key+'"'+dataRaw+'>'+safeVal+'</div>';
+    }
+
+    // Track current data for legal-gen UI
+    var currentDescData=null;
+    function hasBrokenUrls(d){
+      var s=d&&d.urls_status||{};
+      return ["privacy_url","terms_url"].some(function(k){
+        var f=(d.fields||{})[k];
+        return !f || (s[k] && !s[k].ok);
+      });
     }
 
     function renderAppstore(d){
       platEl.textContent="🍎 Apple App Store";
       var f=d.fields||{};
+      var s=d.urls_status||{};
       var html="";
       APPSTORE_LAYOUT.forEach(function(r){
-        if(!(r.key in f) && r.key!=="app_name" && r.key!=="description") return; // skip missing optional fields
-        html+=renderRow(r.label, f[r.key]||"", r.limit||0);
+        if(!(r.key in f) && r.key!=="app_name" && r.key!=="description") return;
+        html+=renderRow(r.label, f[r.key]||"", r.limit||0, s[r.key]);
       });
       fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
-      // Attach copy handlers
-      fieldsEl.querySelectorAll(".cp").forEach(function(b){
-        b.addEventListener("click",function(){
-          var box=document.getElementById("vdf_"+b.getAttribute("data-cp"));
-          var t=(box&&box.getAttribute("data-raw"))||(box&&box.textContent)||"";
-          doCopy(t,b);
-        });
-      });
+      attachCopy();
+      updateLegalBtn(d);
     }
 
     var GOOGLE_LAYOUT=[
@@ -437,15 +452,20 @@
     function renderGoogle(d){
       platEl.textContent="🤖 Google Play";
       var f=d.fields||{};
-      // Back-compat: legacy API only returns .short/.long
+      var s=d.urls_status||{};
       if(!f.short_description && d.short) f.short_description=d.short;
       if(!f.full_description && d.long) f.full_description=d.long;
       var html="";
       GOOGLE_LAYOUT.forEach(function(r){
         if(!(r.key in f) && r.key!=="short_description" && r.key!=="full_description") return;
-        html+=renderRow(r.label, f[r.key]||"", r.limit||0);
+        html+=renderRow(r.label, f[r.key]||"", r.limit||0, s[r.key]);
       });
       fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
+      attachCopy();
+      updateLegalBtn(d);
+    }
+
+    function attachCopy(){
       fieldsEl.querySelectorAll(".cp").forEach(function(b){
         b.addEventListener("click",function(){
           var box=document.getElementById("vdf_"+b.getAttribute("data-cp"));
@@ -453,6 +473,18 @@
           doCopy(t,b);
         });
       });
+    }
+
+    function updateLegalBtn(d){
+      currentDescData=d;
+      var btn=document.getElementById("vdGenLegalBtn");
+      if(!btn) return;
+      if(hasBrokenUrls(d)){
+        btn.style.display="block";
+        btn.textContent="🔁 Gen Privacy/Terms (URL hỏng)";
+      } else {
+        btn.style.display="none";
+      }
     }
 
     window.openViewDesc=async function(id,nm){
@@ -486,6 +518,20 @@
         if(window.showSnack) showSnack("📝 "+d.message+" (vài phút có bản mới)", d.pipeline_url, false);
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ gb.disabled=false; }
+    };
+    window.vdGenLegal=async function(){
+      var v=(pin.value||"").trim();
+      if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN để Gen Privacy/Terms."; return; }
+      var lb=document.getElementById("vdGenLegalBtn");
+      lb.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đang kích gen Privacy/Terms…";
+      try{
+        var r=await fetch(API+"/api/genlegal",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:appId,pin:v})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
+        vdClose();
+        if(window.showSnack) showSnack("📄 "+d.message, d.pipeline_url, false);
+      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      finally{ lb.disabled=false; }
     };
   })();</script>
 
