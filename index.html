@@ -112,9 +112,9 @@
         const stack = (label, k) => v[k]
           ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
           : `<span class="btn-stack">${label}</span>`;
-        const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`;
+        const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`; card.dataset.appId = app.id;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
-          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span></div>
+          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><span class="btn-ic">🛒</span><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">➕</span><span class="btn-stack">Add Store Link</span></button>
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Assets</button></div>`;
@@ -125,7 +125,66 @@
       const query = document.getElementById("searchInput").value.toLowerCase();
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
     };
-    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; renderApps(allApps); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; renderApps(allApps); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+
+    function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
+    function urlRow(label, url, ok){
+      if(!url) return '<div style="font-size:.7rem;color:#94a3b8">'+label+': <i>(trống)</i></div>';
+      const okBadge = ok===true ? '<span style="color:#16a34a;font-weight:700">✓</span>'
+                    : ok===false ? '<span style="color:#dc2626;font-weight:800">⚠️ HỎNG</span>'
+                    : '<span style="color:#94a3b8">?</span>';
+      const safe = escHtml(url);
+      const color = ok===false ? "#dc2626" : "#7c3aed";
+      return '<div style="font-size:.7rem;line-height:1.4;margin-top:2px"><span style="color:#64748b;font-weight:600">'+label+'</span> '+okBadge+'<br><a href="'+safe+'" target="_blank" rel="noopener" style="color:'+color+';word-break:break-all;text-decoration:underline">'+safe+'</a></div>';
+    }
+    async function runHealthCheck(){
+      if(!allApps.length) return;
+      const ids = allApps.map(a => a.id).filter(Boolean).slice(0, 50);
+      try{
+        const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk?app_ids="+encodeURIComponent(ids.join(",")));
+        if(!r.ok) return;
+        const data = await r.json();
+        Object.entries(data.results || {}).forEach(([appId, h]) => {
+          const card = document.querySelector('.app-card[data-app-id="'+CSS.escape(appId)+'"]');
+          if(!card) return;
+          const badge = card.querySelector('.health-badge');
+          if(badge){
+            if(!h.has_desc){
+              badge.style.display="inline-flex";
+              badge.style.cssText += "background:#f1f5f9;color:#64748b;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;align-items:center;gap:3px";
+              badge.textContent="📄 No desc";
+            } else {
+              const broken = h.privacy_ok===false || h.terms_ok===false;
+              if(broken){
+                badge.style.display="inline-flex";
+                badge.style.cssText += "background:#fef2f2;color:#dc2626;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:8px;align-items:center;gap:3px;border:1px solid #fecaca";
+                const parts = [];
+                if(h.privacy_ok===false) parts.push("Privacy");
+                if(h.terms_ok===false) parts.push("Terms");
+                badge.textContent="⚠️ "+parts.join("+")+" URL hỏng";
+                card.style.boxShadow="0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.15)";
+              } else if(h.privacy_ok===true){
+                badge.style.display="inline-flex";
+                badge.style.cssText += "background:#f0fdf4;color:#16a34a;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:8px;align-items:center;gap:3px";
+                badge.textContent="✓ URLs OK";
+              }
+            }
+          }
+          // Inject URL block sau .app-desc
+          if(h.has_desc){
+            const descEl = card.querySelector('.app-desc');
+            if(descEl && !card.querySelector('.health-urls')){
+              const wrap = document.createElement("div");
+              wrap.className="health-urls";
+              wrap.style.cssText="margin:6px 0 10px;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px";
+              wrap.innerHTML = urlRow("Privacy", h.privacy_url, h.privacy_ok) + urlRow("Terms", h.terms_url, h.terms_ok);
+              descEl.after(wrap);
+            }
+          }
+        });
+      }catch(e){ /* silent */ }
+    }
+    window.runHealthCheck = runHealthCheck;
   </script>
 
   <div class="modal-overlay" id="buildModal">
