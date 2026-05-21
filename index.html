@@ -137,7 +137,13 @@
       const color = ok===false ? "#dc2626" : "#7c3aed";
       return '<div style="font-size:.7rem;line-height:1.4;margin-top:2px"><span style="color:#64748b;font-weight:600">'+label+'</span> '+okBadge+'<br><a href="'+safe+'" target="_blank" rel="noopener" style="color:'+color+';word-break:break-all;text-decoration:underline">'+safe+'</a></div>';
     }
+    function clearHealthUI(){
+      document.querySelectorAll(".health-badge").forEach(b => { b.style.display="none"; b.textContent=""; });
+      document.querySelectorAll(".health-urls").forEach(u => u.remove());
+      document.querySelectorAll(".app-card").forEach(c => { c.style.boxShadow=""; });
+    }
     async function runHealthCheck(){
+      if(localStorage.getItem("aab_authed")!=="1"){ clearHealthUI(); return; }
       if(!allApps.length) return;
       const ids = allApps.map(a => a.id).filter(Boolean).slice(0, 50);
       try{
@@ -314,7 +320,7 @@
     function authed(){return localStorage.getItem(KEY)==="1";}
     function render(){ if(authed()){b.classList.add("aab-authed");btn.textContent="🔓 Đăng xuất";} else {b.classList.remove("aab-authed");btn.textContent="🔒 Đăng nhập";} }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
-    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); render(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
+    btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
     ov.addEventListener("click",function(e){ if(e.target===ov) close(); });
     pin.addEventListener("keydown",function(e){ if(e.key==="Enter") ok.click(); });
@@ -326,7 +332,7 @@
         var r=await fetch(API+"/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({pin:v})});
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
-        localStorage.setItem(KEY,"1"); render(); close();
+        localStorage.setItem(KEY,"1"); render(); close(); window.runHealthCheck && window.runHealthCheck();
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ ok.disabled=false; }
     };
