@@ -15,23 +15,6 @@
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
     },
     {
-      "id": "calorie_fasting_tracker",
-      "name": "Calorie Fasting Tracker",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/calorie_fasting_tracker_icon.png",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/calorie_fasting_tracker_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/calorie_fasting_tracker_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": ""
-    },
-    {
       "id": "emu_game",
       "name": "Emu Game",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
