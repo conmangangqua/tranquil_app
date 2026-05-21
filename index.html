@@ -324,10 +324,8 @@
   <div id="vdOv"><div id="vdMd">
     <h3>📄 Store Description</h3>
     <p class="s" id="vdApp"></p>
-    <div class="lbrow"><span class="lb">Short description</span><button type="button" class="cp" onclick="vdCopy('short',this)">Copy</button></div>
-    <div class="box" id="vdShort">…</div>
-    <div class="lbrow"><span class="lb">Long description</span><button type="button" class="cp" onclick="vdCopy('long',this)">Copy</button></div>
-    <div class="box" id="vdLong">…</div>
+    <p class="s" id="vdPlat" style="font-size:.75rem;color:#7c3aed;font-weight:700;margin:-6px 0 8px"></p>
+    <div id="vdFields">Đang tải…</div>
     <input id="vdPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off">
     <div id="vdMsg"></div>
     <div id="vdAct">
@@ -338,33 +336,108 @@
   <script>(function(){
     var API="https://aab-trigger.vercel.app", appId="";
     var ov=document.getElementById("vdOv"),appEl=document.getElementById("vdApp"),
-        shortEl=document.getElementById("vdShort"),longEl=document.getElementById("vdLong"),
+        platEl=document.getElementById("vdPlat"),
+        fieldsEl=document.getElementById("vdFields"),
         pin=document.getElementById("vdPin"),msg=document.getElementById("vdMsg"),
         gb=document.getElementById("vdGenBtn");
-    window.vdCopy=function(kind,btn){
-      var t=(kind==="short"?shortEl:longEl).textContent||"";
+
+    // Appstore (iOS) field order + display labels + Apple char limits
+    var APPSTORE_LAYOUT=[
+      {key:"app_name",      label:"App Name",         limit:30},
+      {key:"subtitle",      label:"Subtitle",         limit:30},
+      {key:"promotional_text",label:"Promotional Text",limit:170},
+      {key:"description",   label:"Description",      limit:4000},
+      {key:"keywords",      label:"Keywords",         limit:100},
+      {key:"whats_new",     label:"What's New",       limit:4000},
+      {key:"category",      label:"Category"},
+      {key:"content_rating",label:"Content Rating"},
+      {key:"privacy_url",   label:"Privacy URL"},
+      {key:"support_url",   label:"Support URL"},
+      {key:"terms_url",     label:"Terms URL"},
+      {key:"marketing_url", label:"Marketing URL"},
+      {key:"copyright",     label:"Copyright"}
+    ];
+
+    function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
+
+    function doCopy(text,btn){
       function done(){ var o=btn.textContent; btn.textContent="Đã copy ✓"; setTimeout(function(){btn.textContent=o;},1500); }
       if(navigator.clipboard&&navigator.clipboard.writeText){
-        navigator.clipboard.writeText(t).then(done).catch(function(){fallback(t,done);});
-      } else { fallback(t,done); }
-    };
-    function fallback(t,cb){
+        navigator.clipboard.writeText(text).then(done).catch(function(){fb(text,done);});
+      } else fb(text,done);
+    }
+    function fb(t,cb){
       var ta=document.createElement("textarea"); ta.value=t;
       ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta);
       ta.focus(); ta.select();
       try{ document.execCommand("copy"); cb(); }catch(e){} document.body.removeChild(ta);
     }
+    // Expose for any legacy callers
+    window.vdCopy=function(kind,btn){
+      var t=(document.getElementById("vdf_"+kind)||{}).textContent||"";
+      doCopy(t,btn);
+    };
+
+    function renderRow(label, value, limit){
+      var len=(value||"").length;
+      var meta=limit?(" <span style=\"font-size:.7rem;color:"+(len>limit?"#ef4444":"#94a3b8")+";font-weight:600\">"+len+"/"+limit+"</span>"):"";
+      var safeLabel=escapeHtml(label);
+      var safeVal=escapeHtml(value||"(trống)");
+      var key=label.toLowerCase().replace(/[^a-z0-9]+/g,"_");
+      return '<div class="lbrow"><span class="lb">'+safeLabel+meta+'</span>'+
+             '<button type="button" class="cp" data-cp="'+key+'">Copy</button></div>'+
+             '<div class="box" id="vdf_'+key+'">'+safeVal+'</div>';
+    }
+
+    function renderAppstore(d){
+      platEl.textContent="🍎 Apple App Store";
+      var f=d.fields||{};
+      var html="";
+      APPSTORE_LAYOUT.forEach(function(r){
+        if(!(r.key in f) && r.key!=="app_name" && r.key!=="description") return; // skip missing optional fields
+        html+=renderRow(r.label, f[r.key]||"", r.limit||0);
+      });
+      fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
+      // Attach copy handlers
+      fieldsEl.querySelectorAll(".cp").forEach(function(b){
+        b.addEventListener("click",function(){
+          var t=(document.getElementById("vdf_"+b.getAttribute("data-cp"))||{}).textContent||"";
+          doCopy(t,b);
+        });
+      });
+    }
+
+    function renderGoogle(d){
+      platEl.textContent="🤖 Google Play";
+      var f=d.fields||{short:d.short,long:d.long};
+      var html=renderRow("Short description", f.short||"", 80)+
+               renderRow("Long description", f.long||"", 4000);
+      if(f.release_notes) html+=renderRow("Release notes", f.release_notes, 500);
+      fieldsEl.innerHTML=html;
+      fieldsEl.querySelectorAll(".cp").forEach(function(b){
+        b.addEventListener("click",function(){
+          var t=(document.getElementById("vdf_"+b.getAttribute("data-cp"))||{}).textContent||"";
+          doCopy(t,b);
+        });
+      });
+    }
+
     window.openViewDesc=async function(id,nm){
       appId=id; appEl.textContent=nm; pin.value=""; msg.textContent="";
-      shortEl.textContent="Đang tải…"; longEl.textContent="Đang tải…";
+      platEl.textContent=""; fieldsEl.innerHTML="Đang tải…";
       ov.classList.add("open");
       try{
         var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id));
         var d=await r.json();
         if(!r.ok) throw new Error(d.error||"Không tải được");
-        if(!d.exists){ shortEl.textContent="(Chưa có — bấm Gen lại để tạo)"; longEl.textContent="(Chưa có)"; }
-        else { shortEl.textContent=d.short||"(trống)"; longEl.textContent=d.long||"(trống)"; }
-      }catch(e){ shortEl.textContent="⚠️ "+e.message; longEl.textContent=""; }
+        if(!d.exists){
+          platEl.textContent=(d.platform==="appstore"?"🍎 Apple App Store":"🤖 Google Play");
+          fieldsEl.innerHTML="<div class=\"box\">(Chưa có — bấm Gen lại để tạo)</div>";
+          return;
+        }
+        if(d.platform==="appstore") renderAppstore(d);
+        else renderGoogle(d);
+      }catch(e){ fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(e.message)+"</div>"; }
     };
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
