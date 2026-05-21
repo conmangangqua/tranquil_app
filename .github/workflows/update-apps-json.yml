@@ -133,16 +133,19 @@ jobs:
               STORES = {}
           import urllib.request as _ur
           def validate_store(u):
+              # Always keep URL provided by dev — KHÔNG drop kể cả khi 404
+              # (Play Store thường 404 cho app chưa publish; URL vẫn đúng và sẽ live sau review)
               if not u:
                   return ""
               try:
                   _ur.urlopen(_ur.Request(u, headers={'User-Agent': 'Mozilla/5.0'}), timeout=12).read(1)
                   return u
               except Exception as e:
-                  if getattr(e, 'code', None) == 404:
-                      print(f"  store 404 -> drop: {u}")
-                      return ""
-                  print(f"  store check inconclusive, keep: {u} ({e})")
+                  code = getattr(e, 'code', None)
+                  if code == 404:
+                      print(f"  ⚠️  store 404 (likely pending publish), kept: {u}")
+                  else:
+                      print(f"  store check inconclusive, keep: {u} ({e})")
                   return u
 
           # Extract all app IDs from file names
