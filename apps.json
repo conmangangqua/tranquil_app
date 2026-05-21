@@ -77,7 +77,7 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.geosnap.gps"
     },
     {
       "id": "ling_ai",
@@ -94,7 +94,7 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.learning.ling.ai"
     },
     {
       "id": "luminary_pdf",
@@ -111,7 +111,7 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.luminary.pdf"
     },
     {
       "id": "moo_insect_filter",
@@ -128,7 +128,7 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tmt.insects.filter"
     },
     {
       "id": "restorex",
@@ -145,7 +145,7 @@
         "dev": "1.0.0+26032901",
         "prod": "1.0.0+26032901"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.restore.x"
     },
     {
       "id": "turbovid",
@@ -178,7 +178,7 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
       },
       "versions": {},
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.voicepal"
     },
     {
       "id": "zentide_sleep_tracker",
