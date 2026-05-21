@@ -125,7 +125,7 @@
       const query = document.getElementById("searchInput").value.toLowerCase();
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
     };
-    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; renderApps(allApps); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
     function urlRow(label, url, ok){
