@@ -407,13 +407,30 @@
       });
     }
 
+    var GOOGLE_LAYOUT=[
+      {key:"app_name",          label:"Title",             limit:50},
+      {key:"short_description", label:"Short description", limit:80},
+      {key:"full_description",  label:"Long description",  limit:4000},
+      {key:"release_notes",     label:"Release notes",     limit:500},
+      {key:"category",          label:"Category"},
+      {key:"content_rating",    label:"Content Rating"},
+      {key:"privacy_url",       label:"Privacy URL"},
+      {key:"support_url",       label:"Support URL"},
+      {key:"terms_url",         label:"Terms URL"},
+      {key:"copyright",         label:"Copyright"}
+    ];
     function renderGoogle(d){
       platEl.textContent="🤖 Google Play";
-      var f=d.fields||{short:d.short,long:d.long};
-      var html=renderRow("Short description", f.short||"", 80)+
-               renderRow("Long description", f.long||"", 4000);
-      if(f.release_notes) html+=renderRow("Release notes", f.release_notes, 500);
-      fieldsEl.innerHTML=html;
+      var f=d.fields||{};
+      // Back-compat: legacy API only returns .short/.long
+      if(!f.short_description && d.short) f.short_description=d.short;
+      if(!f.full_description && d.long) f.full_description=d.long;
+      var html="";
+      GOOGLE_LAYOUT.forEach(function(r){
+        if(!(r.key in f) && r.key!=="short_description" && r.key!=="full_description") return;
+        html+=renderRow(r.label, f[r.key]||"", r.limit||0);
+      });
+      fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
       fieldsEl.querySelectorAll(".cp").forEach(function(b){
         b.addEventListener("click",function(){
           var t=(document.getElementById("vdf_"+b.getAttribute("data-cp"))||{}).textContent||"";
