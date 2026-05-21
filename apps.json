@@ -195,7 +195,7 @@
         "dev": "1.2.0+50",
         "prod": "1.2.0+50"
       },
-      "store": ""
+      "store": "https://play.google.com/store/apps/details?id=com.tmt.sleeptracker"
     }
   ]
 }
