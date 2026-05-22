@@ -146,9 +146,13 @@
     async function runHealthCheck(){
       if(localStorage.getItem("aab_authed")!=="1"){ clearHealthUI(); return; }
       if(!allApps.length) return;
-      const ids = allApps.map(a => a.id).filter(Boolean).slice(0, 50);
+      const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id, store_url: a.store || null}));
       try{
-        const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk?app_ids="+encodeURIComponent(ids.join(",")));
+        const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({apps})
+        });
         if(!r.ok) return;
         const data = await r.json();
         Object.entries(data.results || {}).forEach(([appId, h]) => {
@@ -157,16 +161,28 @@
           const badge = card.querySelector('.health-badge');
           if(badge){
             const broken = h.has_desc && (h.privacy_ok===false || h.terms_ok===false);
-            if(broken){
+            const storeBroken = h.store_url && h.store_ok===false;
+            if(broken || storeBroken){
               badge.style.display="inline-flex";
               badge.style.cssText += "background:#fef2f2;color:#dc2626;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:8px;align-items:center;gap:3px;border:1px solid #fecaca";
               const parts = [];
               if(h.privacy_ok===false) parts.push("Privacy");
               if(h.terms_ok===false) parts.push("Terms");
-              badge.textContent="⚠️ "+parts.join("+")+" URL hỏng";
+              if(storeBroken) parts.push("Store");
+              badge.textContent="⚠️ "+parts.join("+")+" URL 404";
               card.style.boxShadow="0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.15)";
             }
-            // URL OK hoặc no_desc → ẩn badge (không nhiễu UI)
+          }
+          // Store URL 404: hide "View on Store" button + show "Update Store Link"
+          if(h.store_url && h.store_ok===false){
+            const storeBtn = card.querySelector('.btn-store');
+            if(storeBtn) storeBtn.style.display="none";
+            const addBtn = card.querySelector('.btn-addstore');
+            if(addBtn){
+              addBtn.setAttribute("data-has-store","0");
+              const stack = addBtn.querySelector('.btn-stack');
+              if(stack) stack.textContent="Update Store Link (URL 404)";
+            }
           }
           // Chỉ inject URL block nếu CÓ URL hỏng (không hiển thị khi OK)
           if(h.has_desc){
@@ -676,7 +692,37 @@
       var m2=a&&a.href.match(/conmangangqua\/([A-Za-z0-9_-]+)/);
       return m2?m2[1]:"";
     }
-    window.openStoreModal=function(id,nm){ appId=id; document.getElementById('stApp').textContent=nm+" — dán link store"; document.getElementById('stUrl').value=""; document.getElementById('stPin').value=""; document.getElementById('stMsg').textContent=""; document.getElementById('stOv').classList.add('open'); };
+    window.openStoreModal=async function(id,nm){
+      appId=id;
+      var appEl=document.getElementById('stApp');
+      var urlIn=document.getElementById('stUrl');
+      var pinIn=document.getElementById('stPin');
+      var msg=document.getElementById('stMsg');
+      appEl.textContent=nm+" — dán link store";
+      urlIn.value=""; pinIn.value=""; msg.textContent="";
+      msg.style.color="#64748b";
+      msg.textContent="⏳ Đang dò package…";
+      document.getElementById('stOv').classList.add('open');
+      try{
+        var r=await fetch("https://aab-trigger.vercel.app/api/package?app_id="+encodeURIComponent(id));
+        var d=await r.json();
+        if(d.suggest_url){
+          urlIn.value=d.suggest_url;
+          if(d.platform==="android"){
+            msg.style.color="#16a34a";
+            msg.textContent="✓ Auto-suggest từ package: "+d.package_id;
+            // Focus end of input so user can edit nếu cần
+            setTimeout(function(){ urlIn.focus(); urlIn.setSelectionRange(urlIn.value.length, urlIn.value.length); }, 50);
+          } else if(d.platform==="ios"){
+            msg.style.color="#7c3aed";
+            msg.textContent="🍎 Nhập ID số App Store (bundle: "+(d.package_id||"")+") vào cuối link";
+            setTimeout(function(){ urlIn.focus(); urlIn.setSelectionRange(urlIn.value.length, urlIn.value.length); }, 50);
+          }
+        } else {
+          msg.textContent="";
+        }
+      }catch(e){ msg.textContent=""; }
+    };
     window.stClose=function(){ document.getElementById('stOv').classList.remove('open'); };
     document.getElementById('stOv').addEventListener('click',function(e){ if(e.target.id==='stOv') stClose(); });
     window.stSubmit=async function(){
