@@ -40,7 +40,10 @@
     .app-icon-box { width: 120px; height: 120px; margin: 0 auto 35px; border-radius: 28px; padding: 0; background: transparent; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); display: flex; align-items: center; justify-content: center; transition: transform 0.4s ease, box-shadow 0.4s ease; overflow: hidden; }
     .app-card:hover .app-icon-box { transform: scale(1.06); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18); }
     .app-icon { width: 100%; height: 100%; border-radius: inherit; object-fit: cover; }
-    .badge { font-size: 0.8rem; font-weight: 800; padding: 7px 18px; border-radius: 20px; text-transform: uppercase; margin-bottom: 25px; align-self: center; background: #ecfdf5; color: #065f46; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 25px; align-self: center; }
+    .badge i, .badge svg { width: 14px; height: 14px; stroke-width: 2.2; }
+    .badge.ios { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+    .badge.android { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: #fff; box-shadow: 0 4px 12px rgba(22,163,74,0.3); }
     .app-title { font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 12px; color: var(--text-main); }
     .app-desc { font-size: 1.05rem; color: var(--text-muted); text-align: center; margin-bottom: 35px; flex-grow: 1; font-weight: 500; }
     .app-desc:empty{display:none}
@@ -117,7 +120,7 @@
           : `<span class="btn-stack">${label}</span>`;
         const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`; card.dataset.appId = app.id;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
-          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span><span class="health-badge" data-health="loading" style="display:none"></span></div>
+          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="plus"></i><span class="btn-stack">Add Store Link</span></button>
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button></div>`;
@@ -229,7 +232,7 @@
 
   <div class="modal-overlay" id="buildModal">
     <div class="modal">
-      <h3 id="bmTitle">🔨 Build</h3>
+      <h3 id="bmTitle"><i data-lucide="hammer" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"></i>Build</h3>
       <p class="sub" id="bmApp"></p>
       <label>Version Name</label>
       <input type="text" id="bmName" placeholder="vd 1.0.1" autocomplete="off">
@@ -252,7 +255,7 @@
 
     async function openBuildModal(appId, appName) {
       bmAppId = appId;
-      $("bmTitle").textContent = "🔨 Build";
+      $("bmTitle").innerHTML = '<i data-lucide="hammer" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"></i>Build';
       $("bmApp").textContent = appName + " — kích build từ xa";
       $("bmName").value = ""; $("bmCode").value = ""; $("bmPin").value = "";
       $("bmStatus").textContent = "Đang lấy version hiện tại...";
@@ -262,7 +265,8 @@
         const r = await fetch(`${BUILD_API}/api/version?app_id=${encodeURIComponent(appId)}`);
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || "Không lấy được version");
-        $("bmTitle").textContent = "🔨 Build " + (d.build_label || "");
+        $("bmTitle").innerHTML = '<i data-lucide="hammer" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"></i>Build ' + (d.build_label || "");
+        window.lucide && lucide.createIcons();
         $("bmApp").textContent = appName + " — " + (d.platform === "ios" ? "iOS TestFlight" : "Android AAB");
         $("bmName").value = d.version_name || "";
         $("bmCode").value = d.suggested_code || d.version_code || "";
@@ -332,9 +336,9 @@
     .aabl-cancel{background:#f1f5f9;color:#475569}
     .aabl-ok{background:#059669;color:#fff}
   </style>
-  <button id="aablBtn" type="button">🔒 Đăng nhập</button>
+  <button id="aablBtn" type="button"><i data-lucide="lock-keyhole" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng nhập</button>
   <div id="aablOv"><div id="aablMd">
-    <h3>🔒 Đăng nhập Build</h3>
+    <h3><i data-lucide="lock-keyhole" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"></i>Đăng nhập Build</h3>
     <input id="aablPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
     <div id="aablMsg"></div>
     <div id="aablAct">
@@ -352,7 +356,7 @@
         ok=document.getElementById("aablOk"),
         cancel=document.getElementById("aablCancel");
     function authed(){return localStorage.getItem(KEY)==="1";}
-    function render(){ if(authed()){b.classList.add("aab-authed");btn.textContent="🔓 Đăng xuất";} else {b.classList.remove("aab-authed");btn.textContent="🔒 Đăng nhập";} }
+    function render(){ if(authed()){b.classList.add("aab-authed");btn.innerHTML='<i data-lucide="log-out" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng xuất';} else {b.classList.remove("aab-authed");btn.innerHTML='<i data-lucide="lock-keyhole" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng nhập';} window.lucide && lucide.createIcons(); }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
     btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
@@ -390,7 +394,8 @@
     window.showSnack=function(msg,url,isErr){
       clearTimeout(t);
       var link=url?(' <a href="'+url+'" target="_blank" rel="noopener">Xem pipeline ›</a>'):'';
-      el.innerHTML='<span>'+msg+link+'</span><span class="x">✕</span>';
+      el.innerHTML='<span>'+msg+link+'</span><span class="x"><i data-lucide="x" style="width:14px;height:14px;vertical-align:-2px"></i></span>';
+      window.lucide && lucide.createIcons();
       el.className=isErr?'err show':'show';
       el.querySelector(".x").onclick=function(){ el.classList.remove("show"); };
       t=setTimeout(function(){ el.classList.remove("show"); }, 8000);
@@ -429,7 +434,7 @@
     @keyframes vdspin{to{transform:rotate(360deg)}}
   </style>
   <div id="vdOv"><div id="vdMd">
-    <h3>📄 Store Description</h3>
+    <h3><i data-lucide="file-text" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Store Description</h3>
     <p class="s" id="vdApp"></p>
     <p class="s" id="vdPlat" style="font-size:.75rem;color:#7c3aed;font-weight:700;margin:-6px 0 8px"></p>
     <div id="vdFields">Đang tải…</div>
@@ -437,8 +442,8 @@
     <div id="vdMsg"></div>
     <div id="vdAct">
       <button type="button" class="vd-close" onclick="vdClose()">Đóng</button>
-      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()">🔁 Gen Description</button>
-      <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="display:none;grid-column:span 2;padding:12px;border:1.5px solid #fecaca;border-radius:12px;font-weight:700;cursor:pointer;background:#fef2f2;color:#dc2626;font-family:inherit">🔁 Gen Privacy/Terms (URL hỏng)</button>
+      <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Description</button>
+      <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="display:none;grid-column:span 2;padding:12px;border:1.5px solid #fecaca;border-radius:12px;font-weight:700;cursor:pointer;background:#fef2f2;color:#dc2626;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Privacy/Terms (URL hỏng)</button>
     </div>
   </div></div>
   <script>(function(){
@@ -582,7 +587,8 @@
       if(!btn) return;
       if(hasBrokenUrls(d)){
         btn.style.display="block";
-        btn.textContent="🔁 Gen Privacy/Terms (URL hỏng)";
+        btn.innerHTML='<i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Privacy/Terms (URL hỏng)';
+        window.lucide && lucide.createIcons();
       } else {
         btn.style.display="none";
       }
@@ -691,7 +697,7 @@
     .st-ok:disabled{opacity:.55;cursor:not-allowed}
   </style>
   <div id="stOv"><div id="stMd">
-    <h3>➕ Add Store Link</h3>
+    <h3><i data-lucide="plus" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Add Store Link</h3>
     <p class="sub" id="stApp"></p>
     <label>Store URL (Google Play / App Store)</label>
     <input id="stUrl" type="url" placeholder="https://play.google.com/store/apps/details?id=..." autocomplete="off">
