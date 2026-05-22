@@ -256,11 +256,25 @@
           badge.className = "ads-badge " + (a.has_ads ? "has-ads" : "no-ads");
           badge.style.display = "inline-flex";
           if(a.has_ads){
-            const abbr = {AdMob:'AdMob',IronSource:'IS',AppLovin:'MAX',Moonvera:'MV',Azura:'AZ','Unity Ads':'Unity'};
-            const sdks = (a.ads||[]).map(s=>abbr[s]||s).join('+');
-            badge.innerHTML = '<i data-lucide="megaphone"></i>'+sdks;
+
+            const sdks = (a.ads||[]).join(', ');
+
+            badge.innerHTML = '<i data-lucide="megaphone"></i>ADS';
+
+            badge.style.cursor = 'pointer';
+
+            badge.title = 'Click để xem SDK chi tiết';
+
+            badge.onclick = function(){ alert('Ads SDK: ' + sdks); };
+
           } else {
+
             badge.innerHTML = '<i data-lucide="ban"></i>No Ads';
+
+            badge.style.cursor = 'default';
+
+            badge.onclick = null;
+
           }
           window.lucide && lucide.createIcons();
         });
