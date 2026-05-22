@@ -267,10 +267,10 @@
       }catch(e){}
     }
     async function runHealthCheck(){
+      runAdsCheck();
       if(localStorage.getItem("aab_authed")!=="1"){ clearHealthUI(); return; }
       if(!allApps.length) return;
       const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id, store_url: a.store || null}));
-      runAdsCheck();
       try{
         const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk", {
           method: "POST",
