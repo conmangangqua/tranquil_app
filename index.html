@@ -77,7 +77,8 @@
   </style>
   <style>/* AAB_BTNFIX3 */
     .btn{position:relative;gap:0}
-    .btn-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;line-height:1;pointer-events:none}
+    .btn-ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;line-height:1;pointer-events:none;width:18px;height:18px;stroke-width:2;color:currentColor}
+    .btn-ic svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none}
     .btn-stack{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-width:0}
     .btn-stack .ver{white-space:nowrap;font-size:10px}
     @media (max-width:480px){ .btn-stack .ver{font-size:9px} }
@@ -88,6 +89,7 @@
     }
   </style>
 
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 <body>
   <div class="bg-animation"><div class="blob"></div></div>
@@ -117,16 +119,17 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}">${app.platform || 'Android'}</span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><span class="btn-ic">🔧</span>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><span class="btn-ic">🚀</span>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><span class="btn-ic">📦</span>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><span class="btn-ic">🛒</span><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">➕</span><span class="btn-stack">Add Store Link</span></button>
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><span class="btn-ic">🔨</span><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')">📄 Description</button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)">⬇️ Assets</button></div>`;
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="plus"></i><span class="btn-stack">Add Store Link</span></button>
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button></div>`;
         container.appendChild(card);
       });
     };
     const filterApps = () => {
       const query = document.getElementById("searchInput").value.toLowerCase();
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
+      window.lucide && lucide.createIcons();
     };
-    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); window.lucide && lucide.createIcons(); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
     function urlRow(label, url, ok){
