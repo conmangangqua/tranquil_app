@@ -161,14 +161,12 @@
           const badge = card.querySelector('.health-badge');
           if(badge){
             const broken = h.has_desc && (h.privacy_ok===false || h.terms_ok===false);
-            const storeBroken = h.store_url && h.store_ok===false;
-            if(broken || storeBroken){
+            if(broken){
               badge.style.display="inline-flex";
               badge.style.cssText += "background:#fef2f2;color:#dc2626;font-size:.65rem;font-weight:800;padding:3px 8px;border-radius:8px;align-items:center;gap:3px;border:1px solid #fecaca";
               const parts = [];
               if(h.privacy_ok===false) parts.push("Privacy");
               if(h.terms_ok===false) parts.push("Terms");
-              if(storeBroken) parts.push("Store");
               badge.textContent="⚠️ "+parts.join("+")+" URL 404";
               card.style.boxShadow="0 0 0 2px #fecaca, 0 8px 20px rgba(220,38,38,.15)";
             }
