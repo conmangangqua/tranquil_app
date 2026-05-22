@@ -202,7 +202,7 @@
           : `<span class="btn-stack">${label}</span>`;
         const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`; card.dataset.appId = app.id;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
-          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="health-badge" data-health="loading" style="display:none"></span></div>
+          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="ads-badge" data-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""} <button type="button" class="btn btn-addstore" data-has-store="${storeUrl?1:0}" onclick="openStoreModal('${app.id}','${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="plus"></i><span class="btn-stack">Add Store Link</span></button>
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button></div>`;
@@ -227,14 +227,44 @@
       return '<div style="font-size:.7rem;line-height:1.4;margin-top:2px"><span style="color:#64748b;font-weight:600">'+label+'</span> '+okBadge+'<br><a href="'+safe+'" target="_blank" rel="noopener" style="color:'+color+';word-break:break-all;text-decoration:underline">'+safe+'</a></div>';
     }
     function clearHealthUI(){
-      document.querySelectorAll(".health-badge").forEach(b => { b.style.display="none"; b.textContent=""; });
+      document.querySelectorAll(".health-badge, .ads-badge").forEach(b => { b.style.display="none"; b.textContent=""; });
       document.querySelectorAll(".health-urls").forEach(u => u.remove());
       document.querySelectorAll(".app-card").forEach(c => { c.style.boxShadow=""; });
+    }
+    async function runAdsCheck(){
+      if(!allApps.length) return;
+      const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id}));
+      try{
+        const r = await fetch("https://aab-trigger.vercel.app/api/adscheck", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({apps})
+        });
+        if(!r.ok) return;
+        const data = await r.json();
+        Object.entries(data.results || {}).forEach(([appId, a]) => {
+          const card = document.querySelector('.app-card[data-app-id="'+CSS.escape(appId)+'"]');
+          if(!card) return;
+          const badge = card.querySelector('.ads-badge');
+          if(!badge) return;
+          badge.style.display="inline-flex";
+          if(a.has_ads){
+            const sdks = (a.ads||[]).join('+');
+            badge.style.cssText += "background:linear-gradient(135deg,#fb923c 0%,#f59e0b 100%);color:#fff;font-size:.7rem;font-weight:800;padding:5px 12px;border-radius:20px;align-items:center;gap:5px;box-shadow:0 4px 12px rgba(245,158,11,.3)";
+            badge.innerHTML = '<i data-lucide="megaphone" style="width:13px;height:13px"></i>'+sdks;
+          } else {
+            badge.style.cssText += "background:#f1f5f9;color:#64748b;font-size:.7rem;font-weight:700;padding:5px 12px;border-radius:20px;align-items:center;gap:5px;border:1px solid #e2e8f0";
+            badge.innerHTML = '<i data-lucide="ban" style="width:12px;height:12px"></i>No Ads';
+          }
+          window.lucide && lucide.createIcons();
+        });
+      }catch(e){}
     }
     async function runHealthCheck(){
       if(localStorage.getItem("aab_authed")!=="1"){ clearHealthUI(); return; }
       if(!allApps.length) return;
       const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id, store_url: a.store || null}));
+      runAdsCheck();
       try{
         const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk", {
           method: "POST",
