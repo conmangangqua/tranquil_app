@@ -5,7 +5,7 @@
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
-      "description": "",
+      "description": "Sleep Sounds & Smart Alarm",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
@@ -19,7 +19,7 @@
       "name": "Emu Game",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
       "platform": "iOS",
-      "description": "",
+      "description": "Retro emulator for your files",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist",
@@ -33,7 +33,7 @@
       "name": "Genify Ai",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/genify_ai_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Turn photos into AI art, enhance quality, expand background & remove objects.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/genify_ai_dev.apk",
@@ -50,7 +50,7 @@
       "name": "Geosnap",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/geosnap_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Add GPS, map, weather & time stamps to your photos and videos.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_dev.apk",
@@ -67,7 +67,7 @@
       "name": "Ling Ai",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ling_ai_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Personalized AI English tutor with speaking practice, lessons, and feedback.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/ling_ai_dev.apk",
@@ -84,7 +84,7 @@
       "name": "Luminary Pdf",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "View, edit, merge, split & sign PDFs on your device. Fast and private.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
@@ -101,7 +101,7 @@
       "name": "Moo Insect Filter",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/moo_insect_filter_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "AR insect face filters — turn yourself into a bug for fun selfies and videos.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/moo_insect_filter_dev.apk",
@@ -118,7 +118,7 @@
       "name": "Restorex",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/restorex_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Scan device storage to recover deleted photos, videos & files when possible.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/restorex_dev.apk",
@@ -135,7 +135,7 @@
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Save personal videos, organize your media library & play offline. Fast & simple.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
@@ -154,7 +154,7 @@
       "name": "Voicepal",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Hear caller names & SMS announced aloud — hands-free, eyes-free.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
@@ -168,7 +168,7 @@
       "name": "Zentide Sleep Tracker",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/zentide_sleep_tracker_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Track sleep, mix white noise & calm sounds, wake up gently with smart alarms.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/zentide_sleep_tracker_dev.apk",
