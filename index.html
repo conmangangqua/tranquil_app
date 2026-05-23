@@ -55,7 +55,8 @@
     .app-desc:empty{display:none}
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .btn { padding: 18px 12px; border-radius: 40px; font-weight: 700; font-size: 0.9rem; text-decoration: none; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.4s; }
-    .btn-dev { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+    .btn-dev { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; display: none !important; }
+    body.aab-authed .btn-dev { display: flex !important; }
     .btn-live { background: var(--primary); color: #fff; box-shadow: 0 10px 20px var(--primary-glow); }
     .btn-full { grid-column: span 2; background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
     .btn-full:hover { background: var(--secondary); color: var(--text-main); }
@@ -210,7 +211,7 @@
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="ads-badge" data-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
-          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""}
+          <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="${isIOS ? 'apple' : 'rocket'}"></i>${stack(isIOS ? 'Install' : 'APK','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""}
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button></div>`;
         container.appendChild(card);
       });
