@@ -5,7 +5,7 @@
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
-      "description": "Sleep Sounds & Smart Alarm",
+      "description": "",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
@@ -15,127 +15,11 @@
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
     },
     {
-      "id": "emu_game",
-      "name": "Emu Game",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_icon.png",
-      "platform": "iOS",
-      "description": "Retro emulator for your files",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/emu_game_dev.plist",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/emu_game_prod.plist"
-      },
-      "versions": {},
-      "store": ""
-    },
-    {
-      "id": "genify_ai",
-      "name": "Genify Ai",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/genify_ai_icon.png",
-      "platform": "Android",
-      "description": "Turn photos into AI art, enhance quality, expand background & remove objects.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/genify_ai_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/genify_ai_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+26040201",
-        "prod": "1.0.0+26040201"
-      },
-      "store": "https://play.google.com/store/apps/details?id=com.tranquil.aiart"
-    },
-    {
-      "id": "geosnap",
-      "name": "Geosnap",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/geosnap_icon.png",
-      "platform": "Android",
-      "description": "Add GPS, map, weather & time stamps to your photos and videos.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/geosnap_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/geosnap_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": ""
-    },
-    {
-      "id": "ling_ai",
-      "name": "Ling Ai",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ling_ai_icon.png",
-      "platform": "Android",
-      "description": "Personalized AI English tutor with speaking practice, lessons, and feedback.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/ling_ai_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ling_ai_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": ""
-    },
-    {
-      "id": "luminary_pdf",
-      "name": "Luminary Pdf",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
-      "platform": "Android",
-      "description": "View, edit, merge, split & sign PDFs on your device. Fast and private.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": ""
-    },
-    {
-      "id": "moo_insect_filter",
-      "name": "Moo Insect Filter",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/moo_insect_filter_icon.png",
-      "platform": "Android",
-      "description": "AR insect face filters — turn yourself into a bug for fun selfies and videos.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/moo_insect_filter_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/moo_insect_filter_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": ""
-    },
-    {
-      "id": "restorex",
-      "name": "Restorex",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/restorex_icon.png",
-      "platform": "Android",
-      "description": "Scan device storage to recover deleted photos, videos & files when possible.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/restorex_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/restorex_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+26032901",
-        "prod": "1.0.0+26032901"
-      },
-      "store": ""
-    },
-    {
       "id": "turbovid",
       "name": "Turbovid",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_icon.png",
       "platform": "Android",
-      "description": "Save personal videos, organize your media library & play offline. Fast & simple.",
+      "description": "",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
@@ -148,37 +32,6 @@
         "aab": "1.0.2+26052201"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader"
-    },
-    {
-      "id": "voicepal",
-      "name": "Voicepal",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_icon.png",
-      "platform": "Android",
-      "description": "Hear caller names & SMS announced aloud — hands-free, eyes-free.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/voicepal_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/voicepal_prod.apk"
-      },
-      "versions": {},
-      "store": ""
-    },
-    {
-      "id": "zentide_sleep_tracker",
-      "name": "Zentide Sleep Tracker",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/zentide_sleep_tracker_icon.png",
-      "platform": "Android",
-      "description": "Track sleep, mix white noise & calm sounds, wake up gently with smart alarms.",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/zentide_sleep_tracker_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/zentide_sleep_tracker_prod.apk"
-      },
-      "versions": {
-        "dev": "1.2.0+50",
-        "prod": "1.2.0+50"
-      },
-      "store": "https://play.google.com/store/apps/details?id=com.tmt.sleeptracker"
     }
   ]
 }
