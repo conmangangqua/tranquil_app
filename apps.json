@@ -15,6 +15,21 @@
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
     },
     {
+      "id": "luminary_pdf",
+      "name": "Luminary Pdf",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_icon.png",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      },
+      "store": ""
+    },
+    {
       "id": "turbovid",
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
