@@ -972,5 +972,12 @@
       finally{ ok.disabled=false; }
     };
   })();</script>
+  <script>/* SW_ICON_CACHE: cache icon GitHub mãi mãi để không reload mỗi lần mở */
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
