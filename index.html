@@ -183,6 +183,81 @@
     .vd-gen:hover { box-shadow: 0 10px 24px rgba(124, 58, 237, 0.4) !important; }
     .health-urls { animation: vdFadeIn 0.3s ease-out; }
   </style>
+  <style>/* AAB_BTNFIX5 (unified icon+text centered) */
+    .btn{display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:10px !important;position:relative}
+    .btn-ic{position:static !important;display:inline-flex !important;flex-shrink:0;align-items:center;justify-content:center;width:18px;height:18px;line-height:1;pointer-events:none;color:currentColor;transform:none !important;left:auto !important;top:auto !important}
+    .btn-ic svg{width:18px !important;height:18px !important;stroke:currentColor !important;stroke-width:2 !important;fill:none !important}
+    .btn-stack{display:inline-flex !important;flex-direction:column;align-items:center;justify-content:center;width:auto !important;min-width:0}
+    .btn-stack .ver{white-space:nowrap;font-size:10px}
+    .badge-row{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow:hidden;margin-bottom:18px}
+  </style>
+  <style>/* badge-gradient-override */
+    .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 800; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .badge i, .badge svg { width: 14px; height: 14px; stroke-width: 2.2; }
+    .badge.ios, .platform-badge.ios { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(14,165,233,0.3); border: none !important; }
+    .badge.android, .platform-badge.android { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important; color: #fff !important; box-shadow: 0 4px 12px rgba(22,163,74,0.3); border: none !important; }
+  </style>
+  <style>/* PRO_MAX_UI_UPGRADE */
+    .btn {
+      border-radius: 14px !important;
+      padding: 13px 18px !important;
+      font-weight: 700 !important;
+      font-size: 0.92rem !important;
+      letter-spacing: 0.01em !important;
+      transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease, background 0.2s ease, filter 0.2s ease !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+      filter: brightness(1.08) !important;
+    }
+    .btn:active {
+      transform: translateY(0) scale(0.98) !important;
+      transition-duration: 0.08s !important;
+    }
+    .btn:focus-visible {
+      outline: 2px solid rgba(99, 102, 241, 0.6);
+      outline-offset: 2px;
+    }
+    .app-card {
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.3s ease !important;
+    }
+    .app-card:hover { transform: translateY(-4px) !important; }
+    .btn:hover .btn-ic svg { transform: scale(1.08); transition: transform 0.2s ease; }
+    .btn-ic svg { transition: transform 0.2s ease; }
+    .badge.ios, .platform-badge.ios {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+      color: #fff !important;
+      box-shadow: 0 6px 16px rgba(14,165,233,0.35), 0 2px 4px rgba(14,165,233,0.2) !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-weight: 800 !important;
+    }
+    .badge.android, .platform-badge.android {
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%) !important;
+      color: #fff !important;
+      box-shadow: 0 6px 16px rgba(22,163,74,0.35), 0 2px 4px rgba(22,163,74,0.2) !important;
+      border: none !important;
+      padding: 6px 14px !important;
+      font-weight: 800 !important;
+    }
+    .health-badge { padding: 4px 10px !important; font-size: 0.7rem !important; }
+    .app-icon-box, .app-icon {
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
+    }
+    .app-card:hover .app-icon-box, .app-card:hover .app-icon { transform: scale(1.05) !important; }
+    .search-wrapper:focus-within, input:focus { box-shadow: 0 0 0 3px rgba(99,102,241,0.15) !important; }
+  </style>
+  <style>/* ADS_BADGE_UNIFIED */
+    .ads-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 800; padding: 6px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; white-space: nowrap; }
+    .ads-badge i, .ads-badge svg { width: 12px; height: 12px; stroke-width: 2.2; flex-shrink: 0; }
+    .ads-badge.has-ads { background: linear-gradient(135deg, #fb923c 0%, #f59e0b 100%); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
+    .ads-badge.no-ads { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); color: #fff; box-shadow: 0 4px 12px rgba(100,116,139,0.25); }
+    .badge-row { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: nowrap !important; overflow: hidden; margin-bottom: 18px; }
+  </style>
 </head>
 <body>
   <div class="bg-animation"><div class="blob"></div></div>
