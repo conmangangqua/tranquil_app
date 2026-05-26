@@ -101,6 +101,17 @@
   </style>
 
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script>/* LUCIDE_RETRY: gọi createIcons() bền vững — chống race condition khi lucide.js chưa load */
+    window.tryRenderIcons = function(retries) {
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        try { lucide.createIcons(); } catch(_) {}
+        return;
+      }
+      if ((retries || 0) > 50) return; // ~5s timeout
+      setTimeout(function(){ window.tryRenderIcons((retries || 0) + 1); }, 100);
+    };
+    window.addEventListener('load', function(){ window.tryRenderIcons(); });
+  </script>
   <style>/* PRO_MAX_DESC_MODAL */
     #vdOv { animation: vdFadeIn 0.25s ease-out; }
     #vdOv.open #vdMd { animation: vdSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -295,9 +306,9 @@
     const filterApps = () => {
       const query = document.getElementById("searchInput").value.toLowerCase();
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
-      window.lucide && lucide.createIcons();
+      tryRenderIcons();
     };
-    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); window.lucide && lucide.createIcons(); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); tryRenderIcons(); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
     function urlRow(label, url, ok){
@@ -318,7 +329,7 @@
       if(!allApps.length) return;
       const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id}));
       try{
-        const r = await fetch("https://aab-trigger.vercel.app/api/adscheck", {
+        const r = await fetch("https://aab.tranquilmind.co/api/adscheck", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({apps})
@@ -353,7 +364,7 @@
             badge.onclick = null;
 
           }
-          window.lucide && lucide.createIcons();
+          tryRenderIcons();
         });
       }catch(e){}
     }
@@ -363,7 +374,7 @@
       if(!allApps.length) return;
       const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id, store_url: a.store || null}));
       try{
-        const r = await fetch("https://aab-trigger.vercel.app/api/healthbulk", {
+        const r = await fetch("https://aab.tranquilmind.co/api/healthbulk", {
           method: "POST",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({apps})
@@ -458,7 +469,7 @@
   </div>
 
   <script>
-    const BUILD_API = "https://aab-trigger.vercel.app";
+    const BUILD_API = "https://aab.tranquilmind.co";
     let bmAppId = "";
     const $ = (id) => document.getElementById(id);
 
@@ -475,7 +486,7 @@
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || "Không lấy được version");
         $("bmTitle").innerHTML = '<i data-lucide="hammer" style="width:18px;height:18px;vertical-align:-3px;margin-right:6px"></i>Build ' + (d.build_label || "");
-        window.lucide && lucide.createIcons();
+        tryRenderIcons();
         $("bmApp").textContent = appName + " — " + (d.platform === "ios" ? "iOS TestFlight" : "Android AAB");
         $("bmName").value = d.version_name || "";
         $("bmCode").value = d.suggested_code || d.version_code || "";
@@ -556,7 +567,7 @@
     </div>
   </div></div>
   <script>(function(){
-    var API="https://aab-trigger.vercel.app", KEY="aab_authed";
+    var API="https://aab.tranquilmind.co", KEY="aab_authed";
     var b=document.body,
         btn=document.getElementById("aablBtn"),
         ov=document.getElementById("aablOv"),
@@ -565,7 +576,7 @@
         ok=document.getElementById("aablOk"),
         cancel=document.getElementById("aablCancel");
     function authed(){return localStorage.getItem(KEY)==="1";}
-    function render(){ if(authed()){b.classList.add("aab-authed");btn.innerHTML='<i data-lucide="log-out" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng xuất';} else {b.classList.remove("aab-authed");btn.innerHTML='<i data-lucide="lock-keyhole" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng nhập';} window.lucide && lucide.createIcons(); }
+    function render(){ if(authed()){b.classList.add("aab-authed");btn.innerHTML='<i data-lucide="log-out" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng xuất';} else {b.classList.remove("aab-authed");btn.innerHTML='<i data-lucide="lock-keyhole" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Đăng nhập';} tryRenderIcons(); }
     function close(){ov.classList.remove("open");pin.value="";msg.textContent="";}
     btn.onclick=function(){ if(authed()){ localStorage.removeItem(KEY); render(); window.runHealthCheck && window.runHealthCheck(); } else { ov.classList.add("open"); setTimeout(function(){pin.focus();},50); } };
     cancel.onclick=close;
@@ -604,7 +615,7 @@
       clearTimeout(t);
       var link=url?(' <a href="'+url+'" target="_blank" rel="noopener">Xem pipeline ›</a>'):'';
       el.innerHTML='<span>'+msg+link+'</span><span class="x"><i data-lucide="x" style="width:14px;height:14px;vertical-align:-2px"></i></span>';
-      window.lucide && lucide.createIcons();
+      tryRenderIcons();
       el.className=isErr?'err show':'show';
       el.querySelector(".x").onclick=function(){ el.classList.remove("show"); };
       t=setTimeout(function(){ el.classList.remove("show"); }, 8000);
@@ -656,7 +667,7 @@
     </div>
   </div></div>
   <script>(function(){
-    var API="https://aab-trigger.vercel.app", appId="";
+    var API="https://aab.tranquilmind.co", appId="";
     var ov=document.getElementById("vdOv"),appEl=document.getElementById("vdApp"),
         platEl=document.getElementById("vdPlat"),
         fieldsEl=document.getElementById("vdFields"),
@@ -797,7 +808,7 @@
       if(hasBrokenUrls(d)){
         btn.style.display="block";
         btn.innerHTML='<i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Privacy/Terms (URL hỏng)';
-        window.lucide && lucide.createIcons();
+        tryRenderIcons();
       } else {
         btn.style.display="none";
       }
@@ -866,7 +877,7 @@
     body.aab-authed .btn-as{display:flex!important}
   </style>
   <script>(function(){
-    var API="https://aab-trigger.vercel.app";
+    var API="https://aab.tranquilmind.co";
     window.dlAssets=async function(id,nm,btn){
       var old=btn.innerHTML; btn.disabled=true; btn.innerHTML="⏳ Đang tải asset…";
       try{
@@ -916,7 +927,7 @@
     <div id="stAct"><button type="button" class="st-cancel" onclick="stClose()">Huỷ</button><button type="button" class="st-ok" id="stOk" onclick="stSubmit()">Lưu</button></div>
   </div></div>
   <script>(function(){
-    var API="https://aab-trigger.vercel.app", appId="";
+    var API="https://aab.tranquilmind.co", appId="";
     function repo(){
       var im=document.querySelector('img[src*="github.com/conmangangqua/"]');
       var m=im&&im.src&&im.src.match(/conmangangqua\/([A-Za-z0-9_-]+)/);
@@ -937,7 +948,7 @@
       msg.textContent="⏳ Đang dò package…";
       document.getElementById('stOv').classList.add('open');
       try{
-        var r=await fetch("https://aab-trigger.vercel.app/api/package?app_id="+encodeURIComponent(id));
+        var r=await fetch("https://aab.tranquilmind.co/api/package?app_id="+encodeURIComponent(id));
         var d=await r.json();
         if(d.suggest_url){
           urlIn.value=d.suggest_url;

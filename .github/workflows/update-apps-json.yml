@@ -169,7 +169,7 @@ jobs:
               # (đã wire bundle ID reader từ GitLab source) → resolve URL.
               # Zero manual touching cho app mới: Sếp publish → cron 6h tự dò.
               try:
-                  with _ur.urlopen(f"https://aab-trigger.vercel.app/api/package?app_id={app_id}", timeout=15) as r:
+                  with _ur.urlopen(f"https://aab.tranquilmind.co/api/package?app_id={app_id}", timeout=15) as r:
                       d = json.loads(r.read())
                   plat = d.get("platform")
                   pkg = d.get("package_id")
