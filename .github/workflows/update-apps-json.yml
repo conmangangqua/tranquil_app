@@ -164,6 +164,30 @@ jobs:
                   return f"https://play.google.com/store/apps/details?id={raw[8:]}"
               return raw
 
+          def auto_discover(app_id):
+              # Fallback nếu stores.json không có entry: gọi /api/package trên Vercel
+              # (đã wire bundle ID reader từ GitLab source) → resolve URL.
+              # Zero manual touching cho app mới: Sếp publish → cron 6h tự dò.
+              try:
+                  with _ur.urlopen(f"https://aab-trigger.vercel.app/api/package?app_id={app_id}", timeout=15) as r:
+                      d = json.loads(r.read())
+                  plat = d.get("platform")
+                  pkg = d.get("package_id")
+                  if not (plat and pkg):
+                      return ""
+                  if plat == "android":
+                      url = f"https://play.google.com/store/apps/details?id={pkg}"
+                      print(f"  auto-discover android: {app_id} -> {url}")
+                      return url
+                  if plat == "ios":
+                      url = lookup_apple(pkg)
+                      if url:
+                          print(f"  auto-discover ios: {app_id} -> {url}")
+                      return url
+              except Exception as e:
+                  print(f"  auto-discover error {app_id}: {e}")
+              return ""
+
           def validate_store(u):
               # Drop URL nếu 404 → apps.json.store rỗng → frontend không hiện "View on Store"
               # stores.json giữ nguyên URL gốc (intent của user), không bị mất khi re-run
@@ -282,6 +306,9 @@ jobs:
               if not store_link:
                   store_link = STORES.get(app_id, "")
               store_link = resolve_store_link(store_link)
+              if not store_link:
+                  # Fallback auto-discover: gọi /api/package trên Vercel (đọc bundle ID từ GitLab)
+                  store_link = auto_discover(app_id)
               store_link = validate_store(store_link)
 
               # Format app name (video_downloader -> Video Downloader)
