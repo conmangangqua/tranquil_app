@@ -135,6 +135,35 @@ jobs:
           except Exception:
               STORES = {}
           import urllib.request as _ur
+          def lookup_apple(bundle_id):
+              # iTunes Lookup API — resolve bundle ID → App Store URL.
+              # Trả "" nếu chưa publish (resultCount=0) hoặc lookup fail.
+              try:
+                  with _ur.urlopen(f"https://itunes.apple.com/lookup?bundleId={bundle_id}", timeout=10) as r:
+                      data = json.loads(r.read())
+                  if data.get("resultCount", 0) > 0:
+                      url = data["results"][0].get("trackViewUrl", "").split("?")[0]
+                      print(f"  iTunes ✓ {bundle_id} -> {url}")
+                      return url
+                  print(f"  iTunes ✗ {bundle_id} not on App Store yet")
+                  return ""
+              except Exception as e:
+                  print(f"  iTunes lookup error {bundle_id}: {e}")
+                  return ""
+
+          def resolve_store_link(raw):
+              # Hỗ trợ 3 dạng giá trị trong stores.json:
+              #   1. URL đầy đủ "https://..." → dùng nguyên.
+              #   2. "ios:<bundle_id>" → iTunes Lookup → resolve thành App Store URL.
+              #   3. "android:<bundle_id>" → construct Play Store URL.
+              if not raw:
+                  return ""
+              if raw.startswith("ios:"):
+                  return lookup_apple(raw[4:])
+              if raw.startswith("android:"):
+                  return f"https://play.google.com/store/apps/details?id={raw[8:]}"
+              return raw
+
           def validate_store(u):
               # Drop URL nếu 404 → apps.json.store rỗng → frontend không hiện "View on Store"
               # stores.json giữ nguyên URL gốc (intent của user), không bị mất khi re-run
@@ -252,6 +281,7 @@ jobs:
               store_link = fetch_version(store_url_sidecar)
               if not store_link:
                   store_link = STORES.get(app_id, "")
+              store_link = resolve_store_link(store_link)
               store_link = validate_store(store_link)
 
               # Format app name (video_downloader -> Video Downloader)
