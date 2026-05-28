@@ -5,14 +5,12 @@
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
-      "description": "Blissland — Sleep Sounds & Smart Alarm.",
+      "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_prod.plist"
       },
       "versions": {
-        "dev": "5.0.9+25082901",
         "prod": "5.0.9+25082901"
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
@@ -22,14 +20,12 @@
       "name": "Luminary Pdf",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
-      "description": "Luminary PDF: Viewer & Editor — View, edit, merge, split & sign PDFs on your device. Fast and private.",
+      "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
       },
       "versions": {
-        "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
       "store": ""
@@ -39,15 +35,13 @@
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
       "platform": "Android",
-      "description": "TurboVid: Video Saver & Player — Save personal videos, organize your media library & play offline. Fast & simple.",
+      "description": "",
       "features": [],
       "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_prod.apk",
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
       },
       "versions": {
-        "dev": "1.0.2+26052201",
         "prod": "1.0.2+26052201",
         "aab": "1.0.2+26052201"
       },
