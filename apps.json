@@ -8,9 +8,11 @@
       "description": "",
       "features": [],
       "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_prod.plist"
       },
       "versions": {
+        "dev": "5.0.9+25082901",
         "prod": "5.0.9+25082901"
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
@@ -23,9 +25,11 @@
       "description": "",
       "features": [],
       "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
       },
       "versions": {
+        "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
       "store": ""
@@ -38,10 +42,12 @@
       "description": "",
       "features": [],
       "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_prod.apk",
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
       },
       "versions": {
+        "dev": "1.0.2+26052201",
         "prod": "1.0.2+26052201",
         "aab": "1.0.2+26052201"
       },
