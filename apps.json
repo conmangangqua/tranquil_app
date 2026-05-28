@@ -5,7 +5,7 @@
       "name": "Blissland",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
-      "description": "",
+      "description": "Blissland — Sleep Sounds & Smart Alarm.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/blissland_dev.plist",
@@ -22,7 +22,7 @@
       "name": "Luminary Pdf",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "Luminary PDF: Viewer & Editor — View, edit, merge, split & sign PDFs on your device. Fast and private.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
@@ -39,7 +39,7 @@
       "name": "Turbovid",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
       "platform": "Android",
-      "description": "",
+      "description": "TurboVid: Video Saver & Player — Save personal videos, organize your media library & play offline. Fast & simple.",
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_dev.apk",
