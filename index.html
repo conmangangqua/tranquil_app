@@ -452,14 +452,42 @@
     }
     window.runHealthCheck = runHealthCheck;
 
-    // Card-level description enricher — fetch d.short từ /api/description
-    // (server đọc GitLab source) và inject vào .app-desc element. Cache 24h.
+    // Card-level description enricher — dual source:
+    //   1. /api/description (Vercel → reads từ GitLab source).
+    //   2. raw.githubusercontent.com/conmangangqua/app_description (đã gen sẵn).
+    // Normalize slug bằng strip-non-alphanum để khớp tên có thể khác underscore/dash.
+    // Cache 24h trong localStorage.
     async function enrichCardDescriptions(){
-      const CACHE_KEY = "hubDescCache_v1";
+      const CACHE_KEY = "hubDescCache_v2";
       const CACHE_TTL = 24*3600*1000;
       let cache = {};
       try { cache = JSON.parse(localStorage.getItem(CACHE_KEY)||"{}"); } catch(_) { cache = {}; }
       const now = Date.now();
+
+      // ---- One-shot: build slug index từ GitHub app_description tree ----
+      let ghIndex = cache.__ghIndex && cache.__ghIndex.t > now - CACHE_TTL ? cache.__ghIndex.idx : null;
+      if (!ghIndex){
+        ghIndex = {};
+        try {
+          const tr = await fetch("https://api.github.com/repos/conmangangqua/app_description/git/trees/main?recursive=1", { cache: "no-store" });
+          if (tr.ok){
+            const td = await tr.json();
+            const normalize = (s) => String(s||"").toLowerCase().replace(/[-_]/g, "");
+            for (const it of (td.tree||[])){
+              if (it.type !== "blob") continue;
+              const m = it.path.match(/^(apple|google)\/([^\/]+)\/([^\/]+)\/short_description\.txt$/);
+              if (!m) continue;
+              const slug = m[3];
+              const norm = normalize(slug);
+              // prefer "google" entries when both exist (Sếp mostly ships Android)
+              if (!ghIndex[norm] || m[1] === "google") ghIndex[norm] = it.path;
+            }
+            cache.__ghIndex = { idx: ghIndex, t: now };
+          }
+        } catch(_) { /* if tree fetch fails, fall back to api/description only */ }
+      }
+      const normalize = (s) => String(s||"").toLowerCase().replace(/[-_]/g, "");
+
       const queue = [];
       document.querySelectorAll(".app-card").forEach(card => {
         const id = card.dataset.appId; if(!id) return;
@@ -471,25 +499,44 @@
         }
         queue.push(id);
       });
+
+      async function fetchOne(id){
+        // Source 1: Vercel /api/description (GitLab-backed)
+        let s = "";
+        try {
+          const r = await fetch("https://aab.tranquilmind.co/api/description?app_id="+encodeURIComponent(id));
+          if (r.ok){
+            const d = await r.json();
+            if (d && d.exists && d.short) s = d.short;
+          }
+        } catch(_){}
+        // Source 2: GitHub app_description raw (fallback)
+        if (!s && ghIndex){
+          const path = ghIndex[normalize(id)];
+          if (path){
+            try {
+              const r = await fetch("https://raw.githubusercontent.com/conmangangqua/app_description/main/"+path);
+              if (r.ok){
+                const txt = (await r.text()).trim();
+                if (txt) s = txt;
+              }
+            } catch(_){}
+          }
+        }
+        cache[id] = { s: s, t: now };
+        if (s){
+          const card = document.querySelector(".app-card[data-app-id=\""+(window.CSS&&CSS.escape?CSS.escape(id):id)+"\"]");
+          if (card){
+            const el = card.querySelector(".app-desc");
+            if (el && !el.textContent.trim()) el.textContent = s;
+          }
+        }
+      }
+
       const POOL = 5;
       for (let i=0; i<queue.length; i+=POOL){
         const batch = queue.slice(i, i+POOL);
-        await Promise.all(batch.map(async id => {
-          try {
-            const r = await fetch("https://aab.tranquilmind.co/api/description?app_id="+encodeURIComponent(id));
-            if(!r.ok) return;
-            const d = await r.json();
-            const s = (d && d.exists && d.short) ? d.short : "";
-            cache[id] = {s: s, t: now};
-            if (s){
-              const card = document.querySelector(".app-card[data-app-id=\""+(window.CSS&&CSS.escape?CSS.escape(id):id)+"\"]");
-              if (card){
-                const el = card.querySelector(".app-desc");
-                if (el && !el.textContent.trim()) el.textContent = s;
-              }
-            }
-          } catch(_) {}
-        }));
+        await Promise.all(batch.map(fetchOne));
       }
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch(_) {}
     }
