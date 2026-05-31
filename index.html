@@ -302,7 +302,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="ads-badge" data-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button></div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button><button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ba" onclick="genBaDocs('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="clipboard-list"></i><span class="btn-stack">BA + Tests</span></button></div>`;
         container.appendChild(card);
       });
     };
@@ -878,7 +878,49 @@
     .btn-as:hover{background:#075985}
     .btn-as:disabled{opacity:.6;cursor:progress}
     body.aab-authed .btn-as{display:flex!important}
-  </style>
+      /* BA_DOC_GEN — only visible after auth (like .btn-as) */
+    .btn-ba{background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
+    .btn-ba:hover{background:#6d28d9}
+    .btn-ba:disabled{opacity:.6;cursor:progress}
+    body.aab-authed .btn-ba{display:flex!important}
+    /* BA modal */
+    #baOv{position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:9998;display:none;align-items:center;justify-content:center;padding:20px}
+    #baOv.open{display:flex}
+    #baModal{background:#fff;border-radius:20px;width:100%;max-width:920px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4);overflow:hidden}
+    #baHdr{padding:18px 24px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff}
+    #baHdr h3{font-size:1.05rem;font-weight:800;margin:0;letter-spacing:.3px}
+    #baClose{background:rgba(255,255,255,.2);color:#fff;border:none;width:34px;height:34px;border-radius:10px;cursor:pointer;font-size:1.2rem;font-weight:700}
+    #baClose:hover{background:rgba(255,255,255,.35)}
+    #baTabs{display:flex;gap:6px;padding:12px 20px 0;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+    .ba-tab{background:#f1f5f9;color:#475569;border:none;padding:9px 14px;border-radius:8px 8px 0 0;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+    .ba-tab:hover{background:#e2e8f0}
+    .ba-tab.active{background:#7c3aed;color:#fff}
+    #baBody{flex:1;overflow:auto;padding:22px 28px;background:#fafafa;color:#0f172a;font-size:.88rem;line-height:1.6}
+    #baBody pre{background:#fff;border:1px solid #e2e8f0;padding:14px;border-radius:10px;overflow:auto;font-size:.78rem}
+    #baBody h1{font-size:1.5rem;margin:0 0 12px;color:#7c3aed}
+    #baBody h2{font-size:1.15rem;margin:18px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:4px;color:#0f172a}
+    #baBody h3{font-size:1rem;margin:14px 0 6px;color:#475569}
+    #baBody table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.82rem}
+    #baBody th,#baBody td{border:1px solid #e2e8f0;padding:6px 10px;text-align:left}
+    #baBody th{background:#f1f5f9;font-weight:700}
+    #baBody blockquote{border-left:4px solid #c4b5fd;padding:8px 16px;background:#faf5ff;margin:8px 0;color:#5b21b6}
+    #baBody code{background:#f1f5f9;padding:2px 6px;border-radius:5px;font-size:.85em;color:#7c3aed}
+    #baBody a{color:#7c3aed;font-weight:600}
+    #baBody ul,#baBody ol{padding-left:22px;margin:6px 0}
+    #baFt{border-top:1px solid #e2e8f0;padding:14px 24px;background:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    #baFt input{flex:0 0 180px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:.85rem;font-family:inherit}
+    #baFt input:focus{outline:none;border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+    #baGenBtn{background:#7c3aed;color:#fff;border:none;padding:10px 18px;border-radius:9px;font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit}
+    #baGenBtn:hover{background:#6d28d9}
+    #baGenBtn:disabled{opacity:.55;cursor:progress}
+    #baMsg{font-size:.8rem;font-weight:600;flex:1;text-align:right;color:#64748b}
+    #baViewLink{font-size:.78rem;color:#7c3aed;font-weight:600;text-decoration:none;margin-left:auto}
+    #baViewLink:hover{text-decoration:underline}
+    .ba-empty{padding:60px 20px;text-align:center;color:#94a3b8}
+    .ba-empty h3{color:#7c3aed;margin-bottom:8px}
+    .ba-spin{width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#7c3aed;border-radius:50%;animation:baspin 1s linear infinite;margin:0 auto}
+    @keyframes baspin{to{transform:rotate(360deg)}}
+</style>
   <script>(function(){
     var API="https://aab.tranquilmind.co";
     window.dlAssets=async function(id,nm,btn){
@@ -993,5 +1035,177 @@
       });
     }
   </script>
+
+  <div id="baOv" role="dialog" aria-modal="true">
+    <div id="baModal">
+      <div id="baHdr">
+        <h3 id="baTitle">BA + Tests</h3>
+        <button id="baClose" onclick="baClose()" aria-label="Close">✕</button>
+      </div>
+      <div id="baTabs">
+        <button class="ba-tab active" data-file="BA.vi.md">📋 BA (Tiếng Việt)</button>
+        <button class="ba-tab" data-file="BA.en.md">📋 BA (English)</button>
+        <button class="ba-tab" data-file="TESTCASES.vi.md">✅ Tests (Tiếng Việt)</button>
+        <button class="ba-tab" data-file="TESTCASES.en.md">✅ Tests (English)</button>
+      </div>
+      <div id="baBody"></div>
+      <div id="baFt">
+        <input id="baPin" type="password" placeholder="PIN để Gen lại" autocomplete="off">
+        <button id="baGenBtn" onclick="baGen()"><i data-lucide="sparkles" style="width:14px;height:14px"></i> Gen lại</button>
+        <span id="baMsg"></span>
+        <a id="baViewLink" href="#" target="_blank" rel="noopener">Xem GitHub →</a>
+      </div>
+    </div>
+  </div>
+  <script>(function(){
+    // POST /gen → local daemon (Sonnet 4.6 cao chất lượng, ~9 phút).
+    // GET /api/ba (đọc BA.md) → Vercel cloud (instant từ GitHub raw, không cần Mac).
+    var BA_API_GET = "https://ba-trigger.vercel.app";
+    var BA_API_GEN = "http://127.0.0.1:18792";
+    var currentSlug = null;
+    var currentName = null;
+    var ov = document.getElementById("baOv");
+    var body = document.getElementById("baBody");
+    var pin = document.getElementById("baPin");
+    var msg = document.getElementById("baMsg");
+    var gb = document.getElementById("baGenBtn");
+    var title = document.getElementById("baTitle");
+    var viewLink = document.getElementById("baViewLink");
+    var tabs = document.querySelectorAll("#baTabs .ba-tab");
+
+    function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
+
+    function renderMd(src){
+      var lines = src.split(/\r?\n/);
+      var html = [];
+      var i = 0, inList = false, listTag = "";
+      function closeList(){ if(inList){ html.push("</"+listTag+">"); inList=false; listTag=""; } }
+      function inline(t){
+        return escHtml(t)
+          .replace(/`([^`]+)`/g, "<code>$1</code>")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+          .replace(/\[([^\]]+)\]\((&lt;)?([^\)\s&]+)(&gt;)?\)/g, '<a href="$3" target="_blank" rel="noopener">$1</a>');
+      }
+      while(i < lines.length){
+        var l = lines[i];
+        if(/^\s*\|.+\|\s*$/.test(l) && i+1 < lines.length && /^\s*\|[\s-:|]+\|\s*$/.test(lines[i+1])){
+          closeList();
+          var headers = l.trim().slice(1,-1).split("|").map(function(s){return s.trim();});
+          var tb = ["<table><thead><tr>"];
+          headers.forEach(function(h){ tb.push("<th>"+inline(h)+"</th>"); });
+          tb.push("</tr></thead><tbody>");
+          i += 2;
+          while(i < lines.length && /^\s*\|.+\|\s*$/.test(lines[i])){
+            var cells = lines[i].trim().slice(1,-1).split("|").map(function(s){return s.trim();});
+            tb.push("<tr>"+cells.map(function(c){return "<td>"+inline(c)+"</td>";}).join("")+"</tr>");
+            i++;
+          }
+          tb.push("</tbody></table>");
+          html.push(tb.join(""));
+          continue;
+        }
+        var m;
+        if((m=l.match(/^#\s+(.*)/))){ closeList(); html.push("<h1>"+inline(m[1])+"</h1>"); }
+        else if((m=l.match(/^##\s+(.*)/))){ closeList(); html.push("<h2>"+inline(m[1])+"</h2>"); }
+        else if((m=l.match(/^###\s+(.*)/))){ closeList(); html.push("<h3>"+inline(m[1])+"</h3>"); }
+        else if((m=l.match(/^>\s?(.*)/))){ closeList(); html.push("<blockquote>"+inline(m[1])+"</blockquote>"); }
+        else if((m=l.match(/^\s*-\s+\[[ x]\]\s+(.*)/))){
+          if(!inList || listTag!=="ul"){ closeList(); html.push("<ul>"); inList=true; listTag="ul"; }
+          var checked = l.indexOf("[x]")>=0;
+          html.push("<li><input type='checkbox' "+(checked?"checked":"")+" disabled> "+inline(m[1])+"</li>");
+        }
+        else if((m=l.match(/^\s*-\s+(.*)/))){
+          if(!inList || listTag!=="ul"){ closeList(); html.push("<ul>"); inList=true; listTag="ul"; }
+          html.push("<li>"+inline(m[1])+"</li>");
+        }
+        else if((m=l.match(/^\s*\d+\.\s+(.*)/))){
+          if(!inList || listTag!=="ol"){ closeList(); html.push("<ol>"); inList=true; listTag="ol"; }
+          html.push("<li>"+inline(m[1])+"</li>");
+        }
+        else if(l.trim()===""){ closeList(); html.push(""); }
+        else if(l.trim()==="---"){ closeList(); html.push("<hr>"); }
+        else { closeList(); html.push("<p>"+inline(l)+"</p>"); }
+        i++;
+      }
+      closeList();
+      return html.join("\n");
+    }
+
+    function activateTab(file){
+      tabs.forEach(function(t){ t.classList.toggle("active", t.dataset.file===file); });
+      loadFile(file);
+    }
+
+    async function loadFile(file){
+      body.innerHTML = '<div class="ba-spin"></div>';
+      msg.textContent = "";
+      try {
+        var r = await fetch(BA_API_GET+"/api/ba?app_id="+encodeURIComponent(currentSlug)+"&file="+encodeURIComponent(file));
+        var d = await r.json();
+        if(!d.ok) throw new Error(d.error||"HTTP "+r.status);
+        if(!d.exists){
+          body.innerHTML = '<div class="ba-empty"><h3>Chưa có '+escHtml(file)+'</h3><p>Bấm <b>Gen lại</b> (cần PIN) để tạo bộ doc đầu tiên.</p></div>';
+          viewLink.style.display = "none";
+          return;
+        }
+        viewLink.href = d.view_url;
+        viewLink.style.display = "block";
+        body.innerHTML = renderMd(d.content);
+      } catch(e){
+        body.innerHTML = '<div class="ba-empty"><h3>Lỗi tải</h3><p>'+escHtml(e.message)+'</p></div>';
+      }
+    }
+
+    window.genBaDocs = function(id, nm){
+      currentSlug = id;
+      currentName = nm;
+      title.textContent = nm + " — BA + Tests";
+      pin.value = "";
+      msg.textContent = "";
+      gb.disabled = false;
+      viewLink.style.display = "none";
+      ov.classList.add("open");
+      activateTab("BA.vi.md");
+    };
+
+    window.baClose = function(){ ov.classList.remove("open"); };
+
+    window.baGen = async function(){
+      var v = (pin.value||"").trim();
+      if(!v){ msg.style.color="#dc2626"; msg.textContent="Nhập PIN để Gen lại."; return; }
+      gb.disabled = true;
+      msg.style.color="#64748b";
+      msg.textContent = "⏳ Đang gen (~8-12 phút, Claude Sonnet 4.6 qua local daemon)…";
+      try {
+        var r = await fetch(BA_API_GEN+"/gen", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ slug: currentSlug, pin: v })
+        });
+        var d = await r.json();
+        if(!r.ok || !d.ok) throw new Error(d.error||("HTTP "+r.status));
+        msg.style.color="#059669";
+        msg.textContent = "✅ Gen OK ("+d.duration_sec+"s)";
+        viewLink.href = d.result_url;
+        viewLink.style.display = "block";
+        var activeTab = document.querySelector("#baTabs .ba-tab.active");
+        if(activeTab) loadFile(activeTab.dataset.file);
+      } catch(e){
+        msg.style.color="#dc2626";
+        msg.textContent = "❌ "+e.message.slice(0,160);
+      } finally {
+        gb.disabled = false;
+      }
+    };
+
+    tabs.forEach(function(t){
+      t.addEventListener("click", function(){ activateTab(t.dataset.file); });
+    });
+
+    ov.addEventListener("click", function(e){ if(e.target===ov) baClose(); });
+    document.addEventListener("keydown", function(e){ if(e.key==="Escape" && ov.classList.contains("open")) baClose(); });
+  })();</script>
+
 </body>
 </html>
