@@ -311,7 +311,7 @@
       renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
       tryRenderIcons();
     };
-    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); tryRenderIcons(); runHealthCheck(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
+    fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
     function urlRow(label, url, ok){
@@ -451,6 +451,50 @@
       }catch(e){ /* silent */ }
     }
     window.runHealthCheck = runHealthCheck;
+
+    // Card-level description enricher — fetch d.short từ /api/description
+    // (server đọc GitLab source) và inject vào .app-desc element. Cache 24h.
+    async function enrichCardDescriptions(){
+      const CACHE_KEY = "hubDescCache_v1";
+      const CACHE_TTL = 24*3600*1000;
+      let cache = {};
+      try { cache = JSON.parse(localStorage.getItem(CACHE_KEY)||"{}"); } catch(_) { cache = {}; }
+      const now = Date.now();
+      const queue = [];
+      document.querySelectorAll(".app-card").forEach(card => {
+        const id = card.dataset.appId; if(!id) return;
+        const el = card.querySelector(".app-desc"); if(!el) return;
+        const entry = cache[id];
+        if (entry && entry.t > now - CACHE_TTL){
+          if (entry.s && !el.textContent.trim()) el.textContent = entry.s;
+          return;
+        }
+        queue.push(id);
+      });
+      const POOL = 5;
+      for (let i=0; i<queue.length; i+=POOL){
+        const batch = queue.slice(i, i+POOL);
+        await Promise.all(batch.map(async id => {
+          try {
+            const r = await fetch("https://aab.tranquilmind.co/api/description?app_id="+encodeURIComponent(id));
+            if(!r.ok) return;
+            const d = await r.json();
+            const s = (d && d.exists && d.short) ? d.short : "";
+            cache[id] = {s: s, t: now};
+            if (s){
+              const card = document.querySelector(".app-card[data-app-id=\""+(window.CSS&&CSS.escape?CSS.escape(id):id)+"\"]");
+              if (card){
+                const el = card.querySelector(".app-desc");
+                if (el && !el.textContent.trim()) el.textContent = s;
+              }
+            }
+          } catch(_) {}
+        }));
+      }
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch(_) {}
+    }
+    window.enrichCardDescriptions = enrichCardDescriptions;
+
   </script>
 
   <div class="modal-overlay" id="buildModal">
