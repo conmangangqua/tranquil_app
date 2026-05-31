@@ -1058,10 +1058,26 @@
     </div>
   </div>
   <script>(function(){
-    // POST /gen → local daemon (Sonnet 4.6 cao chất lượng, ~9 phút).
-    // GET /api/ba (đọc BA.md) → Vercel cloud (instant từ GitHub raw, không cần Mac).
+    // POST /gen → local daemon qua Cloudflare TryTunnel HTTPS (Sonnet 4.6, ~9 phút).
+    // Tunnel URL đổi mỗi lần Mac reboot — fetch URL hiện hành từ GitHub raw.
+    // GET /api/ba → Vercel cloud (instant từ GitHub raw, không cần Mac on).
     var BA_API_GET = "https://ba-trigger.vercel.app";
-    var BA_API_GEN = "http://127.0.0.1:18792";
+    var BA_TUNNEL_INDEX = "https://raw.githubusercontent.com/conmangangqua/app_ba_docs/main/_tunnel.txt";
+    var BA_API_GEN_CACHED = null;
+    async function resolveBaGen(){
+      if (BA_API_GEN_CACHED) return BA_API_GEN_CACHED;
+      try {
+        var r = await fetch(BA_TUNNEL_INDEX + "?t=" + Date.now(), { cache: "no-store" });
+        var t = (await r.text()).trim();
+        if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) {
+          BA_API_GEN_CACHED = t;
+          return t;
+        }
+        throw new Error("Tunnel URL không hợp lệ: " + t.slice(0,80));
+      } catch(e){
+        throw new Error("Không lấy được tunnel URL (Mac có đang on?): " + e.message);
+      }
+    }
     var currentSlug = null;
     var currentName = null;
     var ov = document.getElementById("baOv");
@@ -1178,7 +1194,8 @@
       msg.style.color="#64748b";
       msg.textContent = "⏳ Đang gen (~8-12 phút, Claude Sonnet 4.6 qua local daemon)…";
       try {
-        var r = await fetch(BA_API_GEN+"/gen", {
+        var gen = await resolveBaGen();
+        var r = await fetch(gen+"/gen", {
           method:"POST",
           headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ slug: currentSlug, pin: v })
