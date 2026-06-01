@@ -458,7 +458,7 @@
     // Normalize slug bằng strip-non-alphanum để khớp tên có thể khác underscore/dash.
     // Cache 24h trong localStorage.
     async function enrichCardDescriptions(){
-      const CACHE_KEY = "hubDescCache_v2";
+      const CACHE_KEY = "hubDescCache_v3";
       const CACHE_TTL = 24*3600*1000;
       let cache = {};
       try { cache = JSON.parse(localStorage.getItem(CACHE_KEY)||"{}"); } catch(_) { cache = {}; }
@@ -493,7 +493,7 @@
         const id = card.dataset.appId; if(!id) return;
         const el = card.querySelector(".app-desc"); if(!el) return;
         const entry = cache[id];
-        if (entry && entry.t > now - CACHE_TTL){
+        if (entry && entry.s && entry.t > now - CACHE_TTL){
           if (entry.s && !el.textContent.trim()) el.textContent = entry.s;
           return;
         }
@@ -523,7 +523,7 @@
             } catch(_){}
           }
         }
-        cache[id] = { s: s, t: now };
+        if (s) cache[id] = { s: s, t: now };
         if (s){
           const card = document.querySelector(".app-card[data-app-id=\""+(window.CSS&&CSS.escape?CSS.escape(id):id)+"\"]");
           if (card){
