@@ -458,8 +458,8 @@
     // Normalize slug bằng strip-non-alphanum để khớp tên có thể khác underscore/dash.
     // Cache 24h trong localStorage.
     async function enrichCardDescriptions(){
-      const CACHE_KEY = "hubDescCache_v3";
-      const CACHE_TTL = 24*3600*1000;
+      const CACHE_KEY = "hubDescCache_v4";
+      const CACHE_TTL = 1*3600*1000;
       let cache = {};
       try { cache = JSON.parse(localStorage.getItem(CACHE_KEY)||"{}"); } catch(_) { cache = {}; }
       const now = Date.now();
