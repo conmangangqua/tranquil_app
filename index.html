@@ -297,7 +297,7 @@
         const nameEsc = (app.name || '').replace(/'/g, "\\'");
         // NO_ADS_BUILD: nút phục vụ designer — chỉ app Android (Flutter), hiện sau đăng nhập.
         const noAdsTrigger = isAndroid ? `<button type="button" class="btn btn-noadsb" onclick="openNoAdsModal('${app.id}', '${nameEsc}')"><i class="btn-ic" data-lucide="shield-off"></i><span class="btn-stack">Build No-Ads</span></button>` : "";
-        const noAdsDl = (isAndroid && noadsUrl) ? `<a href="${noadsUrl}" class="btn btn-noads"><i class="btn-ic" data-lucide="download"></i>${stack('Tải No-Ads','noads')}</a>` : "";
+        const noAdsDl = (isAndroid && noadsUrl) ? `<a href="${noadsUrl}" class="btn btn-noads"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Tải No-Ads</span></a>` : "";
         const v = app.versions || {};
         const stack = (label, k) => v[k]
           ? `<span class="btn-stack">${label}<span class="ver">v${v[k]}</span></span>`
