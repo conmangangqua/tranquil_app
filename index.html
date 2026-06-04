@@ -686,7 +686,7 @@
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || "Build thất bại");
         closeNoAdsModal();
-        showSnack("✅ " + (d.message || "Đã kích build No-Ads"), d.pipeline_url, false);
+        showSnack("✅ Đã kích build No-Ads. Xong sau ~10-15 phút → báo Discord; tải qua nút \"Tải No-Ads\" trên thẻ app (nhớ F5 lại trang).", d.pipeline_url, false);
       } catch (e) {
         $("naStatus").style.color = "#ef4444";
         $("naStatus").textContent = "❌ " + e.message;
