@@ -109,9 +109,12 @@ jobs:
             
             echo "Fetching from 'aab' release..."
             gh api repos/${{ github.repository }}/releases/tags/aab --jq '.assets // []' > /tmp/aab_assets.json 2>/dev/null || echo "[]" > /tmp/aab_assets.json
-            
+
+            echo "Fetching from 'noads' release..."
+            gh api repos/${{ github.repository }}/releases/tags/noads --jq '.assets // []' > /tmp/noads_assets.json 2>/dev/null || echo "[]" > /tmp/noads_assets.json
+
             # Combine all assets using jq -s (slurp mode)
-            ALL_ASSETS=$(jq -s 'flatten | unique_by(.id)' /tmp/dev_assets.json /tmp/prod_assets.json /tmp/aab_assets.json)
+            ALL_ASSETS=$(jq -s 'flatten | unique_by(.id)' /tmp/dev_assets.json /tmp/prod_assets.json /tmp/aab_assets.json /tmp/noads_assets.json)
             echo "$ALL_ASSETS" > /tmp/all_assets.json
             echo "Combined assets count: $(echo "$ALL_ASSETS" | jq 'length')"
           fi
@@ -211,7 +214,9 @@ jobs:
               if not name: continue
               
               base_id = ""
-              if name.endswith('_dev.apk'):
+              if name.endswith('_dev_noads.apk'):
+                  base_id = name.replace('_dev_noads.apk', '')
+              elif name.endswith('_dev.apk'):
                   base_id = name.replace('_dev.apk', '')
               elif name.endswith('_prod.apk'):
                   base_id = name.replace('_prod.apk', '')
@@ -228,6 +233,8 @@ jobs:
                   base_id = name.replace('_icon.png', '')
               elif name.endswith('_store.url'):
                   base_id = name.replace('_store.url', '')
+              elif name.endswith('_dev_noads.version'):
+                  base_id = name.replace('_dev_noads.version', '')
               elif name.endswith('_aab.version'):
                   base_id = name.replace('_aab.version', '')
               elif name.endswith('.version'):
@@ -249,6 +256,8 @@ jobs:
               dev_url = ""
               prod_url = ""
               aab_url = ""
+              noads_url = ""
+              noads_version_url = ""
               icon_url = ""
               ios_dev = ""
               ios_prod = ""
@@ -262,7 +271,11 @@ jobs:
                   url = asset.get('browser_download_url', '')
                   low_name = name.lower()
 
-                  if name == f"{app_id}_dev.apk":
+                  if name == f"{app_id}_dev_noads.apk":
+                      noads_url = url
+                  elif name == f"{app_id}_dev_noads.version":
+                      noads_version_url = url
+                  elif name == f"{app_id}_dev.apk":
                       dev_url = url
                   elif name == f"{app_id}_prod.apk":
                       prod_url = url
@@ -302,6 +315,8 @@ jobs:
               if v: versions['prod'] = v
               v = fetch_version(aab_version_url)
               if v: versions['aab'] = v
+              v = fetch_version(noads_version_url)
+              if v: versions['noads'] = v
               store_link = fetch_version(store_url_sidecar)
               if not store_link:
                   store_link = STORES.get(app_id, "")
@@ -315,7 +330,7 @@ jobs:
               app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
               
               # Determine Platform
-              has_android = any([dev_url, prod_url, aab_url])
+              has_android = any([dev_url, prod_url, aab_url, noads_url])
               has_ios = any([ios_dev, ios_prod])
               
               platform = "Android"
@@ -337,7 +352,9 @@ jobs:
                   downloads['prod'] = prod_url
               if aab_url:
                   downloads['aab'] = aab_url
-                  
+              if noads_url:
+                  downloads['noads'] = noads_url
+
               # Override with iOS Manifest if present (for uniformity)
               if ios_dev: downloads['dev'] = ios_dev
               if ios_prod: downloads['prod'] = ios_prod
