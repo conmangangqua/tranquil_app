@@ -29,7 +29,8 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
       },
       "versions": {
-        "dev": "1.0.0+1"
+        "dev": "1.0.0+1",
+        "prod": "1.0.0+1"
       },
       "store": ""
     },
@@ -47,6 +48,7 @@
       },
       "versions": {
         "dev": "1.0.2+26052201",
+        "prod": "1.0.2+26052201",
         "aab": "1.0.2+26052201"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader"
