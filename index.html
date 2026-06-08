@@ -1004,6 +1004,7 @@
       gb.disabled=true;
       var lb=document.getElementById("vdGenLegalBtn"); if(lb) lb.disabled=true;
       ov.classList.add("open");
+      pollDescStatus();
       try{
         var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id));
         var d=await r.json();
@@ -1018,6 +1019,30 @@
       }catch(e){ fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(e.message)+"</div>"; }
       finally{ gb.disabled=false; if(lb) lb.disabled=false; }
     };
+        var _descPollTimer = null;
+    async function pollDescStatus(){
+      if(_descPollTimer){ clearInterval(_descPollTimer); _descPollTimer = null; }
+      async function tick(){
+        try{
+          if(!ov.classList.contains("open")) return stopPoll();
+          var t = await resolveGenDesc();
+          var r = await fetch(t+"/status",{cache:"no-store"});
+          var d = await r.json();
+          if(d && d.ok && d.running && d.slug === appId){
+            var mins = Math.floor(d.elapsed_sec/60), secs = d.elapsed_sec%60;
+            msg.style.color="#7c3aed";
+            msg.textContent = "⏳ Đang gen ("+(mins?mins+"m"+(secs<10?"0":""):"")+secs+"s)…";
+            gb.disabled = true;
+          } else if(d && d.ok && !d.running){
+            // job done — reload description for fresh content
+            if(gb.disabled){ msg.textContent=""; gb.disabled=false; await window.openViewDesc(appId, appEl.textContent); stopPoll(); }
+          }
+        }catch(e){ /* tunnel offline */ }
+      }
+      function stopPoll(){ if(_descPollTimer){ clearInterval(_descPollTimer); _descPollTimer=null; } }
+      tick();
+      _descPollTimer = setInterval(tick, 4000);
+    }
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
     var GENDESC_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=gendesc";
@@ -1402,9 +1427,39 @@
       gb.disabled = false;
       viewLink.style.display = "none";
       ov.classList.add("open");
+      pollBaStatus();
       activateTab("BA.vi.md");
     };
 
+        var _baPollTimer = null;
+    async function pollBaStatus(){
+      if(_baPollTimer){ clearInterval(_baPollTimer); _baPollTimer = null; }
+      function stopPoll(){ if(_baPollTimer){ clearInterval(_baPollTimer); _baPollTimer=null; } }
+      async function tick(){
+        try{
+          if(!ov.classList.contains("open")) return stopPoll();
+          var gen = await resolveBaGen();
+          var r = await fetch(gen+"/status",{cache:"no-store"});
+          var d = await r.json();
+          // BA server /status trả service info object thay vì running flag (legacy).
+          // running flag được add sau — kiểm tra cả 2.
+          if(d && d.running && d.slug === currentSlug){
+            var mins = Math.floor(d.elapsed_sec/60), secs = d.elapsed_sec%60;
+            msg.style.color="#7c3aed";
+            msg.textContent = "⏳ Đang gen ("+(mins?mins+"m"+(secs<10?"0":""):"")+secs+"s)…";
+            gb.disabled = true;
+          } else if(d && d.running === false && gb.disabled){
+            msg.textContent=""; gb.disabled=false;
+            // reload current tab
+            var activeTab = document.querySelector("#baTabs .ba-tab.active");
+            if(activeTab) loadFile(activeTab.dataset.file);
+            stopPoll();
+          }
+        }catch(e){}
+      }
+      tick();
+      _baPollTimer = setInterval(tick, 4000);
+    }
     window.baClose = function(){ ov.classList.remove("open"); };
 
     window.baGen = async function(){
@@ -1483,7 +1538,35 @@
         }).join("");
       }catch(e){ grid.innerHTML='<div style="color:#ef4444;grid-column:1/-1;text-align:center;padding:24px">Lỗi tải gallery</div>'; }
     }
-    window.openShots=function(id,nm){ slug=id; title.textContent=nm+" — Screenshots"; msg.textContent=""; pin.value=""; ov.style.display="flex"; window.lucide&&lucide.createIcons(); loadGallery(id); };
+    window.openShots=function(id,nm){ slug=id; title.textContent=nm+" — Screenshots"; msg.textContent=""; pin.value=""; ov.style.display="flex"; window.lucide&&lucide.createIcons(); loadGallery(id); pollShotsStatus(); };
+    var _ssPollTimer = null;
+    async function pollShotsStatus(){
+      if(_ssPollTimer){ clearInterval(_ssPollTimer); _ssPollTimer = null; }
+      function stopPoll(){ if(_ssPollTimer){ clearInterval(_ssPollTimer); _ssPollTimer=null; } }
+      async function tick(){
+        try{
+          if(ov.style.display !== "flex") return stopPoll();
+          var t = await resolveTunnel();
+          var r = await fetch(t+"/status",{cache:"no-store"});
+          var d = await r.json();
+          if(d && d.ok && d.running && d.slug === slug){
+            var mins = Math.floor(d.elapsed_sec/60), secs = d.elapsed_sec%60;
+            msg.style.color="#0891b2";
+            msg.textContent = "⏳ Đang chụp ("+(mins?mins+"m"+(secs<10?"0":""):"")+secs+"s)…";
+            gb.disabled = true;
+          } else if(d && d.ok && !d.running && gb.disabled){
+            msg.textContent=""; gb.disabled=false;
+            loadGallery(slug);
+            stopPoll();
+          } else if(d && d.ok && d.running && d.slug !== slug && d.slug){
+            msg.style.color="#94a3b8";
+            msg.textContent = "🔒 Device đang chụp '"+d.slug+"' ("+d.elapsed_sec+"s) — chờ xong rồi mới Gen được.";
+          }
+        }catch(e){}
+      }
+      tick();
+      _ssPollTimer = setInterval(tick, 4000);
+    }
     window.ssClose=function(){ ov.style.display="none"; };
     ov.addEventListener("click",function(e){ if(e.target===ov) ssClose(); });
     window.ssGen=async function(){
