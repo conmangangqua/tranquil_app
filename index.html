@@ -1000,17 +1000,49 @@
     };
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
+    var GENDESC_TUNNEL_INDEX = "https://raw.githubusercontent.com/conmangangqua/app_description/main/_tunnel.txt";
+    var GENDESC_TUNNEL = null;
+    async function resolveGenDesc(){
+      if (GENDESC_TUNNEL) return GENDESC_TUNNEL;
+      var r = await fetch(GENDESC_TUNNEL_INDEX + "?t=" + Date.now(), { cache: "no-store" });
+      var t = (await r.text()).trim();
+      if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) { GENDESC_TUNNEL = t; return t; }
+      throw new Error("no tunnel");
+    }
+    // Đường cũ (Vercel Groq) — fallback khi daemon Claude tắt / không với tới
+    async function vdGenFallback(v){
+      msg.style.color="#64748b"; msg.textContent="⏳ Đang kích gen (cloud fallback)…";
+      var r=await fetch(API+"/api/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:appId,pin:v})});
+      var d=await r.json();
+      if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
+      vdClose();
+      if(window.showSnack) showSnack("📝 "+d.message+" (cloud, vài phút có bản mới)", d.pipeline_url, false);
+    }
     window.vdGen=async function(){
       var v=(pin.value||"").trim();
       if(!v){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN để Gen lại."; return; }
-      gb.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đang kích gen…";
-      try{
-        var r=await fetch(API+"/api/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:appId,pin:v})});
-        var d=await r.json();
-        if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
-        vdClose();
-        if(window.showSnack) showSnack("📝 "+d.message+" (vài phút có bản mới)", d.pipeline_url, false);
-      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      gb.disabled=true;
+      // 1) Ưu tiên Claude daemon; CHỈ fallback khi daemon down (resolve/network fail)
+      var tunnel=null;
+      try{ tunnel=await resolveGenDesc(); }catch(_){ tunnel=null; }
+      if(tunnel){
+        msg.style.color="#64748b"; msg.textContent="⏳ Đang gen (~8-12 phút, Claude Sonnet 4.6)…";
+        var reached=false;
+        try{
+          var r=await fetch(tunnel+"/gendesc",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:appId,pin:v})});
+          reached=true;
+          var d=await r.json();
+          if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
+          msg.style.color="#059669"; msg.textContent="✅ Gen OK ("+(d.duration_sec||0)+"s)";
+          openViewDesc(appId, appEl.textContent); gb.disabled=false; return;
+        }catch(e){
+          if(reached){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; gb.disabled=false; return; }
+          // chưa reached → daemon down → rơi xuống fallback
+        }
+      }
+      // 2) Fallback Vercel Groq (đường cũ)
+      try{ await vdGenFallback(v); }
+      catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ gb.disabled=false; }
     };
     window.vdGenLegal=async function(){
