@@ -1453,7 +1453,7 @@
       <input id="ssPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off" style="width:100%;margin-top:14px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit">
       <div style="display:flex;gap:10px;margin-top:10px">
         <button type="button" onclick="ssClose()" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;font-weight:700;cursor:pointer;font-family:inherit">Đóng</button>
-        <button type="button" id="ssGenBtn" onclick="ssGen()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#0891b2;color:#fff;font-weight:700;cursor:pointer;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen lại</button>
+        <button type="button" id="ssDlBtn" onclick="ssDownloadAll()" style="flex:1;padding:11px;border:1.5px solid #0891b2;border-radius:10px;background:#fff;color:#0891b2;font-weight:700;cursor:pointer;font-family:inherit"><i data-lucide="download" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Tải tất cả</button><button type="button" id="ssGenBtn" onclick="ssGen()" style="flex:1;padding:11px;border:none;border-radius:10px;background:#0891b2;color:#fff;font-weight:700;cursor:pointer;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen lại</button>
       </div>
     </div>
   </div>
@@ -1499,6 +1499,37 @@
         loadGallery(slug);
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       finally{ gb.disabled=false; }
+    };
+    // Tải tất cả ảnh hiện đang hiển thị trong grid — tuần tự để tránh trình
+    // duyệt block popup khi mở nhiều tab cùng lúc.
+    window.ssDownloadAll=async function(){
+      var imgs = grid.querySelectorAll("img");
+      if(!imgs.length){ msg.style.color="#ef4444"; msg.textContent="Chưa có ảnh để tải."; return; }
+      var dlBtn = document.getElementById("ssDlBtn");
+      dlBtn.disabled = true;
+      var total = imgs.length, done = 0;
+      msg.style.color="#64748b"; msg.textContent="⏳ Đang tải "+total+" ảnh…";
+      for(var i=0;i<imgs.length;i++){
+        try{
+          var src = imgs[i].src;
+          var r = await fetch(src);
+          var b = await r.blob();
+          var url = URL.createObjectURL(b);
+          var a = document.createElement("a");
+          a.href = url;
+          // Lấy filename từ URL (cuối path)
+          var parts = src.split("/");
+          a.download = (slug||"screenshot") + "_" + (parts[parts.length-1] || (i+1)+".png");
+          document.body.appendChild(a); a.click(); a.remove();
+          URL.revokeObjectURL(url);
+          done++;
+          msg.textContent="⏳ Đã tải "+done+"/"+total+"…";
+          // Delay giữa các download để Chrome không gộp prompt
+          await new Promise(function(res){ setTimeout(res, 250); });
+        }catch(e){ /* ignore single fail */ }
+      }
+      msg.style.color="#059669"; msg.textContent="✅ Đã tải "+done+"/"+total+" ảnh.";
+      dlBtn.disabled = false;
     };
   })();</script>
 
