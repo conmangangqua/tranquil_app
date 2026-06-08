@@ -1000,11 +1000,11 @@
     };
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
-    var GENDESC_TUNNEL_INDEX = "https://raw.githubusercontent.com/conmangangqua/app_description/main/_tunnel.txt";
+    var GENDESC_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=gendesc";
     var GENDESC_TUNNEL = null;
     async function resolveGenDesc(){
       if (GENDESC_TUNNEL) return GENDESC_TUNNEL;
-      var r = await fetch(GENDESC_TUNNEL_INDEX + "?t=" + Date.now(), { cache: "no-store" });
+      var r = await fetch(GENDESC_TUNNEL_INDEX + "&t=" + Date.now(), { cache: "no-store" });
       var t = (await r.text()).trim();
       if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) { GENDESC_TUNNEL = t; return t; }
       throw new Error("no tunnel");
@@ -1262,12 +1262,12 @@
     // Tunnel URL đổi mỗi lần Mac reboot — fetch URL hiện hành từ GitHub raw.
     // GET /api/ba → Vercel cloud (instant từ GitHub raw, không cần Mac on).
     var BA_API_GET = "https://ba-trigger.vercel.app";
-    var BA_TUNNEL_INDEX = "https://raw.githubusercontent.com/conmangangqua/app_ba_docs/main/_tunnel.txt";
+    var BA_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=ba";
     var BA_API_GEN_CACHED = null;
     async function resolveBaGen(){
       if (BA_API_GEN_CACHED) return BA_API_GEN_CACHED;
       try {
-        var r = await fetch(BA_TUNNEL_INDEX + "?t=" + Date.now(), { cache: "no-store" });
+        var r = await fetch(BA_TUNNEL_INDEX + "&t=" + Date.now(), { cache: "no-store" });
         var t = (await r.text()).trim();
         if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) {
           BA_API_GEN_CACHED = t;
@@ -1439,14 +1439,14 @@
   </div>
   <script>(function(){
     var API="https://aab.tranquilmind.co";
-    var TUNNEL_INDEX="https://raw.githubusercontent.com/conmangangqua/app_screenshots/main/_tunnel.txt";
+    var TUNNEL_INDEX="https://aab.tranquilmind.co/api/tunnel?name=genshots";
     var TUNNEL=null, slug="";
     var ov=document.getElementById("ssOv"),grid=document.getElementById("ssGrid"),
         msg=document.getElementById("ssMsg"),pin=document.getElementById("ssPin"),
         gb=document.getElementById("ssGenBtn"),title=document.getElementById("ssTitle");
     async function resolveTunnel(){
       if(TUNNEL) return TUNNEL;
-      var r=await fetch(TUNNEL_INDEX+"?t="+Date.now(),{cache:"no-store"});
+      var r=await fetch(TUNNEL_INDEX+"&t="+Date.now(),{cache:"no-store"});
       var t=(await r.text()).trim();
       if(/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)){TUNNEL=t;return t;}
       throw new Error("máy chụp đang off");
