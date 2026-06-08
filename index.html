@@ -1438,8 +1438,7 @@
     </div>
   </div>
   <script>(function(){
-    var RAW="https://raw.githubusercontent.com/conmangangqua/app_screenshots/main";
-    var TREE="https://api.github.com/repos/conmangangqua/app_screenshots/git/trees/main?recursive=1";
+    var API="https://aab.tranquilmind.co";
     var TUNNEL_INDEX="https://raw.githubusercontent.com/conmangangqua/app_screenshots/main/_tunnel.txt";
     var TUNNEL=null, slug="";
     var ov=document.getElementById("ssOv"),grid=document.getElementById("ssGrid"),
@@ -1455,13 +1454,12 @@
     async function loadGallery(id){
       grid.innerHTML='<div style="color:#94a3b8;grid-column:1/-1;text-align:center;padding:24px">Đang tải…</div>';
       try{
-        var tr=await (await fetch(TREE,{cache:"no-store"})).json();
-        var rx=new RegExp("^[^/]+/"+id.replace(/_/g,"[-_]")+"/(\\d+[_-][^/]+\\.png)$","i");
-        var items=(tr.tree||[]).map(function(x){var m=x.path.match(rx);return m?{path:x.path,name:m[1]}:null;}).filter(Boolean);
+        var d=await (await fetch(API+"/api/screenshots?app_id="+encodeURIComponent(id),{cache:"no-store"})).json();
+        var items=(d&&d.screens)||[];
         if(!items.length){ grid.innerHTML='<div style="color:#94a3b8;grid-column:1/-1;text-align:center;padding:24px">Chưa có ảnh — bấm "Gen lại" (cần PIN).</div>'; return; }
         grid.innerHTML=items.map(function(it){
-          var u=RAW+"/"+it.path;
-          return '<a href="'+u+'" target="_blank" rel="noopener" style="text-decoration:none"><img src="'+u+'" loading="lazy" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;aspect-ratio:9/19;object-fit:cover"><div style="font-size:.7rem;color:#64748b;margin-top:3px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.name+'</div></a>';
+          var u=API+it.url;
+          return '<a href="'+u+'" target="_blank" rel="noopener" style="text-decoration:none"><img src="'+u+'" loading="lazy" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;aspect-ratio:9/19;object-fit:cover"><div style="font-size:.7rem;color:#64748b;margin-top:3px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.label+'</div></a>';
         }).join("");
       }catch(e){ grid.innerHTML='<div style="color:#ef4444;grid-column:1/-1;text-align:center;padding:24px">Lỗi tải gallery</div>'; }
     }
