@@ -318,6 +318,26 @@
     };
     fetch("apps.json").then(res => res.json()).then(data => { allApps = data.apps || []; allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions(); }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
+    // Deep-link: ?app=<slug>&open=desc|ba|ss — auto mở popup khi notify Discord
+    function autoOpenFromUrl(){
+      try{
+        var q = new URLSearchParams(location.search);
+        var slug = (q.get("app")||"").trim();
+        var action = (q.get("open")||"").trim().toLowerCase();
+        if(!slug || !action) return;
+        var app = (allApps||[]).find(function(a){ return a.id === slug; });
+        if(!app) return;
+        var nm = app.name || slug;
+        setTimeout(function(){
+          if(action === "desc" && window.openViewDesc) openViewDesc(slug, nm);
+          else if(action === "ba" && window.genBaDocs)
+            genBaDocs(slug, nm, document.querySelector("[data-app-id='"+slug+"'] .btn-ba"));
+          else if(action === "ss" && window.openShots) openShots(slug, nm);
+        }, 100);
+      }catch(e){ /* silent */ }
+    }
+
+
     function escHtml(s){ return String(s||"").replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c];}); }
     function urlRow(label, url, ok){
       if(!url) return '<div style="font-size:.7rem;color:#94a3b8">'+label+': <i>(trống)</i></div>';
