@@ -1602,7 +1602,7 @@
           a.href = url;
           // Lấy filename từ URL (cuối path)
           var parts = src.split("/");
-          a.download = (slug||"screenshot") + "_" + (parts[parts.length-1] || (i+1)+".png");
+          a.download = (slug||"screenshot") + "_" + (parts[parts.length-1] || (i+1)+".jpg");
           document.body.appendChild(a); a.click(); a.remove();
           URL.revokeObjectURL(url);
           done++;
