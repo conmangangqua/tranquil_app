@@ -49,7 +49,7 @@
       "versions": {
         "dev": "1.0.2+26052201",
         "prod": "1.0.2+26052201",
-        "aab": "1.0.3+26061901"
+        "aab": "1.0.4+26062301"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader"
     }
