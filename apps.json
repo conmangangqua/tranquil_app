@@ -20,7 +20,7 @@
     {
       "id": "luminary_pdf",
       "name": "Luminary Pdf",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
