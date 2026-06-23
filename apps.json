@@ -15,7 +15,9 @@
         "dev": "5.0.9+25082901",
         "prod": "5.0.9+25082901"
       },
-      "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695"
+      "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695",
+      "category": "Health & Fitness",
+      "category_source": "store"
     },
     {
       "id": "luminary_pdf",
@@ -32,7 +34,9 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": ""
+      "store": "",
+      "category": "Productivity",
+      "category_source": "store"
     },
     {
       "id": "turbovid",
@@ -51,7 +55,9 @@
         "prod": "1.0.2+26052201",
         "aab": "1.0.4+26062301"
       },
-      "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader"
+      "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader",
+      "category": "Tools",
+      "category_source": "store"
     }
   ]
 }
