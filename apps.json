@@ -56,8 +56,8 @@
         "aab": "1.0.4+26062301"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tmt.video.downloader",
-      "category": "Tools",
-      "category_source": "store"
+      "category": "Downloader",
+      "category_source": "rule"
     }
   ]
 }
