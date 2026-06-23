@@ -282,10 +282,21 @@
   <div class="bg-animation"><div class="blob"></div></div>
   <header><h1>Tranquil Hub</h1></header>
   <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"></div></section>
+  <div class="cat-chips" id="catChips"></div>
   <main><div id="appContainer"></div></main>
   <footer><p>&copy; 2026 Tranquil Hub. Powered by Platinum Engine.</p></footer>
   <script>
     let allApps = [];
+    let selectedCategory = "";
+    const buildCategoryChips = () => {
+      const host = document.getElementById("catChips");
+      if (!host) return;
+      const cats = [...new Set(allApps.map(a => a.category).filter(Boolean))].sort();
+      if (!cats.length) { host.innerHTML = ""; return; }
+      const chip = (label, val, cnt) => `<button type="button" class="cat-chip${selectedCategory===val?' active':''}" onclick="selectCategory(this.dataset.cat)" data-cat="${val.replace(/"/g,'&quot;')}">${label}${cnt!=null?` <span class="cnt">${cnt}</span>`:''}</button>`;
+      host.innerHTML = chip("Tất cả", "", allApps.filter(a=>a.category).length) + cats.map(c => chip(c, c, allApps.filter(a=>a.category===c).length)).join("");
+    };
+    const selectCategory = (val) => { selectedCategory = val; buildCategoryChips(); filterApps(); };
     const formatUrl = (url, isIOS) => url && isIOS ? "itms-services://?action=download-manifest&url=" + encodeURIComponent(url) : url;
     const renderApps = (apps) => {
       const container = document.getElementById("appContainer"); container.innerHTML = "";
@@ -309,7 +320,7 @@
           : `<span class="btn-stack">${label}</span>`;
         const card = document.createElement("article"); card.className = "app-card"; card.style.animationDelay = `${index * 0.1}s`; card.dataset.appId = app.id;
         card.innerHTML = `<div class="app-icon-box"><img src="${app.icon || 'https://via.placeholder.com/150'}" class="app-icon" alt="${app.name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(app.name)}&background=059669&color=fff'"></div>
-          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span><span class="ads-badge" data-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
+          <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="ads-badge" data-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store</span></a>` : ""}
           <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ba" onclick="genBaDocs('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="clipboard-list"></i><span class="btn-stack">BA + Tests</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-fl" onclick="openFlow('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="git-branch"></i><span class="btn-stack">View Flow</span></button></div>${app.storeUpdated ? `<div class="store-meta"><span class="icon">📅</span>Updated on ${app.storeUpdated}</div>` : ""}`;
@@ -318,7 +329,7 @@
     };
     const filterApps = () => {
       const query = document.getElementById("searchInput").value.toLowerCase();
-      renderApps(allApps.filter(app => app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query))));
+      renderApps(allApps.filter(app => (selectedCategory === "" || app.category === selectedCategory) && (app.name.toLowerCase().includes(query) || (app.description && app.description.toLowerCase().includes(query)) || (app.category && app.category.toLowerCase().includes(query)))));
       tryRenderIcons();
     };
     Promise.all([
@@ -326,7 +337,7 @@
       fetch("versions.json").then(r => r.ok ? r.json() : {apps:{}}).catch(()=>({apps:{}}))
     ]).then(([data, v]) => {
       window.__sv = (v && v.apps) || {};
-      allApps = (data.apps || []).map(a => ({...a, storeUpdated: (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions();
+      allApps = (data.apps || []).map(a => ({...a, storeUpdated: (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); buildCategoryChips(); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions();
     }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     // Deep-link: ?app=<slug>&open=desc|ba|ss — auto mở popup khi notify Discord
@@ -1219,7 +1230,20 @@
     .st-cancel{background:#f1f5f9;color:#475569}
     .st-ok{background:#2563eb;color:#fff}
     .st-ok:disabled{opacity:.55;cursor:not-allowed}
-  </style>
+      /* ===== CATEGORY: pill + chips filter + badge-row wrap (ads không bị che) ===== */
+    .cat-chips { max-width: 1200px; margin: 0 auto 10px; padding: 0 40px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .cat-chip { cursor: pointer; font-family: inherit; font-size: 0.85rem; font-weight: 700; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--glass-border); background: var(--card-bg); color: var(--text-muted); transition: all .25s; display: inline-flex; align-items: center; gap: 6px; }
+    .cat-chip:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+    .cat-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .cat-chip .cnt { font-size: 0.72rem; font-weight: 800; opacity: .7; background: rgba(128,128,128,0.22); padding: 1px 7px; border-radius: 999px; }
+    .cat-chip.active .cnt { background: rgba(255,255,255,0.25); opacity: 1; }
+    .pill-category { display: inline-flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 800; padding: 5px 11px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: #fff; }
+    .pill-category.cat-src-override { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .pill-category.cat-src-ai { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+    .pill-category.cat-src-gitlab { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
+    .pill-category i, .pill-category svg { width: 11px; height: 11px; stroke-width: 2.4; }
+    .badge-row { flex-wrap: wrap !important; overflow: visible !important; row-gap: 8px !important; }
+</style>
   <div id="stOv"><div id="stMd">
     <h3><i data-lucide="plus" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Add Store Link</h3>
     <p class="sub" id="stApp"></p>

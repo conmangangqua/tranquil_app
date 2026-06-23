@@ -121,14 +121,63 @@ jobs:
 
       # ===================== BUILD apps.json =====================
       - name: Build apps.json from scratch
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           python3 << 'PYTHON_SCRIPT'
           import json
           import sys
+          import os
+          import base64
+          import urllib.request as _ur2
           
           # Read all assets
           with open('/tmp/all_assets.json', 'r') as f:
               all_assets = json.load(f)
+
+          # ===== Category source: apps-status snapshot (branch `data`) =====
+          def _norm(s): return (s or "").lower().replace("_", "-")
+          def load_category_map():
+              cat_map = {}
+              tok = os.environ.get("GH_TOKEN", "")
+              if not tok:
+                  print("  ! GH_TOKEN missing"); return cat_map
+              try:
+                  req = _ur2.Request(
+                      "https://api.github.com/repos/conmangangqua/apps-status/contents/snapshot.json?ref=data",
+                      headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json",
+                               "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "hub-cat"})
+                  with _ur2.urlopen(req, timeout=20) as r:
+                      meta = json.load(r)
+                  snap = json.loads(base64.b64decode(meta.get("content", "")).decode("utf-8"))
+              except Exception as e:
+                  print(f"  ! load snapshot fail: {e}"); return cat_map
+              def walk(o):
+                  if isinstance(o, dict):
+                      if o.get("slug") and o.get("category"):
+                          cat_map[_norm(o["slug"])] = {"category": o["category"], "source": o.get("category_source", "store")}
+                      for v in o.values(): walk(v)
+                  elif isinstance(o, list):
+                      for v in o: walk(v)
+              walk(snap)
+              print(f"  ✓ category map: {len(cat_map)} app")
+              return cat_map
+          def load_category_overrides():
+              try:
+                  with open("category_overrides.json") as _f:
+                      data = json.load(_f)
+                  return {_norm(k): v for k, v in data.items() if not k.startswith("_")}
+              except Exception:
+                  return {}
+          CAT_MAP = load_category_map()
+          CAT_OVERRIDES = load_category_overrides()
+          def resolve_category(app_id):
+              key = _norm(app_id)
+              ov = CAT_OVERRIDES.get(key)
+              if ov: return ov, "override"
+              snap = CAT_MAP.get(key)
+              if snap: return snap["category"], snap.get("source", "store")
+              return None, None
 
           # Manual store links (stores.json in repo root) — durable across regenerate
           STORES = {}
@@ -359,6 +408,9 @@ jobs:
               if ios_dev: downloads['dev'] = ios_dev
               if ios_prod: downloads['prod'] = ios_prod
               
+              cat, cat_src = resolve_category(app_id)
+              print(f"  CATEGORY: {cat or 'none'} ({cat_src or '-'})")
+
               app = {
                   'id': app_id,
                   'name': app_name,
@@ -368,7 +420,9 @@ jobs:
                   'features': [],
                   'downloads': downloads,
                   'versions': versions,
-                  'store': store_link
+                  'store': store_link,
+                  'category': cat,
+                  'category_source': cat_src
               }
               apps.append(app)
           
