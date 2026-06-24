@@ -41,7 +41,7 @@
     {
       "id": "turbovid",
       "name": "Turbovid",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/turbovid_icon.png",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/turbovid_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
@@ -51,7 +51,7 @@
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/turbovid.aab"
       },
       "versions": {
-        "dev": "1.0.2+26052201",
+        "dev": "1.0.4+26062301",
         "prod": "1.0.2+26052201",
         "aab": "1.0.4+26062301"
       },
