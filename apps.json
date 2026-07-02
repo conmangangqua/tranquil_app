@@ -17,7 +17,9 @@
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695",
       "category": "Health & Fitness",
-      "category_source": "store"
+      "category_source": "store",
+      "store_updated": null,
+      "store_version": null
     },
     {
       "id": "luminary_pdf",
@@ -36,7 +38,9 @@
       },
       "store": "",
       "category": "Productivity",
-      "category_source": "store"
+      "category_source": "store",
+      "store_updated": null,
+      "store_version": null
     }
   ]
 }
