@@ -349,7 +349,7 @@
       fetch("versions.json").then(r => r.ok ? r.json() : {apps:{}}).catch(()=>({apps:{}}))
     ]).then(([data, v]) => {
       window.__sv = (v && v.apps) || {};
-      allApps = (data.apps || []).map(a => ({...a, storeUpdated: (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); buildCategoryChips(); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions();
+      allApps = (data.apps || []).map(a => ({...a, storeUpdated: a.store_updated || (window.__sv||{})[a.id]?.updated_on || null})); allApps.sort((a,b) => (b.store ? 1 : 0) - (a.store ? 1 : 0)); buildCategoryChips(); renderApps(allApps); tryRenderIcons(); runHealthCheck(); enrichCardDescriptions();
     }).catch(err => { document.getElementById("appContainer").innerHTML = '<div style="color: #ef4444; font-weight: 800; text-align: center; grid-column: 1/-1;">❌ Connection error. Please try again later.</div>'; });
 
     // Deep-link: ?app=<slug>&open=desc|ba|ss — auto mở popup khi notify Discord

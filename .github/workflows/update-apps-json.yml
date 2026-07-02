@@ -171,6 +171,43 @@ jobs:
                   return {}
           CAT_MAP = load_category_map()
           CAT_OVERRIDES = load_category_overrides()
+
+          # Store meta (version + ngày update) từ snapshot apps-status — thay versions.json
+          def load_store_meta_map():
+              meta_map = {}
+              tok = os.environ.get("GH_TOKEN", "")
+              if not tok:
+                  print("  ! GH_TOKEN missing — bỏ qua store-meta")
+                  return meta_map
+              try:
+                  req = _ur2.Request(
+                      "https://api.github.com/repos/conmangangqua/apps-status/contents/snapshot.json?ref=data",
+                      headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json",
+                               "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "hub-storemeta"})
+                  with _ur2.urlopen(req, timeout=20) as r:
+                      _sm_meta = json.load(r)
+                  snap = json.loads(base64.b64decode(_sm_meta.get("content", "")).decode("utf-8"))
+              except Exception as e:
+                  print(f"  ! load store-meta fail: {e}")
+                  return meta_map
+              for bid, info in (snap.get("_store_info_cache") or {}).items():
+                  if isinstance(info, dict) and info.get("last_updated"):
+                      meta_map.setdefault(bid.lower(), {})["updated"] = info["last_updated"]
+              for bid, st in (snap.get("_play_state_cache") or {}).items():
+                  if isinstance(st, dict) and st.get("version"):
+                      meta_map.setdefault(bid.lower(), {})["version"] = st["version"]
+              print(f"  ✓ store-meta từ snapshot: {len(meta_map)} bundle")
+              return meta_map
+
+          STORE_META = load_store_meta_map()
+          import re as _re_sm
+          def resolve_store_meta(store_link):
+              if not store_link: return None, None
+              m = _re_sm.search(r"[?&]id=([\w.]+)", store_link)
+              if not m: return None, None
+              e = STORE_META.get(m.group(1).lower())
+              if not e: return None, None
+              return e.get("updated"), e.get("version")
           def resolve_category(app_id):
               key = _norm(app_id)
               ov = CAT_OVERRIDES.get(key)
@@ -410,6 +447,8 @@ jobs:
               
               cat, cat_src = resolve_category(app_id)
               print(f"  CATEGORY: {cat or 'none'} ({cat_src or '-'})")
+              store_updated, store_version = resolve_store_meta(store_link)
+              print(f"  STORE: v={store_version or '-'} updated={store_updated or '-'}")
 
               app = {
                   'id': app_id,
@@ -422,7 +461,9 @@ jobs:
                   'versions': versions,
                   'store': store_link,
                   'category': cat,
-                  'category_source': cat_src
+                  'category_source': cat_src,
+                  'store_updated': store_updated,
+                  'store_version': store_version
               }
               apps.append(app)
           
