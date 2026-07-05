@@ -1780,6 +1780,7 @@
   #dsMd .ok{background:#059669;color:#fff}.cp{background:#ede9fe;color:#6d28d9}.cl{background:#f1f5f9;color:#334155}
   #dsMd .spin{width:34px;height:34px;border:3px solid #d1fae5;border-top-color:#059669;border-radius:50%;animation:dsSpin 1s linear infinite;margin:40px auto}
   @keyframes dsSpin{to{transform:rotate(360deg)}}
+  #dsMd pre.dscsv{background:#0c1526;color:#cbd5e1;border:1px solid #1e293b;border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.7rem;line-height:1.5;font-family:ui-monospace,Menlo,monospace;max-height:300px;overflow:auto;white-space:pre;word-break:normal}
 </style>
 <div id="dsMdOv"><div id="dsMd">
   <h3>🛡️ Data Safety CSV — <span id="dsApp"></span></h3>
@@ -1835,6 +1836,7 @@
       : '⚠️ Bản regex nhanh (chỉ dò SDK/permission) — bấm 🤖 để OpenClaw đọc code thật cho chính xác. Bạn chịu trách nhiệm soát dòng NEEDS_REVIEW trước khi upload.';
     body.innerHTML=head+
       '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>'+(engine==="ai"?"Lý do":"Evidence")+'</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
+      '<pre class="dscsv" id="dsCsv" style="display:none">'+esc(lastCsv)+'</pre>'+
       '<div class="note">'+noteTxt+'</div>'+actions(engine!=="ai");
     bindActions();
   }
@@ -1842,13 +1844,15 @@
   function actions(showAi){
     return '<div class="act">'+
       (showAi?'<button class="cp" id="dsAi">🤖 AI kiểm tra chính xác</button>':'')+
+      (lastCsv?'<button class="cl" id="dsView">👁️ Xem CSV</button>':'')+
       '<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button><button class="cl" id="dsCl">Đóng</button></div>';
   }
   function bindActions(){
-    var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi");
+    var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi"),vw=document.getElementById("dsView");
     if(cl)cl.onclick=close;
     if(dl)dl.onclick=function(){if(!lastCsv)return;var b=new Blob([lastCsv],{type:"text/csv"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=lastApp+"-data-safety.csv";a.click();URL.revokeObjectURL(u);};
     if(cp)cp.onclick=function(){if(lastCsv)navigator.clipboard.writeText(lastCsv);};
+    if(vw)vw.onclick=function(){var p=document.getElementById("dsCsv");if(!p)return;var show=p.style.display==="none";p.style.display=show?"block":"none";vw.textContent=show?"🙈 Ẩn CSV":"👁️ Xem CSV";};
     if(ai)ai.onclick=triggerAi;
   }
 
