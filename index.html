@@ -1789,42 +1789,93 @@
 <script>(function(){
   var DS_API="https://aab.tranquilmind.co";
   var ov=document.getElementById("dsMdOv"), body=document.getElementById("dsBody"), appEl=document.getElementById("dsApp");
-  var lastCsv="", lastApp="";
+  var lastCsv="", lastApp="", lastNm="", pollTimer=null;
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
-  function close(){ov.classList.remove("open");}
+  function close(){ov.classList.remove("open");if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
   ov.addEventListener("click",function(e){if(e.target===ov)close();});
+  function bg(v){return v==="Yes"?'<span class="bg yes">Yes</span>':'<span class="bg no">No</span>';}
+
   window.openDataSafety=async function(id,nm){
-    lastApp=id; appEl.textContent=nm||id;
+    lastApp=id; lastNm=nm||id; appEl.textContent=lastNm;
     body.innerHTML='<div class="spin"></div>';
     ov.classList.add("open");
+    // Ưu tiên hiển thị kết quả AI đã có (nếu từng gen), fallback regex.
+    try{
+      var ar=await fetch(DS_API+"/api/datasafety?engine=ai&app_id="+encodeURIComponent(id));
+      var ad=await ar.json().catch(function(){return{};});
+      if(ad&&ad.available&&ad.rows&&ad.rows.length){ renderResult(ad,"ai"); return; }
+    }catch(_){}
     try{
       var r=await fetch(DS_API+"/api/datasafety?app_id="+encodeURIComponent(id));
       var d=await r.json();
       if(!r.ok||d.error) throw new Error(d.error||"Không quét được source");
-      lastCsv=d.csv||"";
-      if(!d.rows||!d.rows.length){
-        body.innerHTML='<div class="note">Không phát hiện data-type nào từ source (không thấy permission/SDK đã biết). App có thể không thu thập dữ liệu — vẫn phải khai "No data collected" trong form, hoặc SDK dùng chưa có trong bảng nhận diện.</div>'+actions();
-        bindActions(); return;
-      }
-      var rows=d.rows.map(function(x){
-        return "<tr><td>"+esc(x.data_type)+"</td>"+
-          "<td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
-          "<td class=evi>"+esc(x.collection_purposes||"—")+"</td>"+
-          "<td class=evi>"+(x.needs_review?'<span class="bg rev">NEEDS_REVIEW</span>':esc(x.evidence.join(", ")))+"</td></tr>";
-      }).join("");
-      body.innerHTML='<div class="sub"><b>'+esc(d.project)+'</b> @ '+esc(d.branch)+' · '+d.permissions.length+' permission + '+d.sdks.length+' SDK → <b>'+d.data_type_count+'</b> data-type</div>'+
-        '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>Evidence</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-        '<div class="note">⚠️ Bản nháp do máy suy luận — soát kỹ dòng <b>NEEDS_REVIEW</b>, bạn chịu trách nhiệm khai báo chính xác trước khi upload.</div>'+actions();
-      bindActions();
-    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(); bindActions(); }
+      renderResult(d,"regex");
+    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(false); bindActions(); }
   };
-  function bg(v){return v==="Yes"?'<span class="bg yes">Yes</span>':'<span class="bg no">No</span>';}
-  function actions(){return '<div class="act"><button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button><button class="cl" id="dsCl">Đóng</button></div>';}
+
+  function renderResult(d,engine){
+    lastCsv=d.csv||"";
+    var head, rowsHtml="";
+    if(engine==="ai"){
+      head='<div class="sub"><span class="bg yes">🤖 OpenClaw AI</span> đọc source thật · <b>'+(d.data_type_count||(d.rows||[]).length)+'</b> data-type</div>';
+    }else{
+      head='<div class="sub"><b>'+esc(d.project||"")+'</b> @ '+esc(d.branch||"")+' · '+(d.permissions||[]).length+' permission + '+(d.sdks||[]).length+' SDK (regex) → <b>'+(d.data_type_count||0)+'</b> data-type</div>';
+    }
+    if(!d.rows||!d.rows.length){
+      body.innerHTML=head+'<div class="note">Không phát hiện data-type nào. App có thể không thu thập dữ liệu — vẫn phải khai "No data collected" trong form, hoặc dùng nút 🤖 AI để đọc kỹ hơn.</div>'+actions(engine!=="ai");
+      bindActions(); return;
+    }
+    rowsHtml=d.rows.map(function(x){
+      var evi = engine==="ai" ? esc(x.evidence||"") : (x.needs_review?'<span class="bg rev">NEEDS_REVIEW</span>':esc((x.evidence||[]).join(", ")));
+      return "<tr><td>"+esc(x.data_type)+"</td><td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
+        "<td class=evi>"+esc(x.collection_purposes||"—")+"</td><td class=evi>"+evi+"</td></tr>";
+    }).join("");
+    var noteTxt = engine==="ai"
+      ? '⚠️ OpenClaw đọc source thật — vẫn là bản nháp, bạn chịu trách nhiệm soát & khai chính xác trước khi upload.'
+      : '⚠️ Bản regex nhanh (chỉ dò SDK/permission) — bấm 🤖 để OpenClaw đọc code thật cho chính xác. Bạn chịu trách nhiệm soát dòng NEEDS_REVIEW trước khi upload.';
+    body.innerHTML=head+
+      '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>'+(engine==="ai"?"Lý do":"Evidence")+'</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
+      '<div class="note">'+noteTxt+'</div>'+actions(engine!=="ai");
+    bindActions();
+  }
+
+  function actions(showAi){
+    return '<div class="act">'+
+      (showAi?'<button class="cp" id="dsAi">🤖 AI kiểm tra chính xác</button>':'')+
+      '<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button><button class="cl" id="dsCl">Đóng</button></div>';
+  }
   function bindActions(){
-    var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl");
+    var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi");
     if(cl)cl.onclick=close;
     if(dl)dl.onclick=function(){if(!lastCsv)return;var b=new Blob([lastCsv],{type:"text/csv"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=lastApp+"-data-safety.csv";a.click();URL.revokeObjectURL(u);};
     if(cp)cp.onclick=function(){if(lastCsv)navigator.clipboard.writeText(lastCsv);};
+    if(ai)ai.onclick=triggerAi;
+  }
+
+  async function triggerAi(){
+    var pin=prompt("Nhập mã PIN để OpenClaw bot gen (đọc source ~1-3 phút):");
+    if(!pin)return;
+    body.innerHTML='<div class="spin"></div><div class="sub" style="text-align:center">Đang kích OpenClaw bot đọc source…</div>';
+    try{
+      var r=await fetch(DS_API+"/api/gendatasafety",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:lastApp,pin:pin})});
+      var d=await r.json();
+      if(!r.ok||d.error) throw new Error(d.error||"Trigger lỗi");
+      pollAi();
+    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(true); bindActions(); }
+  }
+  function pollAi(){
+    var start=Date.now(); if(pollTimer)clearInterval(pollTimer);
+    body.innerHTML='<div class="spin"></div><div class="sub" style="text-align:center">🤖 OpenClaw đang đọc source & gen… (tối đa ~3 phút)</div>';
+    pollTimer=setInterval(async function(){
+      var sec=Math.floor((Date.now()-start)/1000);
+      var s=document.querySelector("#dsBody .sub"); if(s)s.textContent="🤖 OpenClaw đang đọc source & gen… ("+sec+"s)";
+      try{
+        var r=await fetch(DS_API+"/api/datasafety?engine=ai&app_id="+encodeURIComponent(lastApp)+"&t="+Date.now());
+        var d=await r.json();
+        if(d&&d.available&&d.rows&&d.rows.length){ clearInterval(pollTimer);pollTimer=null; renderResult(d,"ai"); }
+      }catch(_){}
+      if(sec>210){ clearInterval(pollTimer);pollTimer=null; body.innerHTML='<div class="note">⏱️ Quá lâu chưa có kết quả. Bot có thể còn chạy — thử mở lại sau ít phút.</div>'+actions(true); bindActions(); }
+    },5000);
   }
   // Inject nút "Data Safety" vào mỗi card (login-gated qua CSS body.aab-authed).
   function injectButtons(root){
