@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Safety CSV Generator</title>
+<style>
+  :root{--primary:#059669;--bg:#0b1220;--card:#131c2e;--border:#24324a;--text:#e6edf6;--muted:#8b9bb4;--warn:#f59e0b;--danger:#ef4444}
+  *{box-sizing:border-box}
+  body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);margin:0;min-height:100vh;line-height:1.5}
+  header{padding:22px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  header h1{font-size:1.15rem;margin:0;font-weight:800}
+  header .back{color:var(--muted);text-decoration:none;font-weight:700;font-size:.85rem}
+  main{max-width:1000px;margin:0 auto;padding:22px 20px 60px}
+  .sub{color:var(--muted);font-size:.9rem;margin:6px 0 22px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+  .card h3{margin:0 0 4px;font-size:.92rem;font-weight:800}
+  .card p{margin:0 0 10px;color:var(--muted);font-size:.78rem}
+  textarea{width:100%;min-height:150px;background:#0c1526;border:1px solid var(--border);border-radius:12px;color:var(--text);padding:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;resize:vertical;outline:none}
+  textarea:focus{border-color:var(--primary)}
+  .filebtn{display:inline-block;margin-top:8px;font-size:.75rem;color:var(--primary);cursor:pointer;font-weight:700}
+  .filebtn input{display:none}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+  button{font-family:inherit;font-weight:800;border:none;border-radius:12px;padding:13px 22px;cursor:pointer;font-size:.9rem}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+  .out{margin-top:18px;display:none}
+  .out.show{display:block}
+  table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:10px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{color:var(--muted);font-weight:700;font-size:.72rem;text-transform:uppercase;letter-spacing:.03em}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:800}
+  .b-yes{background:rgba(5,150,105,.15);color:#34d399}
+  .b-no{background:rgba(139,155,180,.12);color:var(--muted)}
+  .b-rev{background:rgba(245,158,11,.15);color:var(--warn)}
+  .evi{color:var(--muted);font-size:.72rem}
+  .note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:12px 14px;font-size:.8rem;color:#fcd34d;margin-top:16px}
+  .err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5;border-radius:12px;padding:12px 14px;font-size:.82rem;margin-top:14px;display:none}
+  .err.show{display:block}
+  .stat{font-size:.8rem;color:var(--muted);margin-top:14px}
+  .stat b{color:var(--text)}
+  pre.csv{background:#0c1526;border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto;font-size:.72rem;max-height:260px;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <a href="./" class="back">← Hub</a>
+  <h1>🛡️ Data Safety CSV Generator</h1>
+</header>
+<main>
+  <div class="sub">Dán <b>AndroidManifest.xml</b> + <b>pubspec.yaml</b> (hoặc build.gradle) của app → tự sinh file CSV import thẳng vào <b>Play Console → App content → Data safety → Import from a CSV file</b>. Chạy 100% trên trình duyệt, không upload đi đâu.</div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>AndroidManifest.xml</h3>
+      <p>Để scan quyền (permissions). Dán nội dung hoặc chọn file.</p>
+      <textarea id="manifest" placeholder="<manifest ...>&#10;  <uses-permission android:name=&quot;android.permission.CAMERA&quot;/>&#10;..."></textarea>
+      <label class="filebtn">📎 Chọn file…<input type="file" id="mfFile" accept=".xml"></label>
+    </div>
+    <div class="card">
+      <h3>pubspec.yaml / build.gradle</h3>
+      <p>Để scan SDK (Firebase, AdMob, Adjust…). Dán nội dung hoặc chọn file.</p>
+      <textarea id="deps" placeholder="dependencies:&#10;  firebase_analytics: ^11.0.0&#10;  google_mobile_ads: ^5.0.0&#10;..."></textarea>
+      <label class="filebtn">📎 Chọn file…<input type="file" id="depFile" accept=".yaml,.yml,.gradle,.kts"></label>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-primary" id="genBtn" onclick="generate()">⚙️ Gen CSV</button>
+    <button class="btn-ghost" onclick="loadSample()">Thử dữ liệu mẫu</button>
+  </div>
+
+  <div class="err" id="err"></div>
+
+  <div class="out" id="out">
+    <div class="stat" id="stat"></div>
+    <table id="tbl"><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes (collect)</th><th>Evidence</th></tr></thead><tbody></tbody></table>
+    <div class="actions" style="margin-top:14px">
+      <button class="btn-primary" onclick="downloadCsv()">⬇️ Tải CSV</button>
+      <button class="btn-ghost" onclick="copyCsv()">📋 Copy CSV</button>
+    </div>
+    <pre class="csv" id="csvPre"></pre>
+    <div class="note">⚠️ File này là <b>bản nháp do máy suy luận từ source</b>. Bạn chịu trách nhiệm khai báo chính xác — hãy soát kỹ các dòng <span class="badge b-rev">NEEDS_REVIEW</span> trước khi upload lên Play Console. Gặp SDK lạ chưa nhận diện → khai bổ sung tay trong form.</div>
+  </div>
+</main>
+
+<script>
+/* ===== Data Safety mapping — đồng bộ với .agents/skills/.../sdk-to-datatype.json ===== */
+const MAPPING = /*__MAPPING__*/{
+  "_comment": "Map evidence (SDK package name / android permission) -> data-type rows. Mở rộng file này khi gặp SDK mới. row: [Category - Type, Collected, Shared, ProcessedEphemerally, Optional, CollectionPurposes(|), SharingPurposes(|)]",
+  "sdks": {
+    "firebase_analytics": [
+      ["App activity - App interactions", "Yes", "Yes", "No", "No", "Analytics", "Analytics"],
+      ["Device or other IDs - Device or other IDs", "Yes", "Yes", "No", "No", "Analytics", "Analytics"]
+    ],
+    "firebase_crashlytics": [
+      ["App info and performance - Crash logs", "Yes", "Yes", "No", "No", "Analytics|Fraud prevention, security, and compliance", "Analytics"],
+      ["App info and performance - Diagnostics", "Yes", "Yes", "No", "No", "Analytics", "Analytics"]
+    ],
+    "firebase_messaging": [
+      ["Device or other IDs - Device or other IDs", "Yes", "No", "No", "No", "App functionality", ""]
+    ],
+    "firebase_remote_config": [],
+    "google_mobile_ads": [
+      ["Device or other IDs - Device or other IDs", "Yes", "Yes", "No", "No", "Advertising or marketing", "Advertising or marketing"],
+      ["App activity - App interactions", "Yes", "Yes", "No", "No", "Advertising or marketing", "Advertising or marketing"]
+    ],
+    "adjust": [
+      ["Device or other IDs - Device or other IDs", "Yes", "Yes", "No", "No", "Analytics|Advertising or marketing", "Analytics|Advertising or marketing"],
+      ["App activity - App interactions", "Yes", "Yes", "No", "No", "Analytics", "Analytics"]
+    ],
+    "appsflyer_sdk": [
+      ["Device or other IDs - Device or other IDs", "Yes", "Yes", "No", "No", "Analytics|Advertising or marketing", "Analytics|Advertising or marketing"]
+    ],
+    "facebook_auth": [
+      ["Personal info - Email address", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - Name", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - User IDs", "Yes", "No", "No", "Yes", "Account management|App functionality", ""]
+    ],
+    "flutter_facebook_auth": [
+      ["Personal info - Email address", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - Name", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - User IDs", "Yes", "No", "No", "Yes", "Account management|App functionality", ""]
+    ],
+    "google_sign_in": [
+      ["Personal info - Email address", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - Name", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - User IDs", "Yes", "No", "No", "Yes", "Account management|App functionality", ""]
+    ],
+    "sign_in_with_apple": [
+      ["Personal info - Email address", "Yes", "No", "No", "Yes", "Account management|App functionality", ""],
+      ["Personal info - User IDs", "Yes", "No", "No", "Yes", "Account management|App functionality", ""]
+    ],
+    "in_app_purchase": [
+      ["Financial info - Purchase history", "Yes", "No", "No", "No", "App functionality", ""]
+    ],
+    "purchases_flutter": [
+      ["Financial info - Purchase history", "Yes", "Yes", "No", "No", "App functionality|Analytics", "Analytics"],
+      ["Device or other IDs - Device or other IDs", "Yes", "Yes", "No", "No", "Analytics", "Analytics"]
+    ],
+    "image_picker": [
+      ["Photos and videos - Photos", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "geolocator": [
+      ["Location - Precise location", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "google_maps_flutter": [
+      ["Location - Approximate location", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ]
+  },
+  "permissions": {
+    "android.permission.ACCESS_FINE_LOCATION": [
+      ["Location - Precise location", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "android.permission.ACCESS_COARSE_LOCATION": [
+      ["Location - Approximate location", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "android.permission.CAMERA": [
+      ["Photos and videos - Photos", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "android.permission.RECORD_AUDIO": [
+      ["Audio files - Voice or sound recordings", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "android.permission.READ_CONTACTS": [
+      ["Contacts - Contacts", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ],
+    "android.permission.READ_CALENDAR": [
+      ["Calendar - Calendar events", "Yes", "No", "No", "Yes", "App functionality", ""]
+    ]
+  }
+}/*__END__*/;
+const HEADER = ["Data type","Collected","Shared","Processed ephemerally","Is data collection optional","Collection purposes","Sharing purposes"];
+const VALID_PURPOSES = new Set(["App functionality","Analytics","Developer communications","Advertising or marketing","Fraud prevention, security, and compliance","Personalization","Account management"]);
+
+let LAST_CSV = "";
+
+document.getElementById('mfFile').addEventListener('change', e=>readFileTo(e,'manifest'));
+document.getElementById('depFile').addEventListener('change', e=>readFileTo(e,'deps'));
+function readFileTo(e,id){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>document.getElementById(id).value=r.result;r.readAsText(f);}
+
+function scanPermissions(xml){
+  const set=new Set();
+  const re=/uses-permission[^>]*android:name\s*=\s*"([^"]+)"/g; let m;
+  while((m=re.exec(xml))!==null) set.add(m[1]);
+  return set;
+}
+function scanSdks(text){
+  const found=new Set(); const low=text.toLowerCase();
+  for(const sdk of Object.keys(MAPPING.sdks||{})){
+    const re=new RegExp('(^|[^a-z0-9_])'+sdk.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^a-z0-9_]|$)');
+    if(re.test(low)) found.add(sdk);
+  }
+  return found;
+}
+function collectRows(perms,sdks){
+  const rows={}, evidence={};
+  const add=(row,ev)=>{
+    const dt=row[0];
+    if(!rows[dt]){rows[dt]=row.slice();evidence[dt]=new Set();}
+    else{
+      const ex=rows[dt];
+      [1,2,3].forEach(i=>{if(row[i]==='Yes')ex[i]='Yes';});
+      const uni=(a,b)=>[...new Set([...(a?a.split('|'):[]),...(b?b.split('|'):[])].filter(Boolean))].sort().join('|');
+      ex[5]=uni(ex[5],row[5]); ex[6]=uni(ex[6],row[6]);
+    }
+    evidence[dt].add(ev);
+  };
+  [...sdks].sort().forEach(sdk=>(MAPPING.sdks[sdk]||[]).forEach(r=>add(r,'sdk:'+sdk)));
+  [...perms].sort().forEach(p=>{const rs=(MAPPING.permissions||{})[p];if(rs)rs.forEach(r=>add(r,'perm:'+p.split('.').pop()));});
+  return {rows,evidence};
+}
+function validate(rows){
+  const errs=[];
+  for(const dt in rows){const r=rows[dt];
+    if(r[1]==='No'&&r[5])errs.push(dt+': Collected=No nhưng có purpose');
+    if(r[2]==='No'&&r[6])errs.push(dt+': Shared=No nhưng có sharing purpose');
+    [5,6].forEach(c=>r[c].split('|').filter(Boolean).forEach(p=>{if(!VALID_PURPOSES.has(p))errs.push(dt+': purpose lạ "'+p+'"');}));
+  }
+  return errs;
+}
+function csvCell(v){return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+
+function generate(){
+  const err=document.getElementById('err'); err.classList.remove('show');
+  const xml=document.getElementById('manifest').value;
+  const deps=document.getElementById('deps').value;
+  if(!xml.trim()&&!deps.trim()){showErr('Hãy dán ít nhất AndroidManifest.xml hoặc pubspec.yaml.');return;}
+  const perms=scanPermissions(xml);
+  const sdks=scanSdks(xml+"\n"+deps);
+  const {rows,evidence}=collectRows(perms,sdks);
+  const dts=Object.keys(rows).sort();
+  if(dts.length===0){showErr('Không nhận diện được data-type nào. Kiểm tra lại nội dung, hoặc app không thu thập data (vẫn cần khai "No data collected" trong form).');return;}
+  const verr=validate(rows);
+  if(verr.length){showErr('Validate lỗi mapping: '+verr.join('; '));return;}
+
+  // build table
+  const tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  dts.forEach(dt=>{const r=rows[dt];const ev=[...evidence[dt]].sort();
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+esc(dt)+'</td>'+
+      '<td>'+badge(r[1])+'</td>'+
+      '<td>'+badge(r[2])+'</td>'+
+      '<td class="evi">'+esc(r[5]||'—')+'</td>'+
+      '<td class="evi">'+(ev.length?ev.map(esc).join(', '):'<span class="badge b-rev">NEEDS_REVIEW</span>')+'</td>';
+    tb.appendChild(tr);
+  });
+  // build csv
+  let csv=HEADER.join(',')+'\r\n';
+  dts.forEach(dt=>csv+=rows[dt].map(csvCell).join(',')+'\r\n');
+  LAST_CSV=csv;
+  document.getElementById('csvPre').textContent=csv;
+  document.getElementById('stat').innerHTML='Phát hiện <b>'+perms.size+'</b> permission + <b>'+sdks.size+'</b> SDK → <b>'+dts.length+'</b> data-type.';
+  document.getElementById('out').classList.add('show');
+  document.getElementById('out').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function badge(v){return v==='Yes'?'<span class="badge b-yes">Yes</span>':'<span class="badge b-no">No</span>';}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showErr(m){const e=document.getElementById('err');e.textContent='⚠️ '+m;e.classList.add('show');document.getElementById('out').classList.remove('show');}
+
+function downloadCsv(){if(!LAST_CSV)return;const b=new Blob([LAST_CSV],{type:'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='data-safety.csv';a.click();URL.revokeObjectURL(u);}
+function copyCsv(){if(!LAST_CSV)return;navigator.clipboard.writeText(LAST_CSV).then(()=>{});}
+function loadSample(){
+  document.getElementById('manifest').value='<manifest xmlns:android="http://schemas.android.com/apk/res/android">\n  <uses-permission android:name="android.permission.INTERNET"/>\n  <uses-permission android:name="android.permission.CAMERA"/>\n  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>\n</manifest>';
+  document.getElementById('deps').value='dependencies:\n  firebase_analytics: ^11.0.0\n  firebase_crashlytics: ^4.0.0\n  google_mobile_ads: ^5.1.0\n  google_sign_in: ^6.2.0\n  in_app_purchase: ^3.1.0\n';
+}
+</script>
+</body>
+</html>
