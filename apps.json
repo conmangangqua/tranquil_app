@@ -16,8 +16,8 @@
         "prod": "5.0.9+25082901"
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695",
-      "category": null,
-      "category_source": null,
+      "category": "Health & Fitness",
+      "category_source": "store",
       "store_updated": null,
       "store_version": null
     },
@@ -37,8 +37,8 @@
         "prod": "1.0.0+1"
       },
       "store": "",
-      "category": null,
-      "category_source": null,
+      "category": "Productivity",
+      "category_source": "store",
       "store_updated": null,
       "store_version": null
     }
