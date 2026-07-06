@@ -1880,7 +1880,9 @@
     },5000);
   }
   // Inject nút "Data Safety" vào mỗi card (login-gated qua CSS body.aab-authed).
+  var mo;
   function injectButtons(root){
+    var added=0;
     (root||document).querySelectorAll(".btn-grid").forEach(function(grid){
       if(grid.querySelector(".btn-ds"))return;
       var card=grid.closest("[data-app-id]"); if(!card)return;
@@ -1890,11 +1892,13 @@
       b.type="button"; b.className="btn btn-ds";
       b.innerHTML='<i class="btn-ic" data-lucide="shield-check"></i><span class="btn-stack">Data Safety</span>';
       b.onclick=function(){window.openDataSafety(id,nm.trim());};
-      grid.appendChild(b);
+      grid.appendChild(b); added++;
     });
-    if(window.lucide&&lucide.createIcons)try{lucide.createIcons();}catch(_){}
+    // FIX vong lap vo han (trang trang): chi createIcons khi THUC them nut, va
+    // ngat observer luc createIcons de mutation cua no khong tu kich lai injectButtons.
+    if(added && window.lucide&&lucide.createIcons){ if(mo)mo.disconnect(); try{lucide.createIcons();}catch(_){}; if(mo)mo.observe(document.body,{childList:true,subtree:true}); }
   }
-  var mo=new MutationObserver(function(){injectButtons(document);});
+  mo=new MutationObserver(function(){injectButtons(document);});
   mo.observe(document.body,{childList:true,subtree:true});
   document.addEventListener("DOMContentLoaded",function(){injectButtons(document);});
   injectButtons(document);
