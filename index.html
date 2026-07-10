@@ -1124,7 +1124,7 @@
       ov.classList.add("open");
       pollDescStatus();
       try{
-        var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(15000)});
+        var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(30000)});
         var d=await r.json();
         if(!r.ok) throw new Error(d.error||"Không tải được");
         if(!d.exists){
