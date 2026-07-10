@@ -1134,12 +1134,18 @@
         }
         if(d.platform==="appstore") renderAppstore(d);
         else renderGoogle(d);
-      }catch(e){ var _m=(e&&e.name==="TimeoutError")?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":(e.message||"Lỗi tải mô tả"); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
+      }catch(e){ var _m=(e&&(e.name==="TimeoutError"||e.name==="AbortError"))?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":(e.message||"Lỗi tải mô tả"); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
       finally{ gb.disabled=false; if(lb) lb.disabled=false; }
     };
         var _descPollTimer = null;
     async function pollDescStatus(){
       if(_descPollTimer){ clearInterval(_descPollTimer); _descPollTimer = null; }
+      // Sếp 2026-07-10: CHỈ reload khi có job gen THỰC SỰ chạy rồi kết thúc (seenRunning).
+      // Bug cũ: nhánh reload gate bằng gb.disabled — nhưng lúc openViewDesc đang LOAD ban đầu
+      // gb cũng disabled → poll (status running=false) tưởng "gen vừa xong" → re-gọi openViewDesc
+      // mỗi 4s → fetch chồng fetch → cái cũ abort ("Fetch is aborted") → loop vô tận.
+      var seenRunning = false;
+      function stopPoll(){ if(_descPollTimer){ clearInterval(_descPollTimer); _descPollTimer=null; } }
       async function tick(){
         try{
           if(!ov.classList.contains("open")) return stopPoll();
@@ -1147,17 +1153,18 @@
           var r = await fetch(t+"/status",{cache:"no-store"});
           var d = await r.json();
           if(d && d.ok && d.running && d.slug === appId){
+            seenRunning = true;
             var mins = Math.floor(d.elapsed_sec/60), secs = d.elapsed_sec%60;
             msg.style.color="#7c3aed";
             msg.textContent = "⏳ Đang gen ("+(mins?mins+"m"+(secs<10?"0":""):"")+secs+"s)…";
             gb.disabled = true;
-          } else if(d && d.ok && !d.running){
-            // job done — reload description for fresh content
-            if(gb.disabled){ msg.textContent=""; gb.disabled=false; await window.openViewDesc(appId, appEl.textContent); stopPoll(); }
+          } else if(d && d.ok && !d.running && seenRunning){
+            // job gen VỪA xong (trước đó đã thấy running) → reload 1 lần rồi dừng poll
+            seenRunning = false; msg.textContent=""; gb.disabled=false;
+            stopPoll(); await window.openViewDesc(appId, appEl.textContent);
           }
         }catch(e){ /* tunnel offline */ }
       }
-      function stopPoll(){ if(_descPollTimer){ clearInterval(_descPollTimer); _descPollTimer=null; } }
       tick();
       _descPollTimer = setInterval(tick, 4000);
     }
