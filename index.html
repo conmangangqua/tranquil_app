@@ -1203,10 +1203,12 @@
           // chưa reached → daemon down → rơi xuống fallback
         }
       }
-      // 2) Fallback Vercel Groq (đường cũ)
-      try{ await vdGenFallback(v); }
-      catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
-      finally{ gb.disabled=false; }
+      // Sếp 2026-07-10: KHÔNG auto-fallback Groq/Gemini — nó hay BỊA tính năng không có → app bị
+      // Google SUSPEND (Tommy: 2 app đã bay vì gen Gemini). Web CHỈ gen bằng Claude daemon (chất
+      // lượng = local Tommy gen). Daemon tắt → báo lỗi để bật lại daemon, TUYỆT ĐỐI KHÔNG gen bừa.
+      msg.style.color="#ef4444";
+      msg.textContent="❌ Claude daemon đang tắt — KHÔNG gen bằng fallback (Gemini/Groq hay bịa tính năng → app dễ bị suspend). Bật lại daemon (com.tmt.gendesc) rồi thử lại, hoặc gen local.";
+      gb.disabled=false;
     };
     window.vdGenLegal=async function(){
       var v=(pin.value||"").trim();
