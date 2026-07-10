@@ -221,6 +221,13 @@ jobs:
                   STORES = json.load(_sf)
           except Exception:
               STORES = {}
+          # Manual ASO display names (names.json in repo root) — durable across regenerate
+          NAMES = {}
+          try:
+              with open('names.json') as _nf:
+                  NAMES = json.load(_nf)
+          except Exception:
+              NAMES = {}
           import urllib.request as _ur
           def lookup_apple(bundle_id):
               # iTunes Lookup API — resolve bundle ID → App Store URL.
@@ -411,7 +418,8 @@ jobs:
               store_link = validate_store(store_link)
 
               # Format app name (video_downloader -> Video Downloader)
-              app_name = ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
+              # ASO name: ưu tiên names.json (tên listing thật trên store), fallback title-case từ id
+              app_name = NAMES.get(app_id) or ' '.join(word.capitalize() for word in app_id.replace('_', ' ').split())
               
               # Determine Platform
               has_android = any([dev_url, prod_url, aab_url, noads_url])

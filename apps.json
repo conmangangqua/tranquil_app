@@ -2,7 +2,7 @@
   "apps": [
     {
       "id": "blissland",
-      "name": "Blissland",
+      "name": "BlissLand - Simple Habit Sleep App",
       "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
       "description": "",
