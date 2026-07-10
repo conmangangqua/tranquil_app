@@ -647,7 +647,7 @@
         // Source 1: Vercel /api/description (GitLab-backed)
         let s = "";
         try {
-          const r = await fetch("https://aab.tranquilmind.co/api/description?app_id="+encodeURIComponent(id));
+          const r = await fetch("https://aab.tranquilmind.co/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(12000)});
           if (r.ok){
             const d = await r.json();
             if (d && d.exists && d.short) s = d.short;
@@ -1124,7 +1124,7 @@
       ov.classList.add("open");
       pollDescStatus();
       try{
-        var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id));
+        var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(15000)});
         var d=await r.json();
         if(!r.ok) throw new Error(d.error||"Không tải được");
         if(!d.exists){
@@ -1134,7 +1134,7 @@
         }
         if(d.platform==="appstore") renderAppstore(d);
         else renderGoogle(d);
-      }catch(e){ fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(e.message)+"</div>"; }
+      }catch(e){ var _m=(e&&e.name==="TimeoutError")?"Tải quá lâu (GitLab chậm/nghẽn) — bấm Gen lại thử lại.":(e.message||"Lỗi tải mô tả"); fieldsEl.innerHTML="<div class=\"box\">⚠️ "+escapeHtml(_m)+"</div>"; }
       finally{ gb.disabled=false; if(lb) lb.disabled=false; }
     };
         var _descPollTimer = null;
