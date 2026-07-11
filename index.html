@@ -1909,21 +1909,18 @@
   function bg(v){return v==="Yes"?'<span class="bg yes">Yes</span>':'<span class="bg no">No</span>';}
 
   window.openDataSafety=async function(id,nm){
-    lastApp=id; lastNm=nm||id; appEl.textContent=lastNm;
+    lastApp=id; lastNm=nm||id; appEl.textContent=lastNm; lastCsv="";
     body.innerHTML='<div class="spin"></div>';
     ov.classList.add("open");
-    // Ưu tiên hiển thị kết quả AI đã có (nếu từng gen), fallback regex.
+    // CHỈ dùng bản OpenClaw (đọc source thật). Regex đã BỎ vì sai/thiếu → nguy cơ suspend
+    // (Sếp chốt 2026-07-11). Có bản AI đã gen → hiện; chưa có → empty-state để gen.
     try{
-      var ar=await fetch(DS_API+"/api/datasafety?engine=ai&app_id="+encodeURIComponent(id));
+      var ar=await fetch(DS_API+"/api/datasafety?engine=ai&app_id="+encodeURIComponent(id)+"&t="+Date.now());
       var ad=await ar.json().catch(function(){return{};});
       if(ad&&ad.available&&ad.rows&&ad.rows.length){ renderResult(ad,"ai"); return; }
     }catch(_){}
-    try{
-      var r=await fetch(DS_API+"/api/datasafety?app_id="+encodeURIComponent(id));
-      var d=await r.json();
-      if(!r.ok||d.error) throw new Error(d.error||"Không quét được source");
-      renderResult(d,"regex");
-    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(false); bindActions(); }
+    body.innerHTML='<div class="note">🤖 Data Safety phải do <b>OpenClaw đọc source thật</b> mới chính xác — bản regex đã bỏ (sai/thiếu → nguy cơ suspend). Chưa có bản cho app này: nhập PIN &amp; bấm <b>Gen bằng OpenClaw</b> (đọc code ~1-3 phút).</div>'+actions(true);
+    bindActions();
   };
 
   function renderResult(d,engine){
@@ -1935,7 +1932,7 @@
       head='<div class="sub"><b>'+esc(d.project||"")+'</b> @ '+esc(d.branch||"")+' · '+(d.permissions||[]).length+' permission + '+(d.sdks||[]).length+' SDK (regex) → <b>'+(d.data_type_count||0)+'</b> data-type</div>';
     }
     if(!d.rows||!d.rows.length){
-      body.innerHTML=head+'<div class="note">Không phát hiện data-type nào. App có thể không thu thập dữ liệu — vẫn phải khai "No data collected" trong form, hoặc dùng nút 🤖 AI để đọc kỹ hơn.</div>'+actions(engine!=="ai");
+      body.innerHTML=head+'<div class="note">Không phát hiện data-type nào. App có thể không thu thập dữ liệu — vẫn phải khai "No data collected" trong form. Bấm 🤖 Gen lại nếu cần đọc kỹ hơn.</div>'+actions(true);
       bindActions(); return;
     }
     rowsHtml=d.rows.map(function(x){
@@ -1943,21 +1940,20 @@
       return "<tr><td>"+esc(x.data_type)+"</td><td>"+bg(x.collected)+"</td><td>"+bg(x.shared)+"</td>"+
         "<td class=evi>"+esc(x.collection_purposes||"—")+"</td><td class=evi>"+evi+"</td></tr>";
     }).join("");
-    var noteTxt = engine==="ai"
-      ? '⚠️ OpenClaw đọc source thật — vẫn là bản nháp, bạn chịu trách nhiệm soát & khai chính xác trước khi upload.'
-      : '⚠️ Bản regex nhanh (chỉ dò SDK/permission) — bấm 🤖 để OpenClaw đọc code thật cho chính xác. Bạn chịu trách nhiệm soát dòng NEEDS_REVIEW trước khi upload.';
+    var noteTxt = '✅ OpenClaw đọc source thật (đủ 782-dòng template Play Console). Vẫn là bản nháp — soát & khai chính xác trước khi upload. Bấm 🤖 Gen lại nếu source đổi.';
     body.innerHTML=head+
-      '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>'+(engine==="ai"?"Lý do":"Evidence")+'</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
+      '<table><thead><tr><th>Data type</th><th>Collected</th><th>Shared</th><th>Purposes</th><th>Lý do</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>'+
       '<pre class="dscsv" id="dsCsv" style="display:none">'+esc(lastCsv)+'</pre>'+
-      '<div class="note">'+noteTxt+'</div>'+actions(engine!=="ai");
+      '<div class="note">'+noteTxt+'</div>'+actions(true);
     bindActions();
   }
 
-  function actions(showAi){
+  function actions(canGen){
     return '<div class="act">'+
-      (showAi?'<button class="cp" id="dsAi">🤖 AI kiểm tra chính xác</button>':'')+
+      (canGen?'<button class="cp" id="dsAi">🤖 Gen bằng OpenClaw</button>':'')+
       (lastCsv?'<button class="cl" id="dsView">👁️ Xem CSV</button>':'')+
-      '<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button><button class="cl" id="dsCl">Đóng</button></div>';
+      (lastCsv?'<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button>':'')+
+      '<button class="cl" id="dsCl">Đóng</button></div>';
   }
   function bindActions(){
     var dl=document.getElementById("dsDl"),cp=document.getElementById("dsCp"),cl=document.getElementById("dsCl"),ai=document.getElementById("dsAi"),vw=document.getElementById("dsView");
