@@ -114,7 +114,7 @@
     window.addEventListener('load', function(){ window.tryRenderIcons(); });
   </script>
   <style>/* PRO_MAX_DESC_MODAL */
-    #vdOv { animation: vdFadeIn 0.25s ease-out; }
+    #vdOv, #rnOv { animation: vdFadeIn 0.25s ease-out; }
     #vdOv.open #vdMd { animation: vdSlideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); }
     @keyframes vdFadeIn { from { background: rgba(0,0,0,0); backdrop-filter: blur(0); } to { background: rgba(0,0,0,.55); backdrop-filter: blur(6px); } }
     @keyframes vdSlideUp { from { transform: translateY(40px) scale(0.96); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
@@ -334,7 +334,7 @@
           <div class="badge-row"><span class="badge ${isIOS ? 'ios' : 'android'}"><i data-lucide="${isIOS ? 'apple' : 'smartphone'}"></i>${app.platform || 'Android'}</span>${app.category ? `<span class="pill-category cat-src-${app.category_source||'store'}" title="Nguồn category: ${app.category_source==='override'?'Override tay':app.category_source==='ai'?'AI phân loại':app.category_source==='gitlab'?'Fallback subgroup':'Store category'}"><i data-lucide="tag"></i>${app.category}</span>` : ''}<span class="prod-ads-badge" data-prod-ads="loading" style="display:none"></span><span class="health-badge" data-health="loading" style="display:none"></span></div>
           <h2 class="app-title">${app.name}</h2><p class="app-desc">${app.description || ''}</p>
           <div class="btn-grid">${devUrl ? `<a href="${devUrl}" class="btn btn-dev"><i class="btn-ic" data-lucide="wrench"></i>${stack('Dev Build','dev')}</a>` : ""} ${prodUrl ? `<a href="${prodUrl}" class="btn btn-live"><i class="btn-ic" data-lucide="rocket"></i>${stack('Live Build','prod')}</a>` : ""} ${aabUrl ? `<a href="${aabUrl}" class="btn btn-full"><i class="btn-ic" data-lucide="package"></i>${stack('Download AAB','aab')}</a>` : ""} ${storeUrl ? `<a href="${storeUrl}" target="_blank" rel="noopener" class="btn btn-store"><i class="btn-ic" data-lucide="shopping-bag"></i><span class="btn-stack">View on Store${app.store_version ? `<span class="ver" data-store-ver>${app.store_version}</span>` : `<span class="ver" data-store-ver style="display:none"></span>`}</span></a>` : ""}
-          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ba" onclick="genBaDocs('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="clipboard-list"></i><span class="btn-stack">BA + Tests</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button><button type="button" class="btn btn-fl" onclick="openFlow('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="git-branch"></i><span class="btn-stack">View Flow</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
+          <button type="button" class="btn btn-build" onclick="openBuildModal('${app.id}', '${(app.name || '').replace(/'/g, "\\'")}')"><i class="btn-ic" data-lucide="hammer"></i><span class="btn-stack">${buildLabel}</span></button>${noAdsTrigger}${noAdsDl}<button type="button" class="btn btn-gd" onclick="openViewDesc('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="file-text"></i><span class="btn-stack">Description</span></button><button type="button" class="btn btn-rn" onclick="openRelNotes('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="megaphone"></i><span class="btn-stack">Release Notes</span></button><button type="button" class="btn btn-as" onclick="dlAssets('${app.id}', '${(app.name || '').replace(/'/g, "\'")}', this)"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Assets</span></button><button type="button" class="btn btn-ss" onclick="openShots('${app.id}', '${(app.name || '').replace(/'/g, "\'")}')"><i class="btn-ic" data-lucide="image"></i><span class="btn-stack">Screenshots</span></button></div><div class="store-meta">${app.storeUpdated ? `<span class="store-upd"><span class="icon">📅</span>Updated on ${app.storeUpdated}</span>` : ""}</div>`;
         container.appendChild(card);
       });
     };
@@ -921,11 +921,14 @@
 
   <style>/* AAB_GENDESC AAB_VIEWDESC */
     .btn-gd{background:#7c3aed;color:#fff;border:1px solid #7c3aed;cursor:pointer;display:none!important}
+    .btn-rn{background:#ea580c;color:#fff;border:1px solid #ea580c;cursor:pointer;display:none!important}
+    .btn-rn:hover{background:#c2410c}
+    body.aab-authed .btn-rn{display:flex!important}
     .btn-gd:hover{background:#6d28d9}
     body.aab-authed .btn-gd{display:flex!important}
-    #vdOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100001;padding:24px}
+    #vdOv,#rnOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100001;padding:24px}
     #vdOv.open{display:flex}
-    #vdMd{background:#fff;border-radius:24px;padding:32px 36px;width:100%;max-width:960px;max-height:94vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:system-ui,-apple-system,sans-serif}
+    #vdMd,#rnMd{background:#fff;border-radius:24px;padding:32px 36px;width:100%;max-width:960px;max-height:94vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:system-ui,-apple-system,sans-serif}
     #vdMd h3{margin:0 0 4px;font-size:1.4rem;color:#0f172a}
     #vdMd .s{font-size:.92rem;color:#64748b;margin:0 0 18px;font-weight:600}
     #vdMd .lbrow{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
@@ -934,8 +937,8 @@
     #vdMd .cp:active{transform:scale(.94)}
     #vdMd .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;font-size:.95rem;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;max-height:55vh;overflow:auto}
     @media(max-width:720px){
-      #vdOv{padding:12px}
-      #vdMd{padding:20px 18px;border-radius:18px}
+      #vdOv,#rnOv{padding:12px}
+      #vdMd,#rnMd{padding:20px 18px;border-radius:18px}
       #vdMd h3{font-size:1.15rem}
       #vdMd .box{font-size:.88rem;max-height:42vh}
     }
@@ -961,6 +964,17 @@
       <button type="button" class="vd-close" onclick="vdClose()">Đóng</button>
       <button type="button" class="vd-gen" id="vdGenBtn" onclick="vdGen()"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Description</button>
       <button type="button" id="vdGenLegalBtn" onclick="vdGenLegal()" style="display:none;grid-column:span 2;padding:12px;border:1.5px solid #fecaca;border-radius:12px;font-weight:700;cursor:pointer;background:#fef2f2;color:#dc2626;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen Privacy/Terms (URL hỏng)</button>
+    </div>
+  </div></div>
+  <div id="rnOv" style="display:none"><div id="rnMd">
+    <h3><i data-lucide="megaphone" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Release Notes <span style="font-size:.68rem;color:#ea580c;font-weight:700;letter-spacing:.02em">theo version — từ commit thật</span></h3>
+    <p class="s" id="rnApp"></p>
+    <div id="rnBody" style="font-size:.9rem;line-height:1.6"></div>
+    <input id="rnPin" type="password" inputmode="numeric" placeholder="Nhập PIN để tạo Release Notes" autocomplete="off">
+    <div id="rnMsg"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button type="button" class="vd-close" onclick="rnClose()">Đóng</button>
+      <button type="button" class="vd-gen" id="rnGenBtn" onclick="rnGen()" style="background:#ea580c;border-color:#ea580c"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Tạo từ commit version mới</button>
     </div>
   </div></div>
   <script>(function(){
@@ -1179,6 +1193,41 @@
     }
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
+    // ── Release Notes (ăn theo version — gen từ commit thật qua daemon /relnotes) ──
+    var rnAppId="";
+    window.openRelNotes=function(id,nm){
+      rnAppId=id;
+      document.getElementById("rnApp").textContent=nm;
+      document.getElementById("rnPin").value="";
+      document.getElementById("rnMsg").textContent="";
+      document.getElementById("rnBody").innerHTML='<div class="box">Nhập PIN rồi bấm <b>Tạo từ commit version mới</b> — sinh "What\'s new" từ commit THẬT của version mới nhất (git log &lt;tag&gt;..HEAD). Không bịa.</div>';
+      var rov=document.getElementById("rnOv"); rov.style.display="flex";
+      try{ if(window.lucide&&lucide.createIcons) lucide.createIcons(); }catch(_){}
+    };
+    window.rnClose=function(){ document.getElementById("rnOv").style.display="none"; };
+    document.getElementById("rnOv").addEventListener("click",function(e){ if(e.target.id==="rnOv") rnClose(); });
+    window.rnGen=async function(){
+      var pin=(document.getElementById("rnPin").value||"").trim();
+      var msg=document.getElementById("rnMsg"), body=document.getElementById("rnBody"), btn=document.getElementById("rnGenBtn");
+      if(!pin){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN."; return; }
+      btn.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đọc commit + tạo (~1-2 phút, Claude)…";
+      var tunnel=null;
+      try{ tunnel=await resolveGenDesc(); }catch(_){ tunnel=null; }
+      if(!tunnel){ msg.style.color="#ef4444"; msg.textContent="❌ Daemon (com.tmt.gendesc) đang tắt — bật lại rồi thử."; btn.disabled=false; return; }
+      try{
+        var r=await fetch(tunnel+"/relnotes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:rnAppId,pin:pin})});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
+        msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit ("+(d.range||"")+")";
+        body.innerHTML=
+          '<div style="margin-bottom:14px"><div style="font-weight:800;font-size:.8rem;color:#ea580c;margin-bottom:6px">📱 GOOGLE PLAY — What\'s new (≤500)</div>'+
+          '<textarea readonly style="width:100%;min-height:120px;font-family:inherit;font-size:.85rem;border:1px solid #e5e7eb;border-radius:10px;padding:10px;resize:vertical">'+escapeHtml(d.notes_play||"")+'</textarea></div>'+
+          '<div><div style="font-weight:800;font-size:.8rem;color:#7c3aed;margin-bottom:6px">🍎 APP STORE</div>'+
+          '<textarea readonly style="width:100%;min-height:150px;font-family:inherit;font-size:.85rem;border:1px solid #e5e7eb;border-radius:10px;padding:10px;resize:vertical">'+escapeHtml(d.notes_appstore||"")+'</textarea></div>';
+      }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
+      btn.disabled=false;
+    };
+
     var GENDESC_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=gendesc";
     var GENDESC_TUNNEL = null;
     async function resolveGenDesc(){
@@ -1916,7 +1965,7 @@
     // ngat observer luc createIcons de mutation cua no khong tu kich lai injectButtons.
     if(added && window.lucide&&lucide.createIcons){ if(mo)mo.disconnect(); try{lucide.createIcons();}catch(_){}; if(mo)mo.observe(document.body,{childList:true,subtree:true}); }
   }
-  mo=new MutationObserver(function(){injectButtons(document);});
+  mo=new MutationObserver(function(){ if(mo._t)return; mo._t=setTimeout(function(){mo._t=null;injectButtons(document);},200); });
   mo.observe(document.body,{childList:true,subtree:true});
   document.addEventListener("DOMContentLoaded",function(){injectButtons(document);});
   injectButtons(document);
