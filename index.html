@@ -1183,7 +1183,7 @@
     var GENDESC_TUNNEL = null;
     async function resolveGenDesc(){
       if (GENDESC_TUNNEL) return GENDESC_TUNNEL;
-      var r = await fetch(GENDESC_TUNNEL_INDEX + "&t=" + Date.now(), { cache: "no-store" });
+      var r = await fetch(GENDESC_TUNNEL_INDEX + "&t=" + Date.now(), { cache: "no-store", signal: AbortSignal.timeout(5000) });
       var t = (await r.text()).trim();
       if (/^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(t)) { GENDESC_TUNNEL = t; return t; }
       throw new Error("no tunnel");
