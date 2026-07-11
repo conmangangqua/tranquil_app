@@ -1211,22 +1211,38 @@
     }
     window.vdClose=function(){ ov.classList.remove("open"); };
     ov.addEventListener("click",function(e){ if(e.target===ov) vdClose(); });
-    // ── Release Notes (ăn theo version — gen từ commit thật qua daemon /relnotes) ──
+    // ── Release Notes (ăn theo version từ commit thật; LƯU app_description, mở lại đọc bản đã lưu) ──
     var rnAppId="";
-    window.openRelNotes=function(id,nm){
+    var RN_EMPTY='<div class="rn-empty"><div class="ic"><i data-lucide="megaphone" style="width:30px;height:30px;color:#ea580c"></i></div><div class="t">"What\'s new" theo version</div><div class="d">Đọc commit THẬT của version mới nhất (<code>git log prev..last-tag</code>) → tự viết bullet <b>New / Improved / Fixed</b>. Mỗi bullet map 1 commit — <b>không bịa</b>.</div></div>';
+    function rnRender(notes, isIOS, badge){
+      var head=isIOS?'🍎 App Store':'📱 Google Play — What\'s new';
+      var lim=isIOS?'':('<span class="lim">'+(notes||"").length+'/500</span>');
+      document.getElementById("rnBody").innerHTML=
+        (badge?'<div style="font-size:.76rem;color:#059669;font-weight:700;margin-bottom:12px">'+badge+'</div>':'')+
+        '<div class="rn-card"><div class="rn-card-h"><span>'+head+'</span><span style="display:flex;align-items:center;gap:8px">'+lim+'<button class="cp" onclick="rnCopy(this)">Copy</button></span></div>'+
+        '<div class="rn-note" data-rn="'+escapeHtml(notes||"")+'">'+escapeHtml(notes||"").replace(/\n/g,"<br>")+'</div></div>';
+    }
+    window.openRelNotes=async function(id,nm){
       rnAppId=id;
       document.getElementById("rnApp").textContent=nm;
       document.getElementById("rnPin").value="";
       document.getElementById("rnMsg").textContent="";
-      document.getElementById("rnBody").innerHTML='<div class="rn-empty"><div class="ic"><i data-lucide="megaphone" style="width:30px;height:30px;color:#ea580c"></i></div><div class="t">"What\'s new" theo version</div><div class="d">Đọc commit THẬT của version mới nhất (<code>git log prev..last-tag</code>) → tự viết bullet <b>New / Improved / Fixed</b>. Mỗi bullet map 1 commit — <b>không bịa</b>.</div></div>';
-      var rov=document.getElementById("rnOv"); rov.style.display="flex";
+      document.getElementById("rnBody").innerHTML='<div class="rn-empty"><div class="vd-spin" style="margin:0 auto 12px"></div><div class="d">Đang tải bản đã lưu…</div></div>';
+      document.getElementById("rnOv").style.display="flex";
+      var gb=document.getElementById("rnGenBtn"), loaded=false;
+      try{
+        var lt=await resolveGenDesc();
+        var r=await fetch(lt+"/desc?slug="+encodeURIComponent(id),{signal:AbortSignal.timeout(6000)});
+        if(r.ok){ var d=await r.json(); var rn=(d.fields&&d.fields.release_notes)||""; if(rn.trim()){ rnRender(rn, d.platform==="appstore", "📄 Bản đã lưu — bấm Tạo lại để cập nhật theo commit mới"); gb.innerHTML='<i data-lucide="refresh-cw" style="width:15px;height:15px"></i>Tạo lại từ commit'; loaded=true; } }
+      }catch(_){}
+      if(!loaded){ document.getElementById("rnBody").innerHTML=RN_EMPTY; gb.innerHTML='<i data-lucide="git-commit-horizontal" style="width:15px;height:15px"></i>Tạo từ commit version'; }
       try{ if(window.lucide&&lucide.createIcons) lucide.createIcons(); }catch(_){}
     };
     window.rnClose=function(){ document.getElementById("rnOv").style.display="none"; };
     document.getElementById("rnOv").addEventListener("click",function(e){ if(e.target.id==="rnOv") rnClose(); });
     window.rnGen=async function(){
       var pin=(document.getElementById("rnPin").value||"").trim();
-      var msg=document.getElementById("rnMsg"), body=document.getElementById("rnBody"), btn=document.getElementById("rnGenBtn");
+      var msg=document.getElementById("rnMsg"), btn=document.getElementById("rnGenBtn");
       if(!pin){ msg.style.color="#ef4444"; msg.textContent="Nhập PIN."; return; }
       btn.disabled=true; msg.style.color="#64748b"; msg.textContent="⏳ Đọc commit + tạo (~1-2 phút, Claude)…";
       var tunnel=null;
@@ -1236,11 +1252,9 @@
         var r=await fetch(tunnel+"/relnotes",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({slug:rnAppId,pin:pin})});
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
-        msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit ("+(d.range||"")+")";
-        var pl=d.notes_play||"", ap=d.notes_appstore||"";
-        body.innerHTML=
-          '<div class="rn-card"><div class="rn-card-h"><span>📱 Google Play — What\'s new</span><span style="display:flex;align-items:center;gap:8px"><span class="lim">'+pl.length+'/500</span><button class="cp" onclick="rnCopy(this)">Copy</button></span></div><div class="rn-note" data-rn="'+escapeHtml(pl)+'">'+escapeHtml(pl)+'</div></div>'+
-          '<div class="rn-card"><div class="rn-card-h"><span>🍎 App Store</span><button class="cp" onclick="rnCopy(this)">Copy</button></div><div class="rn-note" data-rn="'+escapeHtml(ap)+'">'+escapeHtml(ap)+'</div></div>';
+        var isIOS=(d.platform==="appstore");
+        msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit · "+(isIOS?"App Store":"Google Play")+(d.saved?" · đã lưu":"");
+        rnRender(d.notes||"", isIOS, "");
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       btn.disabled=false;
     };
