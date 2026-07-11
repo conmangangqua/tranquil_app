@@ -1124,9 +1124,18 @@
       ov.classList.add("open");
       pollDescStatus();
       try{
-        var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(30000)});
-        var d=await r.json();
-        if(!r.ok) throw new Error(d.error||"Không tải được");
+        // Sếp 2026-07-11: LOCAL-FIRST — đọc clone local qua gendesc tunnel (né rate-limit), fallback Vercel.
+        var d=null;
+        try{
+          var lt=await resolveGenDesc();
+          var lr=await fetch(lt+"/desc?slug="+encodeURIComponent(id),{signal:AbortSignal.timeout(6000)});
+          if(lr.ok){ var ld=await lr.json(); if(ld&&ld.exists) d=ld; }
+        }catch(_){ }
+        if(!d){
+          var r=await fetch(API+"/api/description?app_id="+encodeURIComponent(id),{signal:AbortSignal.timeout(30000)});
+          d=await r.json();
+          if(!r.ok) throw new Error(d.error||"Không tải được");
+        }
         if(!d.exists){
           platEl.textContent=(d.platform==="appstore"?"🍎 Apple App Store":"🤖 Google Play");
           fieldsEl.innerHTML="<div class=\"box\">(Chưa có — bấm Gen lại để tạo)</div>";
