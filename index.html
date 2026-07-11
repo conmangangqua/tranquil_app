@@ -924,6 +924,24 @@
     .btn-rn{background:#ea580c;color:#fff;border:1px solid #ea580c;cursor:pointer;display:none!important}
     .btn-rn:hover{background:#c2410c}
     body.aab-authed .btn-rn{display:flex!important}
+    #rnMd input{width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;outline:none;margin-top:16px}
+    #rnMd input:focus{border-color:#ea580c}
+    #rnAct{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:16px}
+    #rnAct button{padding:13px;border:none;border-radius:12px;font-weight:800;cursor:pointer;font-family:inherit;font-size:.92rem;display:flex;align-items:center;justify-content:center;gap:6px}
+    .rn-close{background:#f1f5f9;color:#475569}
+    .rn-close:hover{background:#e2e8f0}
+    .rn-gen{background:linear-gradient(135deg,#ea580c,#f97316);color:#fff;box-shadow:0 8px 20px -8px rgba(234,88,12,.7)}
+    .rn-gen:hover{filter:brightness(1.06)}
+    .rn-gen:disabled{opacity:.6;cursor:progress;box-shadow:none}
+    .rn-empty{text-align:center;padding:26px 16px}
+    .rn-empty .ic{width:64px;height:64px;margin:0 auto 14px;border-radius:18px;background:linear-gradient(135deg,#fff7ed,#ffedd5);display:grid;place-items:center;box-shadow:0 8px 20px -10px rgba(234,88,12,.5)}
+    .rn-empty .t{font-weight:800;font-size:1rem;color:#0f172a;margin-bottom:7px}
+    .rn-empty .d{font-size:.85rem;color:#64748b;line-height:1.65;max-width:440px;margin:0 auto}
+    .rn-empty code{background:#f1f5f9;padding:1px 6px;border-radius:6px;font-size:.82em;color:#ea580c;font-weight:700}
+    .rn-card{border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;margin-bottom:14px}
+    .rn-card-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #e2e8f0;font-weight:800;font-size:.82rem;color:#0f172a}
+    .rn-card-h .lim{font-weight:700;color:#94a3b8;font-size:.78rem}
+    .rn-note{padding:14px 16px;font-size:.9rem;line-height:1.7;color:#0f172a;white-space:pre-wrap;word-break:break-word;max-height:34vh;overflow:auto}
     .btn-gd:hover{background:#6d28d9}
     body.aab-authed .btn-gd{display:flex!important}
     #vdOv,#rnOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100001;padding:24px}
@@ -967,14 +985,14 @@
     </div>
   </div></div>
   <div id="rnOv" style="display:none"><div id="rnMd">
-    <h3><i data-lucide="megaphone" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Release Notes <span style="font-size:.68rem;color:#ea580c;font-weight:700;letter-spacing:.02em">theo version — từ commit thật</span></h3>
+    <h3><i data-lucide="megaphone" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Release Notes</h3>
     <p class="s" id="rnApp"></p>
-    <div id="rnBody" style="font-size:.9rem;line-height:1.6"></div>
-    <input id="rnPin" type="password" inputmode="numeric" placeholder="Nhập PIN để tạo Release Notes" autocomplete="off">
+    <div id="rnBody"></div>
+    <input id="rnPin" type="password" inputmode="numeric" placeholder="Nhập PIN để tạo" autocomplete="off">
     <div id="rnMsg"></div>
-    <div style="display:flex;gap:10px;margin-top:14px">
-      <button type="button" class="vd-close" onclick="rnClose()">Đóng</button>
-      <button type="button" class="vd-gen" id="rnGenBtn" onclick="rnGen()" style="background:#ea580c;border-color:#ea580c"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Tạo từ commit version mới</button>
+    <div id="rnAct">
+      <button type="button" class="rn-close" onclick="rnClose()">Đóng</button>
+      <button type="button" class="rn-gen" id="rnGenBtn" onclick="rnGen()"><i data-lucide="git-commit-horizontal" style="width:15px;height:15px"></i>Tạo từ commit version</button>
     </div>
   </div></div>
   <script>(function(){
@@ -1200,7 +1218,7 @@
       document.getElementById("rnApp").textContent=nm;
       document.getElementById("rnPin").value="";
       document.getElementById("rnMsg").textContent="";
-      document.getElementById("rnBody").innerHTML='<div class="box">Nhập PIN rồi bấm <b>Tạo từ commit version mới</b> — sinh "What\'s new" từ commit THẬT của version mới nhất (git log &lt;tag&gt;..HEAD). Không bịa.</div>';
+      document.getElementById("rnBody").innerHTML='<div class="rn-empty"><div class="ic"><i data-lucide="megaphone" style="width:30px;height:30px;color:#ea580c"></i></div><div class="t">"What\'s new" theo version</div><div class="d">Đọc commit THẬT của version mới nhất (<code>git log prev..last-tag</code>) → tự viết bullet <b>New / Improved / Fixed</b>. Mỗi bullet map 1 commit — <b>không bịa</b>.</div></div>';
       var rov=document.getElementById("rnOv"); rov.style.display="flex";
       try{ if(window.lucide&&lucide.createIcons) lucide.createIcons(); }catch(_){}
     };
@@ -1219,13 +1237,17 @@
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
         msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit ("+(d.range||"")+")";
+        var pl=d.notes_play||"", ap=d.notes_appstore||"";
         body.innerHTML=
-          '<div style="margin-bottom:14px"><div style="font-weight:800;font-size:.8rem;color:#ea580c;margin-bottom:6px">📱 GOOGLE PLAY — What\'s new (≤500)</div>'+
-          '<textarea readonly style="width:100%;min-height:120px;font-family:inherit;font-size:.85rem;border:1px solid #e5e7eb;border-radius:10px;padding:10px;resize:vertical">'+escapeHtml(d.notes_play||"")+'</textarea></div>'+
-          '<div><div style="font-weight:800;font-size:.8rem;color:#7c3aed;margin-bottom:6px">🍎 APP STORE</div>'+
-          '<textarea readonly style="width:100%;min-height:150px;font-family:inherit;font-size:.85rem;border:1px solid #e5e7eb;border-radius:10px;padding:10px;resize:vertical">'+escapeHtml(d.notes_appstore||"")+'</textarea></div>';
+          '<div class="rn-card"><div class="rn-card-h"><span>📱 Google Play — What\'s new</span><span style="display:flex;align-items:center;gap:8px"><span class="lim">'+pl.length+'/500</span><button class="cp" onclick="rnCopy(this)">Copy</button></span></div><div class="rn-note" data-rn="'+escapeHtml(pl)+'">'+escapeHtml(pl)+'</div></div>'+
+          '<div class="rn-card"><div class="rn-card-h"><span>🍎 App Store</span><button class="cp" onclick="rnCopy(this)">Copy</button></div><div class="rn-note" data-rn="'+escapeHtml(ap)+'">'+escapeHtml(ap)+'</div></div>';
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       btn.disabled=false;
+    };
+    window.rnCopy=function(b){
+      var n=b.closest(".rn-card").querySelector(".rn-note");
+      var t=n.getAttribute("data-rn")||n.textContent;
+      navigator.clipboard.writeText(t).then(function(){ var o=b.textContent; b.textContent="✓ Copied"; setTimeout(function(){b.textContent=o;},1400); });
     };
 
     var GENDESC_TUNNEL_INDEX = "https://aab.tranquilmind.co/api/tunnel?name=gendesc";
