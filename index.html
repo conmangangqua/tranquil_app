@@ -1896,7 +1896,7 @@
 </style>
 <div id="dsMdOv"><div id="dsMd">
   <h3>🛡️ Data Safety CSV — <span id="dsApp"></span></h3>
-  <p class="sub">Suy luận từ source app (AndroidManifest + SDK). Import vào Play Console → App content → Data safety → Import from a CSV file.</p>
+  <p class="sub">OpenClaw đọc TOÀN BỘ source app (Dart + native + manifest + SDK). Import vào Play Console → App content → Data safety → Import from a CSV file.</p>
   <div id="dsBody"></div>
 </div></div>
 <script>(function(){
@@ -1919,7 +1919,7 @@
       var ad=await ar.json().catch(function(){return{};});
       if(ad&&ad.available&&ad.rows&&ad.rows.length){ renderResult(ad,"ai"); return; }
     }catch(_){}
-    body.innerHTML='<div class="note">🤖 Data Safety phải do <b>OpenClaw đọc source thật</b> mới chính xác — bản regex đã bỏ (sai/thiếu → nguy cơ suspend). Chưa có bản cho app này: nhập PIN &amp; bấm <b>Gen bằng OpenClaw</b> (đọc code ~1-3 phút).</div>'+actions(true);
+    body.innerHTML='<div class="note" style="text-align:center">Chưa có bản Data Safety — nhập PIN rồi Gen (OpenClaw đọc source ~1-3 phút).</div>'+actions(true);
     bindActions();
   };
 
@@ -1950,7 +1950,8 @@
 
   function actions(canGen){
     return '<div class="act">'+
-      (canGen?'<button class="cp" id="dsAi">🤖 Gen bằng OpenClaw</button>':'')+
+      (canGen?'<input id="dsPin" type="password" inputmode="numeric" placeholder="Nhập PIN" onkeydown="if(event.key===\'Enter\')document.getElementById(\'dsAi\').click()" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:.9rem;outline:none;width:120px">':'')+
+      (canGen?'<button class="ok" id="dsAi">🤖 Gen bằng OpenClaw</button>':'')+
       (lastCsv?'<button class="cl" id="dsView">👁️ Xem CSV</button>':'')+
       (lastCsv?'<button class="ok" id="dsDl">⬇️ Tải CSV</button><button class="cp" id="dsCp">📋 Copy</button>':'')+
       '<button class="cl" id="dsCl">Đóng</button></div>';
@@ -1965,8 +1966,9 @@
   }
 
   async function triggerAi(){
-    var pin=prompt("Nhập mã PIN để OpenClaw bot gen (đọc source ~1-3 phút):");
-    if(!pin)return;
+    var pinEl=document.getElementById("dsPin");
+    var pin=pinEl?(pinEl.value||"").trim():"";
+    if(!pin){ if(pinEl){pinEl.focus();pinEl.style.borderColor="#ef4444";} return; }
     body.innerHTML='<div class="spin"></div><div class="sub" style="text-align:center">Đang kích OpenClaw bot đọc source…</div>';
     try{
       var r=await fetch(DS_API+"/api/gendatasafety",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({app_id:lastApp,pin:pin})});
@@ -1986,7 +1988,7 @@
         var d=await r.json();
         if(d&&d.available&&d.rows&&d.rows.length){ clearInterval(pollTimer);pollTimer=null; renderResult(d,"ai"); }
       }catch(_){}
-      if(sec>210){ clearInterval(pollTimer);pollTimer=null; body.innerHTML='<div class="note">⏱️ Quá lâu chưa có kết quả. Bot có thể còn chạy — thử mở lại sau ít phút.</div>'+actions(true); bindActions(); }
+      if(sec>360){ clearInterval(pollTimer);pollTimer=null; body.innerHTML='<div class="note">⏱️ Bot đọc toàn bộ source lâu hơn dự kiến — vẫn có thể đang chạy. Mở lại sau ít phút để xem kết quả.</div>'+actions(true); bindActions(); }
     },5000);
   }
   // Inject nút "Data Safety" vào mỗi card (login-gated qua CSS body.aab-authed).
