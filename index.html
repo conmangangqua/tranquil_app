@@ -947,18 +947,27 @@
     #vdOv,#rnOv{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100001;padding:24px}
     #vdOv.open{display:flex}
     #vdMd,#rnMd{background:#fff;border-radius:24px;padding:32px 36px;width:100%;max-width:960px;max-height:94vh;overflow:auto;box-shadow:0 40px 100px rgba(0,0,0,.35);font-family:system-ui,-apple-system,sans-serif}
-    #vdMd h3{margin:0 0 4px;font-size:1.4rem;color:#0f172a}
-    #vdMd .s{font-size:.92rem;color:#64748b;margin:0 0 18px;font-weight:600}
-    #vdMd .lbrow{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
-    #vdMd .lb{font-size:.8rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.05em}
-    #vdMd .cp{background:#ede9fe;color:#6d28d9;border:none;border-radius:10px;padding:8px 16px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit}
-    #vdMd .cp:active{transform:scale(.94)}
-    #vdMd .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;font-size:.95rem;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;max-height:55vh;overflow:auto}
+    #vdMd h3,#rnMd h3{margin:0 0 4px;font-size:1.4rem;color:#0f172a;display:flex;align-items:center;gap:9px}
+    #vdMd h3 i,#rnMd h3 i{width:22px;height:22px}
+    #vdMd h3 i{color:#7c3aed;-webkit-text-fill-color:#7c3aed}
+    #rnMd h3 i{color:#ea580c;-webkit-text-fill-color:#ea580c}
+    #vdMd .s,#rnMd .s{font-size:.92rem;color:#64748b;margin:0 0 18px;font-weight:600}
+    #vdMd .lbrow,#rnMd .lbrow{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
+    #vdMd .lb,#rnMd .lb{font-size:.8rem;font-weight:800;color:#7c3aed;text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:6px}
+    #rnMd .lb{color:#ea580c}
+    #rnMd .lb i{width:15px;height:15px}
+    #vdMd .cp,#rnMd .cp{background:#ede9fe;color:#6d28d9;border:none;border-radius:10px;padding:8px 16px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit}
+    #rnMd .cp{background:#ffedd5;color:#c2410c}
+    #vdMd .cp:active,#rnMd .cp:active{transform:scale(.94)}
+    #vdMd .box,#rnMd .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 18px;font-size:.95rem;line-height:1.6;color:#0f172a;white-space:pre-wrap;word-break:break-word;max-height:55vh;overflow:auto}
+    #rnMd .lim{font-weight:700;color:#94a3b8;font-size:.78rem;margin-right:8px}
+    #rnMd .rn-saved{font-size:.8rem;color:#059669;font-weight:700;display:flex;align-items:center;gap:6px;margin:-4px 0 14px}
+    #rnMd .rn-saved i{width:15px;height:15px}
     @media(max-width:720px){
       #vdOv,#rnOv{padding:12px}
       #vdMd,#rnMd{padding:20px 18px;border-radius:18px}
-      #vdMd h3{font-size:1.15rem}
-      #vdMd .box{font-size:.88rem;max-height:42vh}
+      #vdMd h3,#rnMd h3{font-size:1.15rem}
+      #vdMd .box,#rnMd .box{font-size:.88rem;max-height:42vh}
     }
     #vdMd input{width:100%;box-sizing:border-box;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;font-weight:600;outline:none;margin-top:16px}
     #vdMd input:focus{border-color:#7c3aed}
@@ -985,7 +994,7 @@
     </div>
   </div></div>
   <div id="rnOv" style="display:none"><div id="rnMd">
-    <h3><i data-lucide="megaphone" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Release Notes</h3>
+    <h3><i data-lucide="megaphone"></i>Release Notes</h3>
     <p class="s" id="rnApp"></p>
     <div id="rnBody"></div>
     <input id="rnPin" type="password" inputmode="numeric" placeholder="Nhập PIN để tạo" autocomplete="off">
@@ -1214,13 +1223,15 @@
     // ── Release Notes (ăn theo version từ commit thật; LƯU app_description, mở lại đọc bản đã lưu) ──
     var rnAppId="";
     var RN_EMPTY='<div class="rn-empty"><div class="ic"><i data-lucide="megaphone" style="width:30px;height:30px;color:#ea580c"></i></div><div class="t">"What\'s new" theo version</div><div class="d">Đọc commit THẬT của version mới nhất (<code>git log prev..last-tag</code>) → tự viết bullet <b>New / Improved / Fixed</b>. Mỗi bullet map 1 commit — <b>không bịa</b>.</div></div>';
-    function rnRender(notes, isIOS, badge){
-      var head=isIOS?'🍎 App Store':'📱 Google Play — What\'s new';
+    function rnRender(notes, isIOS, saved){
+      var head=isIOS?'App Store':'Google Play — What\'s new';
+      var pic=isIOS?'app-window':'smartphone';
       var lim=isIOS?'':('<span class="lim">'+(notes||"").length+'/500</span>');
       document.getElementById("rnBody").innerHTML=
-        (badge?'<div style="font-size:.76rem;color:#059669;font-weight:700;margin-bottom:12px">'+badge+'</div>':'')+
-        '<div class="rn-card"><div class="rn-card-h"><span>'+head+'</span><span style="display:flex;align-items:center;gap:8px">'+lim+'<button class="cp" onclick="rnCopy(this)">Copy</button></span></div>'+
-        '<div class="rn-note" data-rn="'+escapeHtml(notes||"")+'">'+escapeHtml(notes||"").replace(/\n/g,"<br>")+'</div></div>';
+        (saved?'<div class="rn-saved"><i data-lucide="archive-restore"></i>Bản đã lưu — bấm "Tạo lại" để cập nhật theo commit mới</div>':'')+
+        '<div class="lbrow"><span class="lb"><i data-lucide="'+pic+'"></i>'+head+'</span><span style="display:flex;align-items:center">'+lim+'<button class="cp" onclick="rnCopy(this)">Copy</button></span></div>'+
+        '<div class="box" data-rn="'+escapeHtml(notes||"")+'">'+escapeHtml(notes||"").replace(/\n/g,"<br>")+'</div>';
+      try{ if(window.lucide&&lucide.createIcons) lucide.createIcons(); }catch(_){}
     }
     window.openRelNotes=async function(id,nm){
       rnAppId=id;
@@ -1233,7 +1244,7 @@
       try{
         var lt=await resolveGenDesc();
         var r=await fetch(lt+"/desc?slug="+encodeURIComponent(id),{signal:AbortSignal.timeout(6000)});
-        if(r.ok){ var d=await r.json(); var rn=(d.fields&&d.fields.release_notes)||""; if(rn.trim()){ rnRender(rn, d.platform==="appstore", "📄 Bản đã lưu — bấm Tạo lại để cập nhật theo commit mới"); gb.innerHTML='<i data-lucide="refresh-cw" style="width:15px;height:15px"></i>Tạo lại từ commit'; loaded=true; } }
+        if(r.ok){ var d=await r.json(); var rn=(d.fields&&d.fields.release_notes)||""; if(rn.trim()){ rnRender(rn, d.platform==="appstore", true); gb.innerHTML='<i data-lucide="refresh-cw" style="width:15px;height:15px"></i>Tạo lại từ commit'; loaded=true; } }
       }catch(_){}
       if(!loaded){ document.getElementById("rnBody").innerHTML=RN_EMPTY; gb.innerHTML='<i data-lucide="git-commit-horizontal" style="width:15px;height:15px"></i>Tạo từ commit version'; }
       try{ if(window.lucide&&lucide.createIcons) lucide.createIcons(); }catch(_){}
@@ -1254,13 +1265,13 @@
         if(!r.ok||!d.ok) throw new Error((d&&d.error)||"Thất bại");
         var isIOS=(d.platform==="appstore");
         msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit · "+(isIOS?"App Store":"Google Play")+(d.saved?" · đã lưu":"");
-        rnRender(d.notes||"", isIOS, "");
+        rnRender(d.notes||"", isIOS, false);
       }catch(e){ msg.style.color="#ef4444"; msg.textContent="❌ "+e.message; }
       btn.disabled=false;
     };
     window.rnCopy=function(b){
-      var n=b.closest(".rn-card").querySelector(".rn-note");
-      var t=n.getAttribute("data-rn")||n.textContent;
+      var n=document.querySelector("#rnMd .box[data-rn]");
+      var t=n?(n.getAttribute("data-rn")||n.textContent):"";
       navigator.clipboard.writeText(t).then(function(){ var o=b.textContent; b.textContent="✓ Copied"; setTimeout(function(){b.textContent=o;},1400); });
     };
 
