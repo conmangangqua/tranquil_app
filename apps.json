@@ -3,7 +3,7 @@
     {
       "id": "blissland",
       "name": "BlissLand: Habit & Sleep",
-      "icon": "icons/blissland.webp",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_icon.png",
       "platform": "iOS",
       "description": "",
       "features": [],
@@ -24,7 +24,7 @@
     {
       "id": "luminary_pdf",
       "name": "Luminary Pdf",
-      "icon": "icons/luminary_pdf.webp",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
