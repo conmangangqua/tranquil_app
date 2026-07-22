@@ -30,11 +30,13 @@
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/luminary_pdf_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk"
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/luminary_pdf_prod.apk",
+        "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/luminary_pdf.aab"
       },
       "versions": {
         "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
+        "prod": "1.0.0+1",
+        "aab": "1.0.0+26072201"
       },
       "store": "",
       "category": null,
