@@ -353,10 +353,50 @@
     return _f(input, init);
   };
 })();</script>
+<!-- BEGIN mascot-brand -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta name="description" content="Trung tâm tải ứng dụng — bản Dev, Live và AAB, cập nhật tự động sau mỗi lần build.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Tranquil Hub - Peace &amp; Premium">
+  <meta property="og:description" content="Trung tâm tải ứng dụng — bản Dev, Live và AAB, cập nhật tự động sau mỗi lần build.">
+  <meta property="og:url" content="https://tranquil-app.tranquilmind.co/">
+  <meta property="og:image" content="https://tranquil-app.tranquilmind.co/og_card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tranquil-app.tranquilmind.co/og_card.png">
+  <style>
+    /* MASCOT_BRAND (Sếp 2026-09-07): mỗi hub một linh vật riêng.
+       Ảnh là spot-illustration ĐÃ TÁCH NỀN (PNG/WebP alpha) nên KHÔNG bọc khung
+       và KHÔNG bo góc — bo góc sẽ cắt vào thân con vật. Xem
+       flutter-implementation-rules §2.3b ngoại lệ 2. */
+    .brand-row { display: flex; align-items: center; justify-content: center;
+      gap: clamp(10px, 2vw, 20px); flex-wrap: nowrap; max-width: 100%; }
+    .brand-row > h1 { min-width: 0; }
+    .brand-row .mascot { width: clamp(50px, 9vw, 88px); height: clamp(50px, 9vw, 88px);
+      flex: 0 0 auto; object-fit: contain;
+      filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--primary, #334155) 22%, transparent));
+      animation: mascotIn .7s cubic-bezier(.19, 1, .22, 1) both; }
+    @keyframes mascotIn { from { opacity: 0; transform: translateY(10px) scale(.86); }
+                          to   { opacity: 1; transform: none; } }
+    .mascot-empty { display: block; width: min(190px, 42vw); height: auto;
+      margin: 0 auto 18px; object-fit: contain;
+      filter: drop-shadow(0 10px 22px color-mix(in srgb, var(--primary, #334155) 20%, transparent)); }
+    /* Màn hẹp: mascot lên trên, h1 được phép xuống dòng — nếu giữ nowrap thì
+       tên hub dài đẩy trang rộng hơn viewport, sinh cuộn ngang (lỗi có sẵn từ
+       trước mascot, đo tại 360dp). */
+    @media (max-width: 560px) {
+      .brand-row { flex-direction: column; gap: 10px; }
+      .brand-row > h1 { white-space: normal; text-align: center; width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { .brand-row .mascot { animation: none; } }
+  </style>
+  <!-- END mascot-brand -->
 </head>
 <body>
   <div class="bg-animation"><div class="blob"></div></div>
-  <header><h1>Tranquil Hub</h1></header>
+  <header><div class="brand-row"><img class="mascot" src="mascot.webp" alt="" aria-hidden="true" width="88" height="88" onerror="this.remove()"><h1>Tranquil Hub</h1></div></header>
   
   <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"></div></section>
   <div class="cat-chips" id="catChips"></div>
@@ -387,7 +427,7 @@
     const formatUrl = (url, isIOS) => url && isIOS ? "itms-services://?action=download-manifest&url=" + encodeURIComponent(url) : url;
     const renderApps = (apps) => {
       const container = document.getElementById("appContainer"); container.innerHTML = "";
-      if (apps.length === 0) { container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted); font-weight: 700;">🍃 No apps found matching your search.</div>'; return; }
+      if (apps.length === 0) { container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: var(--text-muted); font-weight: 700;"><img class="mascot-empty" src="mascot.webp" alt="" aria-hidden="true" onerror="this.remove()">🍃 No apps found matching your search.</div>'; return; }
       apps.forEach((app, index) => {
         const isIOS = (app.platform || "").toLowerCase().includes("ios");
         const isAndroid = !app.platform || app.platform.toLowerCase().includes("android");
@@ -452,7 +492,8 @@
           trong = document.createElement("div");
           trong.id = "noResultMsg";
           trong.style.cssText = "grid-column:1/-1;text-align:center;padding:100px;color:var(--text-muted);font-weight:700";
-          trong.textContent = "🔍 No apps found matching your search.";
+          trong.innerHTML = '<img class="mascot-empty" src="mascot.webp" alt="" aria-hidden="true" onerror="this.remove()"><span></span>';
+          trong.querySelector("span").textContent = "🔍 No apps found matching your search.";
           container.appendChild(trong);
         }
         trong.style.display = "";
