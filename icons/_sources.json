@@ -42,5 +42,9 @@
   "scenova": {
     "sha": "85fbd3a87dfdc27de9d0a2d9f800f51a83a8f21a71a9b53bae05074792153991",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/scenova_icon.png"
+  },
+  "panelo": {
+    "sha": "1b46d8a3ddc72dddf588522f9d4a136c3d30ff3718972585d115ff643593e6e1",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/panelo_icon.png"
   }
 }

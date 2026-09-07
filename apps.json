@@ -45,6 +45,25 @@
       "store_version": null
     },
     {
+      "id": "panelo",
+      "name": "Panelo",
+      "icon": "icons/panelo.webp",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/panelo_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      },
+      "store": "",
+      "category": "Entertainment",
+      "category_source": "gitlab",
+      "store_updated": null,
+      "store_version": null
+    },
+    {
       "id": "ringlo",
       "name": "Ringlo",
       "icon": "icons/ringlo.webp",
