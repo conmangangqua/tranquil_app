@@ -355,7 +355,13 @@
 })();</script>
 <!-- BEGIN mascot-brand -->
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#059669">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Tranquil">
   <meta name="description" content="Trung tâm tải ứng dụng — bản Dev, Live và AAB, cập nhật tự động sau mỗi lần build.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Tranquil Hub - Peace &amp; Premium">
@@ -387,6 +393,15 @@
     @media (max-width: 560px) {
       .brand-row { flex-direction: column; gap: 10px; }
       .brand-row > h1 { white-space: normal; text-align: center; width: 100%; }
+    }
+    /* Ít thẻ thì căn giữa — auto-fill vốn tạo sẵn cột rỗng nên 1 thẻ bị dạt
+       hẳn về trái, bỏ trống phần lớn màn. Chỉ áp khi ≤3 thẻ; hub nhiều app
+       giữ nguyên lưới cũ. */
+    #appContainer:has(> .app-card:nth-child(1):last-child),
+    #appContainer:has(> .app-card:nth-child(2):last-child),
+    #appContainer:has(> .app-card:nth-child(3):last-child) {
+      grid-template-columns: repeat(auto-fit, minmax(340px, 420px));
+      justify-content: center;
     }
     @media (prefers-reduced-motion: reduce) { .brand-row .mascot { animation: none; } }
   </style>
