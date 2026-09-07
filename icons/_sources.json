@@ -34,5 +34,9 @@
   "thornevale": {
     "sha": "8ea6f710d24ca68fc115d12d192880b454349a46b8a83113d68da29875ee6699",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/thornevale_icon.png"
+  },
+  "onaira": {
+    "sha": "7798b479a26a09f5f5fd0e585bef702c6b7e6845a75cbb401c2a85f624d1a60c",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/onaira_icon.png"
   }
 }
