@@ -91,14 +91,12 @@ jobs:
         run: |
           EVENT_NAME="${{ github.event_name }}"
           
-          if [ "$EVENT_NAME" = "release" ]; then
-            # Trigger từ release event - dùng data từ event
-            echo "Using release event assets"
-            ASSETS='${{ toJson(github.event.release.assets) }}'
-            echo "$ASSETS" > /tmp/all_assets.json
-          else
-            # Trigger từ workflow_dispatch - tổng hợp từ tất cả releases (dev, prod, aab)
-            echo "Fetching assets from all releases (dev, prod, aab)..."
+          # LUÔN fetch từ API, KHÔNG dùng github.event.release.assets.
+          # Lý do: CI tạo release TRƯỚC rồi mới upload file, nên lúc release event
+          # bắn thì payload assets còn RỖNG ⇒ apps.json bị dựng lại thành [] và
+          # xoá sạch app (incident catify/swipisode 2026-09-07).
+          if true; then
+            echo "Fetching assets from all releases (dev, prod, aab, noads)..."
             
             # Fetch và save từng release assets vào temp files
             echo "Fetching from 'dev' release..."
@@ -529,8 +527,17 @@ jobs:
           fi
           echo "Target branch for sync: $TARGET_BRANCH"
 
-          # 3. Pull with rebase and autostash to avoid conflicts, if conflicts occur, assume ours (since we generated from scratch)
-          git pull --rebase --autostash origin $TARGET_BRANCH || (git rebase --skip && git checkout HEAD -- apps.json && git commit --amend --no-edit)
+          # 3. Pull --rebase; nếu conflict thì GIỮ BẢN VỪA DỰNG.
+          # apps.json luôn được build from scratch từ MỌI release nên bản của lượt
+          # này là bản đầy đủ nhất. Bản cũ dùng `git rebase --skip` — lệnh đó BỎ
+          # commit của chính mình và giữ bản remote, ngược hẳn ý định "assume ours"
+          # ghi trong comment; hậu quả là bản rỗng thắng (incident 2026-09-07).
+          git pull --rebase --autostash origin $TARGET_BRANCH || {
+            echo "⚠️ Conflict khi rebase — giữ bản apps.json vừa dựng"
+            git checkout --theirs -- apps.json 2>/dev/null || true
+            git add apps.json
+            GIT_EDITOR=true git rebase --continue || git rebase --abort
+          }
 
           # 4. Push to the target branch
           git push origin HEAD:$TARGET_BRANCH --force-with-lease || git push origin HEAD:$TARGET_BRANCH || echo "Push failed, but continuing"
