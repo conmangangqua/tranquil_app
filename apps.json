@@ -45,48 +45,6 @@
       "store_version": null
     },
     {
-      "id": "marquisse",
-      "name": "Marquisse",
-      "icon": "icons/marquisse.webp",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/marquisse_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/marquisse_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+26090401",
-        "prod": "1.0.0+26090401"
-      },
-      "store": "",
-      "category": "Entertainment",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
-    },
-    {
-      "id": "onaira",
-      "name": "Onaira",
-      "icon": "icons/onaira.webp",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/onaira_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/onaira_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": "",
-      "category": "Entertainment",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
-    },
-    {
       "id": "ringlo",
       "name": "Ringlo",
       "icon": "icons/ringlo.webp",
@@ -108,27 +66,6 @@
       "category_source": "rule",
       "store_updated": "Sep 5, 2026",
       "store_version": "1.0.4"
-    },
-    {
-      "id": "scenova",
-      "name": "Scenova",
-      "icon": "icons/scenova.webp",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/scenova_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/scenova_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": "",
-      "category": "Entertainment",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
     }
   ]
 }
