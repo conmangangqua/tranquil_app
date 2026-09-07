@@ -38,5 +38,9 @@
   "onaira": {
     "sha": "7798b479a26a09f5f5fd0e585bef702c6b7e6845a75cbb401c2a85f624d1a60c",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/onaira_icon.png"
+  },
+  "scenova": {
+    "sha": "85fbd3a87dfdc27de9d0a2d9f800f51a83a8f21a71a9b53bae05074792153991",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/scenova_icon.png"
   }
 }
