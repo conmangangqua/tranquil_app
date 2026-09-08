@@ -541,17 +541,33 @@
             }
             card.classList.add("app-hit");
             setTimeout(function(){ card.classList.remove("app-hit"); }, 5000);
-            // CUỘN LẠI NHIỀU LẦN, đừng cuộn một phát: runHealthCheck() và
-            // enrichCardDescriptions() chạy bất đồng bộ và ảnh card là loading="lazy",
-            // nên các card PHÍA TRÊN cao dần lên SAU khi đã cuộn ⇒ dừng lệch mất mấy
-            // app (Sếp 08/09/2026 bấm ?app=marquisse mà đứng ở Calorie Fasting Tracker).
-            var lan = 0;
-            var timer = setInterval(function(){
-              card.scrollIntoView({behavior: lan ? "auto" : "smooth", block:"center"});
-              if(++lan >= 8) clearInterval(timer);
-            }, 350);
+            // CHỜ LAYOUT ĐỨNG YÊN RỒI MỚI CUỘN — đúng MỘT lần.
+            // runHealthCheck() + enrichCardDescriptions() chạy bất đồng bộ và ảnh card
+            // là loading="lazy", nên card PHÍA TRÊN cao dần lên; cuộn ngay thì dừng lệch
+            // mất mấy app (?app=marquisse đứng ở Calorie Fasting Tracker). Nhưng cuộn
+            // lặp nhiều lượt lại GIẬT — Sếp bắt 08/09/2026. Nên: đợi chiều cao trang
+            // ổn định (~3 nhịp không đổi), cuộn một phát mượt, rồi chỉ BÙ TRỪ IM LẶNG
+            // nếu còn nhích — scrollBy delta nhỏ, mắt không thấy.
+            var caoTruoc = -1, nhipYen = 0, daCuon = false, buTru = 0, doiOn = 0;
+            var thoi = function(){ clearInterval(doiOn); clearInterval(buTru); };
+            var cuon = function(){
+              if(daCuon) return; daCuon = true; clearInterval(doiOn);
+              card.scrollIntoView({behavior:"smooth", block:"center"});
+              setTimeout(function(){
+                buTru = setInterval(function(){
+                  var r = card.getBoundingClientRect();
+                  var lech = (r.top + r.height/2) - (window.innerHeight/2);
+                  if(Math.abs(lech) > 8) window.scrollBy(0, lech);
+                }, 200);
+                setTimeout(function(){ clearInterval(buTru); }, 1800);
+              }, 650);
+            };
+            doiOn = setInterval(function(){
+              var h = document.body.scrollHeight;
+              if(h === caoTruoc){ if(++nhipYen >= 3) cuon(); } else { caoTruoc = h; nhipYen = 0; }
+            }, 120);
+            setTimeout(cuon, 2500);   // trần: đừng bắt chờ mãi nếu trang cứ giãn
             // người dùng tự cuộn thì thôi, đừng giằng màn hình của họ
-            var thoi = function(){ clearInterval(timer); };
             window.addEventListener("wheel", thoi, {once:true, passive:true});
             window.addEventListener("touchstart", thoi, {once:true, passive:true});
           }
