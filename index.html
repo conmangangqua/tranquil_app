@@ -539,9 +539,21 @@
               st.textContent='.app-card.app-hit{outline:3px solid var(--accent,#b8860b);outline-offset:4px;box-shadow:0 0 0 7px rgba(184,134,11,.15)}';
               document.head.appendChild(st);
             }
-            card.scrollIntoView({behavior:"smooth", block:"center"});
             card.classList.add("app-hit");
-            setTimeout(function(){ card.classList.remove("app-hit"); }, 2800);
+            setTimeout(function(){ card.classList.remove("app-hit"); }, 5000);
+            // CUỘN LẠI NHIỀU LẦN, đừng cuộn một phát: runHealthCheck() và
+            // enrichCardDescriptions() chạy bất đồng bộ và ảnh card là loading="lazy",
+            // nên các card PHÍA TRÊN cao dần lên SAU khi đã cuộn ⇒ dừng lệch mất mấy
+            // app (Sếp 08/09/2026 bấm ?app=marquisse mà đứng ở Calorie Fasting Tracker).
+            var lan = 0;
+            var timer = setInterval(function(){
+              card.scrollIntoView({behavior: lan ? "auto" : "smooth", block:"center"});
+              if(++lan >= 8) clearInterval(timer);
+            }, 350);
+            // người dùng tự cuộn thì thôi, đừng giằng màn hình của họ
+            var thoi = function(){ clearInterval(timer); };
+            window.addEventListener("wheel", thoi, {once:true, passive:true});
+            window.addEventListener("touchstart", thoi, {once:true, passive:true});
           }
         }
         if(!action) return;
