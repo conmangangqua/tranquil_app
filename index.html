@@ -452,7 +452,7 @@
         const storeUrl = app.store || "";
         const nameEsc = (app.name || '').replace(/'/g, "\\'");
         // NO_ADS_BUILD: nút phục vụ designer — chỉ app Android (Flutter), hiện sau đăng nhập.
-        const noAdsTrigger = isAndroid ? `<button type="button" class="btn btn-noadsb" onclick="openNoAdsModal('${app.id}', '${nameEsc}')"><i class="btn-ic" data-lucide="shield-off"></i><span class="btn-stack">Build No-Ads</span></button>` : "";
+        const noAdsTrigger = "";  // NO_ADS_BUILD gỡ 08/09/2026: Sếp bỏ hẳn bản No-Ads, job build_dev_noads đã xoá khỏi ci-templates — để nút lại là nút chết
         // PLAY_PUBLISH: 2 nut day Google Play - CHI admin thay.
         const playBtns = isAndroid ? `<button type="button" class="btn btn-plyi" onclick="openPlayModal('${app.id}', '${nameEsc}', 'internal')"><i class="btn-ic" data-lucide="box"></i><span class="btn-stack">Lên Internal</span></button><button type="button" class="btn btn-plyr" onclick="openPlayModal('${app.id}', '${nameEsc}', 'review')"><i class="btn-ic" data-lucide="store"></i><span class="btn-stack">Gửi Review</span></button><button type="button" class="btn btn-plyp" onclick="openPlayModal('${app.id}', '${nameEsc}', 'production')"><i class="btn-ic" data-lucide="rocket"></i><span class="btn-stack">Build &amp; Gửi thẳng</span></button>` : "";
         const noAdsDl = (isAndroid && noadsUrl) ? `<a href="${noadsUrl}" class="btn btn-noads"><i class="btn-ic" data-lucide="download"></i><span class="btn-stack">Tải No-Ads</span></a>` : "";
