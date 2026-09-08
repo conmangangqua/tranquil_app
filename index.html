@@ -44,7 +44,14 @@
     header h1 { font-size: clamp(3rem, 10vw, 4.5rem); font-weight: 800; opacity: 0.9; color: var(--text-main); letter-spacing: -0.05em; }
     .search-section { max-width: 860px; margin: 40px auto 30px; padding: 0 20px; position: sticky; top: 20px; z-index: 100; }
     .search-wrapper { position: relative; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1.5px solid var(--glass-border); border-radius: 40px; box-shadow: 0 10px 30px rgba(5, 150, 105, 0.05); }
-    .search-wrapper input { width: 100%; background: transparent; border: none; padding: 18px 25px 18px 65px; color: var(--text-main); font-size: 1rem; font-weight: 600; outline: none; }
+    .search-wrapper input { width: 100%; background: transparent; border: none; padding: 18px 56px 18px 65px; color: var(--text-main); font-size: 1rem; font-weight: 600; outline: none; }
+    /* Nút xoá trong ô tìm: chỉ hiện khi ô CÓ chữ (:has + :placeholder-shown, không
+       cần JS canh trạng thái). Deep-link ?app= tự điền tên app vào ô nên nút này là
+       đường thoát để xem lại toàn bộ danh sách. */
+    .search-clear { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; display: none; align-items: center; justify-content: center; border: none; border-radius: 50%; background: rgba(0,0,0,.06); color: var(--text-main); font-size: 1rem; line-height: 1; cursor: pointer; padding: 0; }
+    .search-clear:hover { background: rgba(0,0,0,.12); }
+    .search-wrapper:has(input:not(:placeholder-shown)) .search-clear { display: flex; }
+
     .search-wrapper::before { content: '🍃'; position: absolute; left: 24px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; }
     main { flex: 1; width: 100%; max-width: 1800px; margin: 0 auto; padding: 20px 40px 100px; }
     #appContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 45px; }
@@ -417,7 +424,7 @@
   <div class="bg-animation"><div class="blob"></div></div>
   <header><div class="brand-row"><img class="mascot" src="mascot.webp" alt="" aria-hidden="true" width="88" height="88" onerror="this.remove()"><h1>Tranquil Hub</h1></div></header>
   
-  <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"></div></section>
+  <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"><button type="button" class="search-clear" aria-label="Xoá tìm kiếm" onclick="var i=document.getElementById(&quot;searchInput&quot;);i.value=&quot;&quot;;filterApps();i.focus();window.scrollTo({top:0,behavior:&quot;smooth&quot;});">✕</button></div></section>
   <div class="cat-chips" id="catChips"></div>
   <main><div id="appContainer"></div></main>
   <footer><p>&copy; 2026 Tranquil Hub. <span>Powered by Platinum Engine.</span></p><p class="ft-dev">Phát triển bởi ConMaNgangQua</p></footer>
@@ -551,7 +558,13 @@
           if(appDL && oTim && typeof filterApps === "function"){
             oTim.value = appDL.name || slug;
             filterApps();
-            window.scrollTo(0, 0);
+            // Lọc xong chỉ còn ĐÚNG một card nên trang rất ngắn và không còn card nào
+            // phía trên giãn ra — cuộn tới đây mới mượt được (khác hẳn lúc cuộn giữa
+            // danh sách 36 app đang nạp dở). Chừa 90px vì ô tìm là sticky top.
+            requestAnimationFrame(function(){
+              var c = document.querySelector('[data-app-id="'+slug+'"]');
+              if(c) window.scrollTo({ top: Math.max(0, c.offsetTop - 90), behavior: "smooth" });
+            });
           }
           var card = document.querySelector('[data-app-id="'+slug+'"]');
           if(card){
