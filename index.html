@@ -528,7 +528,23 @@
         var q = new URLSearchParams(location.search);
         var slug = (q.get("app")||"").trim();
         var action = (q.get("open")||"").trim().toLowerCase();
-        if(!slug || !action) return;
+        if(!slug) return;
+        // ?app=<slug> KHÔNG kèm &open= → cuộn tới đúng app + làm nổi bật. Link tải
+        // trong tin Discord đi đường này (Sếp 08/09/2026: bấm link phải tới ngay app).
+        if(/^[a-zA-Z0-9._-]+$/.test(slug)){
+          var card = document.querySelector('[data-app-id="'+slug+'"]');
+          if(card){
+            if(!document.getElementById("appHitCss")){
+              var st=document.createElement("style"); st.id="appHitCss";
+              st.textContent='.app-card.app-hit{outline:3px solid var(--accent,#b8860b);outline-offset:4px;box-shadow:0 0 0 7px rgba(184,134,11,.15)}';
+              document.head.appendChild(st);
+            }
+            card.scrollIntoView({behavior:"smooth", block:"center"});
+            card.classList.add("app-hit");
+            setTimeout(function(){ card.classList.remove("app-hit"); }, 2800);
+          }
+        }
+        if(!action) return;
         var app = (allApps||[]).find(function(a){ return a.id === slug; });
         if(!app) return;
         var nm = app.name || slug;
