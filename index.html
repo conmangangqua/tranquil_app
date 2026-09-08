@@ -536,38 +536,35 @@
           if(card){
             if(!document.getElementById("appHitCss")){
               var st=document.createElement("style"); st.id="appHitCss";
-              st.textContent='.app-card.app-hit{outline:3px solid var(--accent,#b8860b);outline-offset:4px;box-shadow:0 0 0 7px rgba(184,134,11,.15)}';
+              // KHÔNG dựa vào `transition: all` của .app-card (0.6s, animate luôn cả
+              // outline lẫn shadow → nhấp nháy). Chỉ animate đúng 2 thuộc tính này.
+              st.textContent='.app-card.app-hit{outline:3px solid var(--accent,#b8860b);outline-offset:4px;box-shadow:0 0 0 7px rgba(184,134,11,.15)!important;transition:outline-color .25s,box-shadow .25s}';
               document.head.appendChild(st);
             }
             card.classList.add("app-hit");
             setTimeout(function(){ card.classList.remove("app-hit"); }, 5000);
-            // CHỜ LAYOUT ĐỨNG YÊN RỒI MỚI CUỘN — đúng MỘT lần.
-            // runHealthCheck() + enrichCardDescriptions() chạy bất đồng bộ và ảnh card
-            // là loading="lazy", nên card PHÍA TRÊN cao dần lên; cuộn ngay thì dừng lệch
-            // mất mấy app (?app=marquisse đứng ở Calorie Fasting Tracker). Nhưng cuộn
-            // lặp nhiều lượt lại GIẬT — Sếp bắt 08/09/2026. Nên: đợi chiều cao trang
-            // ổn định (~3 nhịp không đổi), cuộn một phát mượt, rồi chỉ BÙ TRỪ IM LẶNG
-            // nếu còn nhích — scrollBy delta nhỏ, mắt không thấy.
-            var caoTruoc = -1, nhipYen = 0, daCuon = false, buTru = 0, doiOn = 0;
-            var thoi = function(){ clearInterval(doiOn); clearInterval(buTru); };
+            // 🔴 CUỘN SAU KHI CARD ĐÃ ĐỨNG YÊN — đây là chỗ đã sai HAI lần:
+            //   lần 1: cuộn ngay ⇒ dừng lệch mất mấy app (card trên cao dần lên do
+            //          runHealthCheck/enrichCardDescriptions chạy sau + ảnh lazy);
+            //   lần 2: cuộn lại 8 lượt / bù trừ mỗi 200ms ⇒ tới đúng chỗ nhưng GIẬT.
+            // Nguyên nhân giật thật: .app-card có `animation: reveal .8s` +
+            // `transform: translateY(50px)` (delay tới .48s) và `transition: all .6s`.
+            // Cuộn trong lúc cả loạt card đang trôi 50px thì mắt đọc ra giật.
+            // ⇒ đợi hết animation (~1.3s) rồi cuộn MỘT phát, và chỉ sửa lệch LỚN.
+            var daCuon = false;
             var cuon = function(){
-              if(daCuon) return; daCuon = true; clearInterval(doiOn);
+              if(daCuon) return; daCuon = true;
               card.scrollIntoView({behavior:"smooth", block:"center"});
-              setTimeout(function(){
-                buTru = setInterval(function(){
+              [700, 1400].forEach(function(ms){
+                setTimeout(function(){
                   var r = card.getBoundingClientRect();
                   var lech = (r.top + r.height/2) - (window.innerHeight/2);
-                  if(Math.abs(lech) > 8) window.scrollBy(0, lech);
-                }, 200);
-                setTimeout(function(){ clearInterval(buTru); }, 1800);
-              }, 650);
+                  if(Math.abs(lech) > 24) window.scrollBy(0, lech);   // chỉ lệch LỚN
+                }, ms);
+              });
             };
-            doiOn = setInterval(function(){
-              var h = document.body.scrollHeight;
-              if(h === caoTruoc){ if(++nhipYen >= 3) cuon(); } else { caoTruoc = h; nhipYen = 0; }
-            }, 120);
-            setTimeout(cuon, 2500);   // trần: đừng bắt chờ mãi nếu trang cứ giãn
-            // người dùng tự cuộn thì thôi, đừng giằng màn hình của họ
+            var hen = setTimeout(cuon, 1300);   // .8s animation + .48s delay tối đa
+            var thoi = function(){ clearTimeout(hen); daCuon = true; };
             window.addEventListener("wheel", thoi, {once:true, passive:true});
             window.addEventListener("touchstart", thoi, {once:true, passive:true});
           }
