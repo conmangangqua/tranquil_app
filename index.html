@@ -535,47 +535,33 @@
         var slug = (q.get("app")||"").trim();
         var action = (q.get("open")||"").trim().toLowerCase();
         if(!slug) return;
-        // ?app=<slug> KHÔNG kèm &open= → cuộn tới đúng app + làm nổi bật. Link tải
-        // trong tin Discord đi đường này (Sếp 08/09/2026: bấm link phải tới ngay app).
+        // ?app=<slug> KHÔNG kèm &open= → lọc danh sách còn đúng app đó + làm nổi bật.
+        // Link tải trong tin Discord đi đường này (Sếp 08/09/2026: bấm link phải tới
+        // ngay app).
         if(/^[a-zA-Z0-9._-]+$/.test(slug)){
+          // 🔴 KHÔNG CUỘN. Đã thử ba kiểu cuộn (một phát / lặp 8 lượt / chờ animation
+          // rồi cuộn) — kiểu nào cũng giật, vì trang vẫn đang đổi chiều cao trong lúc
+          // cuộn: runHealthCheck() và enrichCardDescriptions() chạy bất đồng bộ, ảnh
+          // card lại loading="lazy". Cuộn qua một vùng đang giãn thì không thể mượt.
+          // Cách đúng: LỌC danh sách còn đúng app đó — dùng luôn ô tìm kiếm sẵn có,
+          // vốn chỉ ẩn/hiện card chứ không dựng lại DOM. App nằm ngay đầu trang,
+          // không cuộn một pixel nào. Người dùng xoá ô tìm là thấy lại toàn bộ.
+          var appDL = (allApps||[]).find(function(a){ return a.id === slug; });
+          var oTim = document.getElementById("searchInput");
+          if(appDL && oTim && typeof filterApps === "function"){
+            oTim.value = appDL.name || slug;
+            filterApps();
+            window.scrollTo(0, 0);
+          }
           var card = document.querySelector('[data-app-id="'+slug+'"]');
           if(card){
             if(!document.getElementById("appHitCss")){
               var st=document.createElement("style"); st.id="appHitCss";
-              // KHÔNG dựa vào `transition: all` của .app-card (0.6s, animate luôn cả
-              // outline lẫn shadow → nhấp nháy). Chỉ animate đúng 2 thuộc tính này.
               st.textContent='.app-card.app-hit{outline:3px solid var(--accent,#b8860b);outline-offset:4px;box-shadow:0 0 0 7px rgba(184,134,11,.15)!important;transition:outline-color .25s,box-shadow .25s}';
               document.head.appendChild(st);
             }
             card.classList.add("app-hit");
             setTimeout(function(){ card.classList.remove("app-hit"); }, 5000);
-            // 🔴 CUỘN SAU KHI CARD ĐÃ ĐỨNG YÊN — đây là chỗ đã sai HAI lần:
-            //   lần 1: cuộn ngay ⇒ dừng lệch mất mấy app (card trên cao dần lên do
-            //          runHealthCheck/enrichCardDescriptions chạy sau + ảnh lazy);
-            //   lần 2: cuộn lại 8 lượt / bù trừ mỗi 200ms ⇒ tới đúng chỗ nhưng GIẬT.
-            // Nguyên nhân giật thật: .app-card có `animation: reveal .8s` +
-            // `transform: translateY(50px)` (delay tới .48s) và `transition: all .6s`.
-            // Cuộn trong lúc cả loạt card đang trôi 50px thì mắt đọc ra giật.
-            // ⇒ đợi hết animation (~1.3s) rồi cuộn MỘT phát, và chỉ sửa lệch LỚN.
-            var daCuon = false;
-            var cuon = function(){
-              if(daCuon) return; daCuon = true;
-              card.scrollIntoView({behavior:"smooth", block:"center"});
-              [700, 1400].forEach(function(ms){
-                setTimeout(function(){
-                  var r = card.getBoundingClientRect();
-                  var lech = (r.top + r.height/2) - (window.innerHeight/2);
-                  if(Math.abs(lech) > 24) window.scrollBy(0, lech);   // chỉ lệch LỚN
-                }, ms);
-              });
-            };
-            // Không còn phải đợi animation: thẻ <head> đã gắn class `deeplink` để tắt
-            // hẳn `animation: reveal` cho card khi vào bằng ?app=. Chỉ nhường 1 frame
-            // cho trình duyệt vẽ xong danh sách rồi cuộn — gần như tức thì.
-            var hen = setTimeout(function(){ requestAnimationFrame(cuon); }, 60);
-            var thoi = function(){ clearTimeout(hen); daCuon = true; };
-            window.addEventListener("wheel", thoi, {once:true, passive:true});
-            window.addEventListener("touchstart", thoi, {once:true, passive:true});
           }
         }
         if(!action) return;
