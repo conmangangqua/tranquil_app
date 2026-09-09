@@ -1570,9 +1570,42 @@
              + '⚠️ Chưa có Store description (title / short / long) — bấm <b>Gen lại</b> để tạo. '
              + 'Các mục dưới đây là phần đã có.</div>' + html;
       }
+      // RK_LISTING_MD (Sếp 2026-09-09): render bảng Hồ sơ Play listing (Content
+      // Rating IARC EN/VI) ngay trong popup "Hồ sơ Store", giống tab Listing của
+      // Release Kit — dùng chung renderer window.__mdToHtml.
+      html += renderListingBlock(d);
       fieldsEl.innerHTML=html||"(Chưa có dữ liệu)";
       attachCopy();
+      attachListingTabs(d);
       updateLegalBtn(d);
+    }
+
+    /* Khối "Hồ sơ Play listing EN/VI" cho popup Hồ sơ Store — mirror tab Listing
+       của Release Kit (tab EN/VI + bảng markdown). Trả '' khi app chưa có listing. */
+    function renderListingBlock(d){
+      var en=d.listing_en, vi=d.listing_vi, md=window.__mdToHtml;
+      if((!en||!en.text)&&(!vi||!vi.text)) return '';
+      if(typeof md!=="function") return '';
+      var tabs='';
+      if(en&&en.text) tabs+='<button type="button" class="rk-tab on" data-vddoc="en">EN</button>';
+      if(vi&&vi.text) tabs+='<button type="button" class="rk-tab'+((en&&en.text)?'':' on')+'" data-vddoc="vi">VI</button>';
+      var first=(en&&en.text)?en.text:vi.text;
+      return '<div class="vd-listing"><div class="vd-listing-head">'
+        +'<span class="vd-listing-tt">🗂️ Hồ sơ Play listing (Content Rating IARC)</span>'
+        +'<div class="rk-tabs">'+tabs+'</div></div>'
+        +'<div class="rk-doc rk-doc-md" id="vdListingDoc">'+md(first)+'</div></div>';
+    }
+    function attachListingTabs(d){
+      var md=window.__mdToHtml;
+      fieldsEl.querySelectorAll('.rk-tab[data-vddoc]').forEach(function(t){
+        t.onclick=function(){
+          fieldsEl.querySelectorAll('.rk-tab[data-vddoc]').forEach(function(x){x.classList.remove('on');});
+          t.classList.add('on');
+          var doc=fieldsEl.querySelector('#vdListingDoc');
+          var src=t.dataset.vddoc==='vi'?d.listing_vi:d.listing_en;
+          if(doc&&src&&src.text&&typeof md==='function') doc.innerHTML=md(src.text);
+        };
+      });
     }
 
     function attachCopy(){
@@ -3466,6 +3499,10 @@
   .rk-doc-md .rk-mdt th,.rk-doc-md .rk-mdt td{border:1px solid #e2e8f0;padding:6px 9px;text-align:left;vertical-align:top}
   .rk-doc-md .rk-mdt th{background:#f1f5f9;font-weight:700;color:#0f172a;position:sticky;top:0}
   .rk-doc-md .rk-mdt tr:nth-child(even) td{background:#fbfcfe}
+  /* RK_LISTING_MD: khối listing trong popup Hồ sơ Store (mirror tab Listing). */
+  .vd-listing{margin-top:14px;border-top:1px solid #e2e8f0;padding-top:12px}
+  .vd-listing-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .vd-listing-tt{font-weight:800;font-size:.86rem;color:#0f172a}
   .rk-tabs{display:flex;gap:6px}
   .rk-tab{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:9px;
     padding:5px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
@@ -3635,6 +3672,9 @@
     }
     return out.join('');
   }
+  /* RK_LISTING_MD: popup "Hồ sơ Store" (IIFE khác) cũng cần render bảng listing
+     y như tab Listing → expose renderer ra global dùng chung, khỏi viết lại. */
+  window.__mdToHtml = mdToHtml;
   function render(d){
     /* RK_TABS (Sếp 2026-07-29): chia tab thay vì cuộn dài. Mỗi nhóm vào một pane;
        tất cả pane nằm sẵn trong DOM (chỉ ẩn/hiện) nên handler nút gắn một lần
