@@ -3445,6 +3445,27 @@
   .rk-doc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;
     font:500 .78rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:#0f172a;
     max-height:320px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  /* RK_LISTING_MD: bản render markdown — bỏ monospace/pre-wrap, cao hơn vì có
+     bảng IARC dài. Bảng cho phép cuộn ngang trên máy hẹp. */
+  .rk-doc-md{font:500 .8rem/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    white-space:normal;max-height:460px}
+  .rk-doc-md .rk-mdh{margin:14px 0 6px;font-weight:800;line-height:1.35;color:#0f172a}
+  .rk-doc-md .rk-mdh:first-child{margin-top:0}
+  .rk-doc-md h1.rk-mdh{font-size:1.02rem}
+  .rk-doc-md h2.rk-mdh{font-size:.94rem;padding-bottom:4px;border-bottom:1px solid #e2e8f0}
+  .rk-doc-md h3.rk-mdh{font-size:.86rem}
+  .rk-doc-md .rk-mdp{margin:6px 0}
+  .rk-doc-md .rk-mdul{margin:6px 0;padding-left:20px}
+  .rk-doc-md .rk-mdul li{margin:3px 0}
+  .rk-doc-md .rk-mdq{margin:8px 0;padding:6px 12px;border-left:3px solid var(--primary,#334155);
+    background:color-mix(in srgb,var(--primary,#334155) 6%,#fff);border-radius:0 8px 8px 0;color:#475569}
+  .rk-doc-md .rk-mdhr{border:0;border-top:1px solid #e2e8f0;margin:12px 0}
+  .rk-doc-md code{background:#eef2f7;border:1px solid #e2e8f0;border-radius:5px;
+    padding:1px 5px;font:600 .76rem/1.4 ui-monospace,Menlo,monospace}
+  .rk-doc-md .rk-mdt{width:100%;border-collapse:collapse;margin:8px 0;font-size:.76rem;display:block;overflow-x:auto}
+  .rk-doc-md .rk-mdt th,.rk-doc-md .rk-mdt td{border:1px solid #e2e8f0;padding:6px 9px;text-align:left;vertical-align:top}
+  .rk-doc-md .rk-mdt th{background:#f1f5f9;font-weight:700;color:#0f172a;position:sticky;top:0}
+  .rk-doc-md .rk-mdt tr:nth-child(even) td{background:#fbfcfe}
   .rk-tabs{display:flex;gap:6px}
   .rk-tab{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;border-radius:9px;
     padding:5px 12px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
@@ -3553,6 +3574,67 @@
 
   /* RK_MOTA_FULL: icon lucide đúng bộ đang dùng ở nút card, thay cho emoji. */
   function ic(n){ return '<i data-lucide="'+n+'"></i>'; }
+
+  /* RK_LISTING_MD: render listing-en/vi.md (§6 Phân loại nội dung IARC là BẢNG
+     markdown song ngữ) thành HTML đọc được — trước đây đổ thô cả file vào
+     .rk-doc (pre-wrap monospace) nên bảng | câu hỏi | trả lời | hiện thành mớ
+     gạch đứng, anh em không copy nổi đáp án sang Play Console (Sếp 2026-09-09).
+     Renderer TỰ VIẾT, cố ý gọn: chỉ nhận đúng cú pháp skill play-store-aso
+     sinh ra (## heading, bảng GFM, **đậm**, - list, > quote, ---). LUÔN escape
+     từng ô TRƯỚC khi ghép thẻ ⇒ .md của app không chèn được HTML. */
+  function mdInline(s){
+    // esc() đã chặn & < > " ; giờ mới bọc **đậm** và `code` an toàn.
+    s=esc(s);
+    s=s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    s=s.replace(/`([^`]+)`/g,'<code>$1</code>');
+    return s;
+  }
+  function mdToHtml(src){
+    var lines=String(src==null?"":src).split(/\r?\n/);
+    var out=[], i=0;
+    function flushTable(){
+      // Gom các dòng liên tiếp bắt đầu bằng '|' thành 1 bảng.
+      var rows=[];
+      while(i<lines.length && /^\s*\|/.test(lines[i])){ rows.push(lines[i]); i++; }
+      // Bỏ dòng phân cách |---|---| (dòng thứ 2 GFM).
+      var cells=rows.map(function(r){
+        return r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(function(c){return c.trim();});
+      });
+      var isSep=function(a){return a.every(function(c){return /^:?-{2,}:?$/.test(c);});};
+      var html='<table class="rk-mdt">';
+      cells.forEach(function(row,idx){
+        if(idx===1&&isSep(row)) return;
+        var tag=(idx===0)?'th':'td';
+        html+='<tr>'+row.map(function(c){return '<'+tag+'>'+mdInline(c)+'</'+tag+'>';}).join('')+'</tr>';
+      });
+      html+='</table>';
+      out.push(html);
+    }
+    function flushList(){
+      var items=[];
+      while(i<lines.length && /^\s*[-*]\s+/.test(lines[i])){
+        items.push('<li>'+mdInline(lines[i].replace(/^\s*[-*]\s+/,''))+'</li>'); i++;
+      }
+      out.push('<ul class="rk-mdul">'+items.join('')+'</ul>');
+    }
+    while(i<lines.length){
+      var ln=lines[i];
+      if(/^\s*\|/.test(ln)){ flushTable(); continue; }
+      if(/^\s*[-*]\s+/.test(ln)){ flushList(); continue; }
+      var h=ln.match(/^(#{1,6})\s+(.*)$/);
+      if(h){ var lv=h[1].length; out.push('<h'+lv+' class="rk-mdh">'+mdInline(h[2])+'</h'+lv+'>'); i++; continue; }
+      if(/^\s*>\s?/.test(ln)){ out.push('<blockquote class="rk-mdq">'+mdInline(ln.replace(/^\s*>\s?/,''))+'</blockquote>'); i++; continue; }
+      if(/^\s*---+\s*$/.test(ln)){ out.push('<hr class="rk-mdhr">'); i++; continue; }
+      if(/^\s*$/.test(ln)){ i++; continue; }
+      // Đoạn văn: gộp các dòng liền nhau tới dòng trống/cấu trúc kế.
+      var para=[ln]; i++;
+      while(i<lines.length && !/^\s*$/.test(lines[i]) && !/^\s*[|>#-]/.test(lines[i]) && !/^\s*[-*]\s+/.test(lines[i])){
+        para.push(lines[i]); i++;
+      }
+      out.push('<p class="rk-mdp">'+mdInline(para.join(' '))+'</p>');
+    }
+    return out.join('');
+  }
   function render(d){
     /* RK_TABS (Sếp 2026-07-29): chia tab thay vì cuộn dài. Mỗi nhóm vào một pane;
        tất cả pane nằm sẵn trong DOM (chỉ ẩn/hiện) nên handler nút gắn một lần
@@ -3594,7 +3676,7 @@
       P.listing+=secRow('Hồ sơ khai báo Play Console', hs, dtab?'<div class="rk-tabs">'+dtab+'</div>':'');
       if((d.listing_en&&d.listing_en.text)||(d.listing_vi&&d.listing_vi.text)){
         var first=(d.listing_en&&d.listing_en.text)?d.listing_en.text:d.listing_vi.text;
-        P.listing+='<div class="rk-doc" id="rkDoc">'+esc(first)+'</div>';
+        P.listing+='<div class="rk-doc rk-doc-md" id="rkDoc">'+mdToHtml(first)+'</div>';
       }
     }
 
@@ -3747,7 +3829,7 @@
         t.classList.add("on");
         var doc=body.querySelector("#rkDoc");
         var src=t.dataset.doc==="vi"?d.listing_vi:d.listing_en;
-        if(doc&&src&&src.text) doc.textContent=src.text;
+        if(doc&&src&&src.text) doc.innerHTML=mdToHtml(src.text);
       };
     });
     var all=body.querySelector("#rkAllShots");
