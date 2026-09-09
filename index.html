@@ -406,7 +406,12 @@
        giữ nguyên lưới cũ. */
     #appContainer:has(> .app-card:nth-child(1):last-child),
     #appContainer:has(> .app-card:nth-child(2):last-child),
-    #appContainer:has(> .app-card:nth-child(3):last-child) {
+    #appContainer:has(> .app-card:nth-child(3):last-child),
+    /* Khi LỌC (tìm kiếm / deep-link ?app=), card chỉ bị ẩn `display:none` chứ KHÔNG
+       bị xoá khỏi DOM ⇒ `:last-child` ở trên không bao giờ khớp, và 1 thẻ duy nhất
+       nằm dán mép trái, bỏ trống 3/4 màn. Class này do filterApps() đặt theo SỐ THẺ
+       CÒN HIỆN, nên đúng cả khi lọc. */
+    #appContainer.it-the {
       grid-template-columns: repeat(auto-fit, minmax(340px, 420px));
       justify-content: center;
     }
@@ -512,6 +517,9 @@
         card.style.display = khop ? "" : "none";
         if (khop) hien++;
       });
+      // ≤3 thẻ còn hiện ⇒ căn giữa (xem ghi chú ở CSS `#appContainer.it-the`)
+      const _cont = document.getElementById("appContainer");
+      if (_cont) _cont.classList.toggle("it-the", hien > 0 && hien <= 3);
       let trong = document.getElementById("noResultMsg");
       if (!hien) {
         if (!trong) {
