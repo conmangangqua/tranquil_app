@@ -426,6 +426,23 @@
   <style>html.deeplink .app-card{animation:none!important;opacity:1!important;transform:none!important}</style>
 </head>
 <body>
+<script>/* HUB_ERR_TEXT — dịch lỗi kỹ thuật sang câu người đọc hiểu được.
+   Sếp bắt 2026-09-10: popup Gói phát hành chỉ hiện "Load failed" — chữ của
+   trình duyệt khi fetch chết giữa chừng, không nói vì sao, nên Sếp phải đi hỏi
+   bot mới biết chuyện gì. Mọi chỗ báo lỗi trong hub đi qua hàm này. */
+window.hubErrText = function (e) {
+  var m = (e && e.message) || String(e || "");
+  if ((e && e.name === "AbortError") || /aborted|operation was aborted/i.test(m))
+    return "Quá thời gian chờ — máy chủ xử lý lâu hơn bình thường. Việc vẫn có thể đang chạy tiếp ở máy chủ; thử lại sau ít phút.";
+  /* Safari "Load failed" · Chrome "Failed to fetch" · Firefox "NetworkError" */
+  if (/^load failed$|failed to fetch|networkerror|network request failed/i.test(m))
+    return "Không gọi được máy chủ — mạng chập chờn, hoặc yêu cầu bị ngắt giữa chừng do chạy quá lâu. Kiểm tra mạng rồi thử lại.";
+  if (/^HTTP 5\d\d/.test(m)) return m + " — máy chủ đang lỗi, thử lại sau ít phút.";
+  if (/^HTTP 40[13]/.test(m)) return m + " — không đủ quyền (sai PIN, hoặc PIN không thuộc hub này).";
+  if (/^HTTP 404/.test(m)) return m + " — không tìm thấy dữ liệu cho app này.";
+  return m;
+};</script>
+
   <div class="bg-animation"><div class="blob"></div></div>
   <header><div class="brand-row"><img class="mascot" src="mascot.webp" alt="" aria-hidden="true" width="88" height="88" onerror="this.remove()"><h1>Tranquil Hub</h1></div></header>
   
@@ -1018,7 +1035,7 @@
         $("bmStatus").textContent = `Hiện tại: ${d.current_name}+${d.current_code} → đề xuất code mới: ${d.suggested_code}`;
       } catch (e) {
         $("bmStatus").style.color = "#ef4444";
-        $("bmStatus").textContent = "⚠️ " + e.message;
+        $("bmStatus").textContent = "⚠️ "+hubErrText(e);
       } finally {
         $("bmOk").disabled = false;
       }
@@ -1053,7 +1070,7 @@
         closeBuildModal(); showSnack("✅ " + (d.message || "Đã kích build"), d.pipeline_url, false);
       } catch (e) {
         $("bmStatus").style.color = "#ef4444";
-        $("bmStatus").textContent = "❌ " + e.message;
+        $("bmStatus").textContent = "❌ "+hubErrText(e);
       } finally {
         $("bmOk").disabled = false;
       }
@@ -1161,7 +1178,7 @@
         closePlayModal();
         showSnack("✅ " + (d.message || "Đã kích"), d.pipeline_url, false);
       } catch (e) {
-        $("pmStatus").style.color = "#ef4444"; $("pmStatus").textContent = "❌ " + e.message;
+        $("pmStatus").style.color = "#ef4444"; $("pmStatus").textContent = "❌ "+hubErrText(e);
       } finally { $("pmOk").disabled = false; }
     }
     $("playModal").addEventListener("click", (e) => { if (e.target.id === "playModal") closePlayModal(); });
@@ -1227,7 +1244,7 @@
         showSnack("✅ Đã kích build No-Ads. Xong sau ~10-15 phút → báo Discord; tải qua nút \"Tải No-Ads\" trên thẻ app (nhớ F5 lại trang).", d.pipeline_url, false);
       } catch (e) {
         $("naStatus").style.color = "#ef4444";
-        $("naStatus").textContent = "❌ " + e.message;
+        $("naStatus").textContent = "❌ "+hubErrText(e);
       } finally {
         $("naOk").disabled = false;
       }
@@ -1307,7 +1324,7 @@
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error(d.error||"Sai mã PIN");
         localStorage.setItem(KEY,"1"); try{ localStorage.setItem("aab_pin", v); }catch(_){} render(); close(); window.runHealthCheck && window.runHealthCheck();
-      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+e.message; }
+      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+hubErrText(e); }
       finally{ ok.disabled=false; }
     };
     /* LOGIN_UI_V2: nút con mắt xem lại mã PIN đã gõ. */
@@ -1756,7 +1773,7 @@
         var isIOS=(d.platform==="appstore");
         msg.style.color="#059669"; msg.textContent="✅ Version "+(d.version||"")+" · "+(d.commits||0)+" commit · "+(isIOS?"App Store":"Google Play")+(d.saved?" · đã lưu":"");
         rnRender(d.notes||"", isIOS, false);
-      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+e.message; }
+      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+hubErrText(e); }
       btn.disabled=false;
     };
     window.rnCopy=function(b){
@@ -1793,7 +1810,7 @@
         if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
         vdClose();
         if(window.showSnack) showSnack("📝 "+d.message, null, false);
-      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+e.message; }
+      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+hubErrText(e); }
       finally{ gb.disabled=false; }
     };
     window.vdGenLegal=async function(){
@@ -1807,7 +1824,7 @@
         if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
         vdClose();
         if(window.showSnack) showSnack("📄 "+d.message, d.pipeline_url, false);
-      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+e.message; }
+      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+hubErrText(e); }
       finally{ lb.disabled=false; }
     };
   })();</script>
@@ -1897,8 +1914,8 @@
         setTimeout(function(){URL.revokeObjectURL(url);},4000);
         if(window.showSnack) showSnack("⬇️ Đã tải "+(cnt?cnt+" ":"")+"asset của "+nm,"",false);
       }catch(e){
-        if(window.showSnack) showSnack("❌ "+e.message,"",true);
-        else alert("Lỗi: "+e.message);
+        if(window.showSnack) showSnack("❌ "+hubErrText(e),"",true);
+        else alert("Lỗi: "+hubErrText(e));
       }finally{ btn.disabled=false; btn.innerHTML=old; }
     };
   })();</script>
@@ -1997,7 +2014,7 @@
         if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
         stClose();
         if(window.showSnack) showSnack("🛒 "+d.message,"",false); else alert(d.message);
-      }catch(e){ msg.style.color='#b91c1c'; msg.textContent='❌ '+e.message; }
+      }catch(e){ msg.style.color='#b91c1c'; msg.textContent='❌ '+hubErrText(e); }
       finally{ ok.disabled=false; }
     };
   })();</script>
@@ -2110,7 +2127,7 @@
         if(!r.ok||!d.ok) throw new Error(d.error||"Thất bại");
         msg.style.color="#059669"; msg.textContent="✅ Chụp xong "+(d.count||0)+" màn ("+(d.duration_sec||0)+"s)";
         loadGallery(slug);
-      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+e.message; }
+      }catch(e){ msg.style.color="#b91c1c"; msg.textContent="❌ "+hubErrText(e); }
       finally{ gb.disabled=false; }
     };
     // Tải tất cả ảnh hiện đang hiển thị trong grid — tuần tự để tránh trình
@@ -2294,7 +2311,7 @@
       var d=await r.json();
       if(!r.ok||d.error||d.ok===false) throw new Error(d.error||"Trigger lỗi");
       body.innerHTML='<div class="note" style="text-align:center">✅ '+esc(d.message||"Đã gửi thông báo + assign @Tranquil_Bot")+'</div>'+actions(true); bindActions();
-    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(e.message)+'</div>'+actions(true); bindActions(); }
+    }catch(e){ body.innerHTML='<div class="note">⚠️ '+esc(hubErrText(e))+'</div>'+actions(true); bindActions(); }
   }
   function pollAi(){
     var start=Date.now(); if(pollTimer)clearInterval(pollTimer);
@@ -3860,7 +3877,7 @@
           st.textContent=j.message||"Đã gửi thông báo lên Discord + assign @Tranquil_Bot.";
         }catch(e){
           b.innerHTML=old; st.style.color="#b91c1c";
-          st.textContent="❌ "+e.message+(/PIN/i.test(e.message)?" (nút này cần build PIN admin)":"");
+          st.textContent="❌ "+hubErrText(e)+(/PIN/i.test(e.message)?" (nút này cần build PIN admin)":"");
         }finally{ b.disabled=false; }
       };
     });
@@ -3926,7 +3943,7 @@
       await grabFile(file, i);
       btn.textContent="✅ Đã tải";
       setTimeout(function(){btn.innerHTML=old;},1800);
-    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+e.message; btn.innerHTML=old; }
+    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+hubErrText(e); btn.innerHTML=old; }
     finally{ btn.disabled=false; }
   }
 
@@ -3938,13 +3955,21 @@
     st.textContent=refresh?"Đang export ảnh từ Figma (có thể mất 30-60s)…":"Đang tải dữ liệu gói…";
     body.innerHTML='<div class="rk-sec">Đang tải…</div>';
     try{
-      var r=await fetch(API+"/api/releasekit"+(refresh?"?refresh=1":""),{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({app_id:cur.id,pin:pin()})});
+      /* Có hạn chờ RÕ RÀNG. Trước đây không có: request nào chạy quá lâu thì
+         trình duyệt tự cắt và ném "Load failed" — không ai biết vì sao (Sếp bắt
+         2026-09-10). Đọc bộ ảnh có sẵn thì nhanh; export chủ động mới cần lâu. */
+      var ac=new AbortController(), TO=refresh?150000:45000;
+      var tid=setTimeout(function(){ac.abort();},TO);
+      var r;
+      try{
+        r=await fetch(API+"/api/releasekit"+(refresh?"?refresh=1":""),{
+          method:"POST",headers:{"Content-Type":"application/json"},signal:ac.signal,
+          body:JSON.stringify({app_id:cur.id,pin:pin()})});
+      } finally { clearTimeout(tid); }
       var d=await r.json();
       if(!r.ok||!d.ok) throw new Error(d.error||("HTTP "+r.status));
       cur.data=d; render(d); st.textContent="";
-    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+e.message; body.innerHTML=""; }
+    }catch(e){ st.style.color="#b91c1c"; st.textContent="❌ "+hubErrText(e); body.innerHTML=""; }
     finally{ rf.disabled=false; }
   }
 
