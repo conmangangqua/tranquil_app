@@ -3550,6 +3550,16 @@
   body.aab-authed:not(.partner-authed) .rk-rf{display:inline-flex}
   .rk-rf:disabled{opacity:.55;cursor:progress}
   .rk-act button.rk-cl{order:9;min-width:96px;background:#f1f5f9;color:#475569;border:1.5px solid #e2e8f0}
+  /* Màn hẹp: modal co lại nhưng nút vẫn giữ cỡ nội dung + căn phải ⇒ chừa một
+     mảng trống bên trái, mắt đọc ra "nút bị lệch" chứ không đọc ra "căn phải"
+     (Sếp bắt 2026-09-10 trên iPhone, hub meta — popup Gói phát hành). Ở mobile
+     cho hai nút lấp đầy hàng như các modal khác của hub (#rnAct/#stAct). */
+  @media (max-width:520px){
+    .rk-act{flex-wrap:nowrap}
+    .rk-act button{min-width:0;padding:12px 14px}
+    .rk-act button.rk-rf{flex:2 1 0}
+    .rk-act button.rk-cl{flex:1 1 0;min-width:0}
+  }
   #rkSt{margin-top:12px;font-size:.85rem;font-weight:600;color:#64748b;min-height:18px}
 </style>
 <div id="rkOv"><div id="rkMd">
