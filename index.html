@@ -424,6 +424,7 @@
        Chỉ áp khi đến từ deep-link; vào trang bình thường vẫn có hiệu ứng như cũ. -->
   <script>(function(){try{if(/[?&]app=/.test(location.search)){document.documentElement.className+=" deeplink";}}catch(e){}})();</script>
   <style>html.deeplink .app-card{animation:none!important;opacity:1!important;transform:none!important}</style>
+<style>/* PIN_MASK: ô PIN là type="text" che ký tự bằng CSS. Trang còn ô kiểu mật khẩu thì trình quản lý mật khẩu của trình duyệt coi ô text đầu trang (ô tìm kiếm) là ô tên đăng nhập và bật gợi ý mật khẩu mỗi lần chạm vào. */input[data-pin]{-webkit-text-security:disc}input[data-pin].pin-show{-webkit-text-security:none}</style>
 </head>
 <body>
 <script>/* HUB_ERR_TEXT — dịch lỗi kỹ thuật sang câu người đọc hiểu được.
@@ -446,7 +447,7 @@ window.hubErrText = function (e) {
   <div class="bg-animation"><div class="blob"></div></div>
   <header><div class="brand-row"><img class="mascot" src="mascot.webp" alt="" aria-hidden="true" width="88" height="88" onerror="this.remove()"><h1>Tranquil Hub</h1></div></header>
   
-  <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" placeholder="Search for apps..." oninput="filterApps()"><button type="button" class="search-clear" aria-label="Xoá tìm kiếm" onclick="var i=document.getElementById(&quot;searchInput&quot;);i.value=&quot;&quot;;filterApps();window.scrollTo({top:0,behavior:&quot;smooth&quot;});">✕</button></div></section>
+  <section class="search-section"><div class="search-wrapper"><input type="text" id="searchInput" name="hub-search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" onkeydown="if(event.keyCode===13||/^Enter$/.test(event.key)){event.preventDefault();this.blur()}" placeholder="Search for apps..." oninput="filterApps()"><button type="button" class="search-clear" aria-label="Xoá tìm kiếm" onclick="var i=document.getElementById(&quot;searchInput&quot;);i.value=&quot;&quot;;filterApps();window.scrollTo({top:0,behavior:&quot;smooth&quot;});">✕</button></div></section>
   <div class="cat-chips" id="catChips"></div>
   <main><div id="appContainer"></div></main>
   <footer><p>&copy; 2026 Tranquil Hub. <span>Powered by Platinum Engine.</span></p><p class="ft-dev">Phát triển bởi ConMaNgangQua</p></footer>
@@ -963,7 +964,7 @@ window.hubErrText = function (e) {
       <label>Version Code</label>
       <input type="text" id="bmCode" inputmode="numeric" placeholder="vd 26051401" autocomplete="off">
       <label>Mã PIN</label>
-      <input type="password" id="bmPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+      <input type="text" data-pin="1" id="bmPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
       <div class="modal-status" id="bmStatus"></div>
       <div class="modal-actions">
         <button type="button" class="m-cancel" onclick="closeBuildModal()">Huỷ</button>
@@ -986,7 +987,7 @@ window.hubErrText = function (e) {
         <input type="text" id="pmCode" inputmode="numeric" placeholder="26082201" autocomplete="off">
       </div>
       <label>Mã PIN</label>
-      <input type="password" id="pmPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+      <input type="text" data-pin="1" id="pmPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
       <div class="modal-status" id="pmStatus"></div>
       <div class="modal-actions">
         <button type="button" class="m-cancel" onclick="closePlayModal()">Huỷ</button>
@@ -1000,7 +1001,7 @@ window.hubErrText = function (e) {
       <p class="sub" id="naApp"></p>
       <p style="font-size:.82rem;color:var(--text-muted);margin:-4px 0 10px">Dựng APK Dev đã tắt toàn bộ quảng cáo (phục vụ designer). Dùng version hiện tại của repo.</p>
       <label>Mã PIN</label>
-      <input type="password" id="naPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+      <input type="text" data-pin="1" id="naPin" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
       <div class="modal-status" id="naStatus"></div>
       <div class="modal-actions">
         <button type="button" class="m-cancel" onclick="closeNoAdsModal()">Huỷ</button>
@@ -1290,7 +1291,7 @@ window.hubErrText = function (e) {
     <h3><i data-lucide="lock-keyhole" style="width:19px;height:19px"></i>Đăng nhập</h3>
     <div id="aablSub">Nhập mã PIN để mở các chức năng quản trị</div>
     <div id="aablField">
-      <input id="aablPin" type="password" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
+      <input id="aablPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập mã PIN" autocomplete="off">
       <button type="button" id="aablEye" title="Hiện / ẩn mã PIN"><i data-lucide="eye"></i></button>
     </div>
     <div id="aablMsg"></div>
@@ -1330,8 +1331,8 @@ window.hubErrText = function (e) {
     /* LOGIN_UI_V2: nút con mắt xem lại mã PIN đã gõ. */
     var eye=document.getElementById("aablEye");
     if(eye) eye.onclick=function(){
-      var hien = pin.type==="text";
-      pin.type = hien ? "password" : "text";
+      var hien = pin.classList.contains("pin-show");
+      pin.classList.toggle("pin-show", !hien);
       eye.innerHTML='<i data-lucide="'+(hien?"eye":"eye-off")+'"></i>';
       if(window.lucide&&lucide.createIcons) try{lucide.createIcons();}catch(_){}
       pin.focus();
@@ -1437,7 +1438,7 @@ window.hubErrText = function (e) {
     <p class="s" id="vdApp"></p>
     <p class="s" id="vdPlat" style="font-size:.75rem;color:var(--primary-strong,var(--primary,#334155));font-weight:700;margin:-6px 0 8px"></p>
     <div id="vdFields">Đang tải…</div>
-    <input id="vdPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off">
+    <input id="vdPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off">
     <div id="vdMsg"></div>
     <div id="vdAct">
       <button type="button" class="vd-close" onclick="vdClose()">Đóng</button>
@@ -1449,7 +1450,7 @@ window.hubErrText = function (e) {
     <h3><i data-lucide="megaphone"></i>Release Notes</h3>
     <p class="s" id="rnApp"></p>
     <div id="rnBody"></div>
-    <input id="rnPin" type="password" inputmode="numeric" placeholder="Nhập PIN để tạo" autocomplete="off">
+    <input id="rnPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập PIN để tạo" autocomplete="off">
     <div id="rnMsg"></div>
     <div id="rnAct">
       <button type="button" class="rn-close" onclick="rnClose()">Đóng</button>
@@ -1957,7 +1958,7 @@ window.hubErrText = function (e) {
     <label>Store URL (Google Play / App Store)</label>
     <input id="stUrl" type="url" placeholder="https://play.google.com/store/apps/details?id=..." autocomplete="off">
     <label>Mã PIN</label>
-    <input id="stPin" type="password" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
+    <input id="stPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập PIN" autocomplete="off">
     <div id="stMsg"></div>
     <div id="stAct"><button type="button" class="st-cancel" onclick="stClose()">Huỷ</button><button type="button" class="st-ok" id="stOk" onclick="stSubmit()">Lưu</button></div>
   </div></div>
@@ -2045,7 +2046,7 @@ window.hubErrText = function (e) {
       <h3 id="ssTitle" style="margin:0 0 4px"><i data-lucide="image" style="width:20px;height:20px;vertical-align:-4px;margin-right:8px"></i>Screenshots</h3>
       <p id="ssMsg" style="font-size:.85rem;color:#64748b;min-height:18px;margin:6px 0"></p>
       <div id="ssGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px"></div>
-      <input id="ssPin" type="password" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off" style="width:100%;margin-top:14px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit">
+      <input id="ssPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập PIN để Gen lại" autocomplete="off" style="width:100%;margin-top:14px;padding:10px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:inherit">
       <div style="display:flex;gap:10px;margin-top:10px">
         <button type="button" onclick="ssClose()" style="flex:1;padding:11px;border:1.5px solid #e2e8f0;border-radius:10px;background:#f8fafc;font-weight:700;cursor:pointer;font-family:inherit">Đóng</button>
         <button type="button" id="ssDlBtn" onclick="ssDownloadAll()" style="flex:1;padding:11px;border:1.5px solid var(--primary,#334155);border-radius:10px;background:#fff;color:var(--primary-strong,var(--primary,#334155));font-weight:700;cursor:pointer;font-family:inherit"><i data-lucide="download" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Tải tất cả</button><button type="button" id="ssGenBtn" onclick="ssGen()" style="flex:1;padding:11px;border:none;border-radius:10px;background:var(--primary-strong,var(--primary,#334155));color:#fff;font-weight:700;cursor:pointer;font-family:inherit"><i data-lucide="refresh-cw" style="width:14px;height:14px;vertical-align:-2px;margin-right:5px"></i>Gen lại</button>
@@ -2286,7 +2287,7 @@ window.hubErrText = function (e) {
 
   function actions(canGen){
     return '<div class="act">'+
-      (canGen?'<input id="dsPin" type="password" inputmode="numeric" placeholder="Nhập PIN" onkeydown="if(event.key===\'Enter\')document.getElementById(\'dsAi\').click()" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:.9rem;outline:none;width:120px">':'')+
+      (canGen?'<input id="dsPin" type="text" data-pin="1" inputmode="numeric" placeholder="Nhập PIN" onkeydown="if(event.key===\'Enter\')document.getElementById(\'dsAi\').click()" style="padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-weight:600;font-size:.9rem;outline:none;width:120px">':'')+
       (canGen?'<button class="ok" id="dsAi">🔔 Nhắc bot gen Data Safety</button>':'')+
       (lastCsv?'<button class="cl" id="dsView">👁️ Xem CSV</button>':'')+
       /* Bỏ nút Copy: Play Console chỉ IMPORT FILE csv, chép text vào clipboard vô dụng. */
@@ -2407,7 +2408,7 @@ window.hubErrText = function (e) {
   }
   function apply(root){
     var p=pin(); if(!p) return;
-    (root||document).querySelectorAll('input[type="password"]').forEach(function(i){
+    (root||document).querySelectorAll('input[data-pin]').forEach(function(i){
       if(i.id==="aablPin") return;              // ô đăng nhập: giữ nguyên
       /* Chỉ ghi khi giá trị KHÁC — cùng nguyên tắc đã vá ở i18n/ROLE_BADGE: gán
          lại y nguyên vẫn tính là mutation, nuôi observer khác chạy vô ích. */
