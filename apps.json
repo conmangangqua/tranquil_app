@@ -58,7 +58,7 @@
       },
       "versions": {
         "dev": "1.0.6+26091201",
-        "prod": "1.0.5+26091101",
+        "prod": "1.0.6+26091201",
         "aab": "1.0.3+26081901"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.ringlo.caller",
