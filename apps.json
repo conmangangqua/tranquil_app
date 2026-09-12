@@ -57,7 +57,7 @@
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/ringlo.aab"
       },
       "versions": {
-        "dev": "1.0.5+26091101",
+        "dev": "1.0.6+26091201",
         "prod": "1.0.5+26091101",
         "aab": "1.0.3+26081901"
       },
