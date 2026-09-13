@@ -14,7 +14,8 @@
       },
       "versions": {
         "dev": "1.0.0+26090802",
-        "prod": "1.0.0+26090802"
+        "prod": "1.0.0+26090802",
+        "aab": "1.0.0+26090802"
       },
       "store": "",
       "category": "Entertainment",
@@ -34,6 +35,7 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/blissland_prod.plist"
       },
       "versions": {
+        "dev": "5.0.9+25082901",
         "prod": "5.0.9+25082901"
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695",
@@ -45,7 +47,7 @@
     {
       "id": "ringlo",
       "name": "Ringlo",
-      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/ringlo_icon.png",
+      "icon": "icons/ringlo.webp",
       "platform": "Android",
       "description": "",
       "features": [],
