@@ -45,6 +45,25 @@
       "store_version": null
     },
     {
+      "id": "pocket_retro",
+      "name": "Pocket Retro",
+      "icon": "icons/pocket_retro.webp",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/pocket_retro_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.6+26070701"
+      },
+      "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
+      "category": "Emulator",
+      "category_source": "rule",
+      "store_updated": "Jul 14, 2026",
+      "store_version": "26070701 (1.0.6)"
+    },
+    {
       "id": "ringlo",
       "name": "Ringlo",
       "icon": "icons/ringlo.webp",

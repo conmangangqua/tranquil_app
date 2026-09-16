@@ -46,5 +46,9 @@
   "panelo": {
     "sha": "1b46d8a3ddc72dddf588522f9d4a136c3d30ff3718972585d115ff643593e6e1",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/panelo_icon.png"
+  },
+  "pocket_retro": {
+    "sha": "cfba3b8007a6441c96bede77b8f9f2a568887491b39ac276dc32272a0c6fa3fc",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/pocket_retro_icon.png"
   }
 }
