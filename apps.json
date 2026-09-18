@@ -18,9 +18,9 @@
         "aab": "1.0.0+26090802"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquiltmt.bingepop",
-      "category": null,
-      "category_source": null,
-      "store_updated": null,
+      "category": "movie",
+      "category_source": "store",
+      "store_updated": "Sep 11, 2026",
       "store_version": null
     },
     {
@@ -60,10 +60,10 @@
         "prod": "1.0.6+26070701"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
-      "category": null,
-      "category_source": null,
-      "store_updated": null,
-      "store_version": null
+      "category": "game",
+      "category_source": "store",
+      "store_updated": "Jul 14, 2026",
+      "store_version": "26070701 (1.0.6)"
     },
     {
       "id": "ringlo",
@@ -83,10 +83,10 @@
         "aab": "1.0.3+26081901"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.ringlo.caller",
-      "category": null,
-      "category_source": null,
-      "store_updated": null,
-      "store_version": null
+      "category": "caller",
+      "category_source": "store",
+      "store_updated": "Sep 12, 2026",
+      "store_version": "1.0.6"
     }
   ]
 }
