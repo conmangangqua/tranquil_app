@@ -13,7 +13,7 @@
         "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/bingepop.aab"
       },
       "versions": {
-        "dev": "1.0.1+26092103",
+        "dev": "1.0.1+26092201",
         "prod": "1.0.1+26092103",
         "aab": "1.0.1+26092103"
       },
@@ -63,7 +63,7 @@
       "category": "game",
       "category_source": "store",
       "store_updated": "Jul 14, 2026",
-      "store_version": null
+      "store_version": "26070701 (1.0.6)"
     },
     {
       "id": "ringlo",
@@ -86,7 +86,7 @@
       "category": "caller",
       "category_source": "store",
       "store_updated": "Sep 11, 2026",
-      "store_version": null
+      "store_version": "1.0.6"
     }
   ]
 }
