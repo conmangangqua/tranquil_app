@@ -53,11 +53,13 @@
       "features": [],
       "downloads": {
         "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/pocket_retro_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/pocket_retro_prod.apk"
+        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/pocket_retro_prod.apk",
+        "aab": "https://github.com/conmangangqua/tranquil_app/releases/download/aab/pocket_retro.aab"
       },
       "versions": {
         "dev": "2.0.0+26092302",
-        "prod": "2.0.0+26092302"
+        "prod": "2.0.0+26092302",
+        "aab": "2.0.0+26092302"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
       "category": "game",
