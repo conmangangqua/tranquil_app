@@ -56,7 +56,7 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/pocket_retro_prod.apk"
       },
       "versions": {
-        "dev": "1.0.6+26070701",
+        "dev": "1.0.7+26092301",
         "prod": "1.0.6+26070701"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
