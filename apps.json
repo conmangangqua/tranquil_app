@@ -59,7 +59,7 @@
       "versions": {
         "dev": "2.0.0+26092302",
         "prod": "2.0.0+26092302",
-        "aab": "2.0.0+26092302"
+        "aab": "2.0.0+26092401"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
       "category": "game",
