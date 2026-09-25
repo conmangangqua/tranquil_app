@@ -151,12 +151,20 @@ jobs:
                   print(f"  ! load snapshot fail: {e}"); return cat_map
               def walk(o):
                   if isinstance(o, dict):
-                      if o.get("slug") and o.get("category"):
-                          cat_map[_norm(o["slug"])] = {"category": o["category"], "source": o.get("category_source", "store")}
+                      if o.get("slug") and o.get("category") and o.get("category_source"):
+                          cat_map[_norm(o["slug"])] = {"category": o["category"], "source": o["category_source"]}
                       for v in o.values(): walk(v)
                   elif isinstance(o, list):
                       for v in o: walk(v)
-              walk(snap)
+              # 🔴 CHỈ duyệt nhánh `partners` — đó là nơi nhãn đã qua waterfall
+              # (override > rule mịn > store > desc > subgroup_map). Snapshot còn khoá
+              # `_gitlab_projects` chứa CÙNG slug nhưng `category` là tên subgroup GitLab
+              # THÔ ('photo-ai', 'prank-call', 'speaker-cleaner'); nó nằm SAU `partners`
+              # trong snapshot nên walk(snap) toàn cây ghi đè nhãn ĐÚNG bằng slug thô, và
+              # vì object đó không có `category_source` nên mọi app còn bị gắn nhầm nguồn
+              # "store". (Sếp bắt 25/09/2026: "sao category về hết dạng tên ntn rồi?")
+              # Đòi luôn `category_source` làm lớp chắn thứ hai.
+              walk(snap.get("partners") or [])
               print(f"  ✓ category map: {len(cat_map)} app")
               return cat_map
           def load_category_overrides():
