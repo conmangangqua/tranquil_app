@@ -65,7 +65,7 @@
       "category": "Emulator",
       "category_source": "rule",
       "store_updated": "Sep 23, 2026",
-      "store_version": "26092401 (2.0.0)"
+      "store_version": null
     },
     {
       "id": "ringlo",
@@ -88,7 +88,7 @@
       "category": "Caller ID",
       "category_source": "rule",
       "store_updated": "Sep 11, 2026",
-      "store_version": "1.0.6"
+      "store_version": null
     }
   ]
 }
