@@ -18,7 +18,7 @@
         "aab": "1.0.1+26092103"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquiltmt.bingepop",
-      "category": "movie",
+      "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
       "store_version": null
@@ -39,7 +39,7 @@
         "prod": "5.0.9+25082901"
       },
       "store": "https://apps.apple.com/vn/app/blissland-simple-habit-sleep/id6451228695",
-      "category": "sleep",
+      "category": "Health & Fitness",
       "category_source": "store",
       "store_updated": null,
       "store_version": null
@@ -61,11 +61,11 @@
         "prod": "2.0.0+26092401",
         "aab": "2.0.0+26092401"
       },
-      "store": "https://play.google.com/store/apps/details?id=com.tranquil.gba",
-      "category": "game",
-      "category_source": "store",
-      "store_updated": "Sep 23, 2026",
-      "store_version": "26092401 (2.0.0)"
+      "store": "",
+      "category": "Emulator",
+      "category_source": "rule",
+      "store_updated": null,
+      "store_version": null
     },
     {
       "id": "ringlo",
@@ -85,8 +85,8 @@
         "aab": "1.0.3+26081901"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.ringlo.caller",
-      "category": "caller",
-      "category_source": "store",
+      "category": "Caller ID",
+      "category_source": "rule",
       "store_updated": "Sep 11, 2026",
       "store_version": "1.0.6"
     }
