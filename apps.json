@@ -21,7 +21,7 @@
       "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
-      "store_version": "26092103 (1.0.1)"
+      "store_version": null
     },
     {
       "id": "blissland",
@@ -65,7 +65,7 @@
       "category": "Emulator",
       "category_source": "rule",
       "store_updated": "Sep 23, 2026",
-      "store_version": "26092401 (2.0.0)"
+      "store_version": null
     },
     {
       "id": "ringlo",
@@ -88,7 +88,7 @@
       "category": "Caller ID",
       "category_source": "rule",
       "store_updated": "Sep 11, 2026",
-      "store_version": "1.0.6"
+      "store_version": null
     }
   ]
 }
