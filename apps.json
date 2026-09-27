@@ -62,8 +62,8 @@
         "aab": "1.0.0+26092401"
       },
       "store": "",
-      "category": "Emulator",
-      "category_source": "rule",
+      "category": "Games",
+      "category_source": "gitlab",
       "store_updated": null,
       "store_version": null
     },
