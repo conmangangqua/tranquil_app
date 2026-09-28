@@ -50,5 +50,9 @@
   "pocket_retro": {
     "sha": "8b3368539ee91d8ae24fbfbbd5d9ccea5e248b9500c163db7301965a3d668bf5",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/pocket_retro_icon.png"
+  },
+  "bamboolt": {
+    "sha": "5159dafc26ffc4bb0ede2699b0763ec54fa5951811d7e1e95d4d6110e876556b",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/bamboolt_icon.png"
   }
 }

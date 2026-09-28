@@ -1,6 +1,25 @@
 {
   "apps": [
     {
+      "id": "bamboolt",
+      "name": "Bamboolt",
+      "icon": "icons/bamboolt.webp",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/bamboolt_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      },
+      "store": "",
+      "category": null,
+      "category_source": null,
+      "store_updated": null,
+      "store_version": null
+    },
+    {
       "id": "bingepop",
       "name": "Bingepop",
       "icon": "icons/bingepop.webp",
@@ -62,10 +81,10 @@
         "aab": "1.0.0+26092401"
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.pocket.retro",
-      "category": "Games",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
+      "category": "Tools",
+      "category_source": "store",
+      "store_updated": "Sep 27, 2026",
+      "store_version": "26092401 (1.0.0)"
     },
     {
       "id": "ringlo",
