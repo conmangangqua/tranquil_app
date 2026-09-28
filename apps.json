@@ -61,7 +61,7 @@
         "prod": "1.0.0+26092401",
         "aab": "1.0.0+26092401"
       },
-      "store": "",
+      "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.pocket.retro",
       "category": "Games",
       "category_source": "gitlab",
       "store_updated": null,
