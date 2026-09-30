@@ -54,5 +54,9 @@
   "bamboolt": {
     "sha": "5159dafc26ffc4bb0ede2699b0763ec54fa5951811d7e1e95d4d6110e876556b",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/bamboolt_icon.png"
+  },
+  "gamarine": {
+    "sha": "b9492d8764f1b70e0d2e00bd32f0e1aaedbb030d27c26b892fddddb3ee7ed38d",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/gamarine_icon.png"
   }
 }
