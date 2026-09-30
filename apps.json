@@ -12,6 +12,7 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/bamboolt_prod.apk"
       },
       "versions": {
+        "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
       "store": "",
