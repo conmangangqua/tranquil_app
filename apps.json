@@ -3,7 +3,7 @@
     {
       "id": "bamboolt",
       "name": "Bamboolt",
-      "icon": "icons/bamboolt.webp",
+      "icon": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/bamboolt_icon.png",
       "platform": "Android",
       "description": "",
       "features": [],
