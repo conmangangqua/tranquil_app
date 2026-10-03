@@ -79,7 +79,7 @@
         "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/gamarine_prod.apk"
       },
       "versions": {
-        "dev": "1.0.5+26092001",
+        "dev": "1.0.0+26092001",
         "prod": "1.0.5+26092001"
       },
       "store": "",
