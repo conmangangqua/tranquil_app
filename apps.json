@@ -44,7 +44,7 @@
       "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
-      "store_version": "26092103 (1.0.1)"
+      "store_version": null
     },
     {
       "id": "blissland",
@@ -108,8 +108,8 @@
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.pocket.retro",
       "category": "Tools",
       "category_source": "store",
-      "store_updated": "Sep 27, 2026",
-      "store_version": "26092401 (1.0.0)"
+      "store_updated": null,
+      "store_version": null
     },
     {
       "id": "ringlo",
@@ -132,7 +132,7 @@
       "category": "Caller ID",
       "category_source": "rule",
       "store_updated": "Sep 11, 2026",
-      "store_version": "1.0.6"
+      "store_version": null
     }
   ]
 }
