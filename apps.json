@@ -19,8 +19,8 @@
       },
       "store": "https://play.google.com/store/apps/details?id=com.tranquiltmt.bamboolt",
       "category": "Personalization",
-      "category_source": "desc",
-      "store_updated": null,
+      "category_source": "store",
+      "store_updated": "Oct 1, 2026",
       "store_version": null
     },
     {
@@ -44,7 +44,7 @@
       "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
-      "store_version": "26092103 (1.0.1)"
+      "store_version": null
     },
     {
       "id": "blissland",
@@ -109,7 +109,7 @@
       "category": "Tools",
       "category_source": "store",
       "store_updated": "Oct 5, 2026",
-      "store_version": "1.0.1"
+      "store_version": null
     },
     {
       "id": "ringlo",
@@ -131,8 +131,8 @@
       "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.ringlo.caller",
       "category": "Caller ID",
       "category_source": "rule",
-      "store_updated": "Sep 11, 2026",
-      "store_version": "1.0.6"
+      "store_updated": "Sep 12, 2026",
+      "store_version": null
     }
   ]
 }
