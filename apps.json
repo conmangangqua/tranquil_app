@@ -21,7 +21,7 @@
       "category": "Personalization",
       "category_source": "store",
       "store_updated": "Oct 1, 2026",
-      "store_version": null
+      "store_version": "26100201 (1.0.0)"
     },
     {
       "id": "bingepop",
@@ -44,7 +44,7 @@
       "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
-      "store_version": null
+      "store_version": "26092103 (1.0.1)"
     },
     {
       "id": "blissland",
@@ -109,7 +109,7 @@
       "category": "Tools",
       "category_source": "store",
       "store_updated": "Oct 5, 2026",
-      "store_version": null
+      "store_version": "1.0.1"
     },
     {
       "id": "ringlo",
@@ -132,7 +132,7 @@
       "category": "Caller ID",
       "category_source": "rule",
       "store_updated": "Sep 12, 2026",
-      "store_version": null
+      "store_version": "1.0.6"
     }
   ]
 }
