@@ -58,5 +58,9 @@
   "gamarine": {
     "sha": "764e6d83174ae5259de8b3e0aa430cb44c111af816cefafa0e6dc22b074ec18d",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/gamarine_icon.png"
+  },
+  "callumen": {
+    "sha": "800c00dfa6aa37241527d7175b8a4511330d52d12182ebc917318408a0311d2a",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/callumen_icon.png"
   }
 }
