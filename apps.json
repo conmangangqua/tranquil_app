@@ -82,7 +82,7 @@
         "dev": "1.0.0+1",
         "prod": "1.0.0+1"
       },
-      "store": "",
+      "store": "https://play.google.com/store/apps/details?id=com.tranquilmind.callumen.caller",
       "category": "Caller ID",
       "category_source": "gitlab",
       "store_updated": null,
