@@ -104,8 +104,8 @@
         "prod": "1.0.0+1"
       },
       "store": "",
-      "category": null,
-      "category_source": null,
+      "category": "Caller ID",
+      "category_source": "gitlab",
       "store_updated": null,
       "store_version": null
     },
