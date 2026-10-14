@@ -62,5 +62,9 @@
   "callumen": {
     "sha": "800c00dfa6aa37241527d7175b8a4511330d52d12182ebc917318408a0311d2a",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/callumen_icon.png"
+  },
+  "callverde": {
+    "sha": "eed19360afc88160f2499ccd706daab53b769532e0bd038bb8242ae5e649aae2",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/callverde_icon.png"
   }
 }
