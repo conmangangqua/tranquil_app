@@ -11,6 +11,14 @@
   "en": "Sleep Sounds & Smart Alarm",
   "vi": "Âm thanh khi ngủ & Báo thức thông minh"
  },
+ "callumen": {
+  "en": "Caller ID & spam blocker with an unseen chat reader - no read receipts.",
+  "vi": "ID người gọi & trình chặn thư rác với trình đọc trò chuyện ẩn - không có biên nhận đã đọc."
+ },
+ "callverde": {
+  "en": "Caller ID, spam blocker and unseen message tracker for your phone.",
+  "vi": "ID người gọi, trình chặn thư rác và trình theo dõi tin nhắn chưa xem cho điện thoại của bạn."
+ },
  "ferelia": {
   "en": "Vertical short dramas for your night — love, betrayal, one episode at a time.",
   "vi": "Phim truyền hình ngắn theo chiều dọc cho đêm của bạn - tình yêu, sự phản bội, mỗi lần một tập."
@@ -34,6 +42,10 @@
  "mirevale": {
   "en": "Binge vertical short dramas—unlock episodes, fresh stories added every day.",
   "vi": "Những bộ phim truyền hình dài tập ngắn theo chiều dọc—mở khóa các tập phim, những câu chuyện mới được thêm vào mỗi ngày."
+ },
+ "pdf_kit_fox": {
+  "en": "PDF scanner & editor: scan, merge, split, lock, sign and read PDF on the go.",
+  "vi": "Trình quét và chỉnh sửa PDF: quét, hợp nhất, tách, khóa, ký và đọc PDF khi đang di chuyển."
  },
  "ringlo": {
   "en": "Caller ID from your contacts, spam call blocker & unseen message tracker.",
