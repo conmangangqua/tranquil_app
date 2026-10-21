@@ -74,5 +74,9 @@
   "twistmoon": {
     "sha": "6a6cd2a52195cc7e6144c227b2cd1ecedaaf9db21fc9e1ccc1ef873e4afd87a4",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/twistmoon_icon.png"
+  },
+  "cliffsy": {
+    "sha": "8e176992a5f5fd133af3893ccb8fb1d313e9d1626188ba770f691d3fcc6f5f28",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/cliffsy_icon.png"
   }
 }
