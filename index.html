@@ -716,47 +716,50 @@ window.hubErrText = function (e) {
       window.lucide && lucide.createIcons();
     }
     async function runAdsCheck(){
+      /* 21/10/2026: badge ADS đọc CACHE do job cron-ads của apps-status dựng (6h/lần),
+         KHÔNG gọi aab-trigger /api/adscheck nữa. Lý do: mỗi lần mở trang (kể cả
+         HeadlessChrome sau mỗi Vercel deploy do update-apps-json commit) bắn adscheck
+         ⇒ ~92+ lời gọi GitLab song song ⇒ cạn hạn mức token GITLAB_TOKEN dùng chung
+         (GitLab.com Free 100/phút), build/trigger của cả fleet ăn 429.
+         store-ads-check chỉ ĐỌC file cache, không chạm GitLab. App chưa có trong cache
+         thì ẩn badge (chưa biết), không đoán "No Ads".
+         🔚 HUỶ KHI: aab-trigger /api/adscheck dùng token GitLab riêng có hạn mức đủ rộng
+         HOẶC có cache phía aab-trigger ⇒ được quay lại gọi trực tiếp. */
       if(!allApps.length) return;
-      const apps = allApps.filter(a => a.id).slice(0, 50).map(a => ({id: a.id}));
+      const norm = s => String(s||"").toLowerCase().replace(/[-_]/g,"");
+      let bySlug = {};
       try{
-        const r = await fetch("https://aab.tranquilmind.co/api/adscheck", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({apps})
-        });
+        const r = await fetch("https://apps-status.tranquilmind.co/api/store-ads-check");
         if(!r.ok) return;
-        const data = await r.json();
-        Object.entries(data.results || {}).forEach(([appId, a]) => {
-          const card = document.querySelector('.app-card[data-app-id="'+CSS.escape(appId)+'"]');
-          if(!card) return;
-          const badge = card.querySelector('.ads-badge');
-          if(!badge) return;
-          badge.className = "ads-badge " + (a.has_ads ? "has-ads" : "no-ads");
-          badge.style.display = "inline-flex";
-          if(a.has_ads){
-
-            const sdks = (a.ads||[]).join(', ');
-
-            badge.innerHTML = '<i data-lucide="megaphone"></i>ADS';
-
-            badge.style.cursor = 'pointer';
-
-            badge.title = 'Click để xem SDK chi tiết';
-
-            badge.onclick = function(){ alert('Ads SDK: ' + sdks); };
-
-          } else {
-
-            badge.innerHTML = '<i data-lucide="ban"></i>No Ads';
-
-            badge.style.cursor = 'default';
-
-            badge.onclick = null;
-
-          }
-          tryRenderIcons();
-        });
-      }catch(e){}
+        const d = await r.json();
+        Object.values(d.results || {}).forEach(info => { if(info && info.slug) bySlug[norm(info.slug)] = info; });
+      }catch(e){ return; }
+      allApps.filter(a => a.id).forEach(app => {
+        const info = bySlug[norm(app.id)];
+        if(!info) return;
+        const card = document.querySelector('.app-card[data-app-id="'+CSS.escape(app.id)+'"]');
+        if(!card) return;
+        const badge = card.querySelector('.ads-badge');
+        if(!badge) return;
+        const sdkArr = info.ads_sdks || [];
+        const hasAds = sdkArr.length > 0 || info.has_ads_sdk_in_code === true;
+        const noAds = !hasAds && info.has_admob_sdk === false;   // cả adscheck lẫn sdkcheck đều nói không có
+        if(!hasAds && !noAds) return;                          // cache chưa đủ ⇒ không hiện
+        badge.className = "ads-badge " + (hasAds ? "has-ads" : "no-ads");
+        badge.style.display = "inline-flex";
+        if(hasAds){
+          const sdks = sdkArr.join(', ');
+          badge.innerHTML = '<i data-lucide="megaphone"></i>ADS';
+          badge.style.cursor = 'pointer';
+          badge.title = 'Click để xem SDK chi tiết';
+          badge.onclick = function(){ alert('Ads SDK: ' + (sdks || '?')); };
+        } else {
+          badge.innerHTML = '<i data-lucide="ban"></i>No Ads';
+          badge.style.cursor = 'default';
+          badge.onclick = null;
+        }
+      });
+      window.lucide && lucide.createIcons();
     }
     async function runHealthCheck(){
       /* Sếp 2026-07-31: thôi gọi apps-status/store-ads-check lúc mở trang —

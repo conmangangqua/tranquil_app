@@ -15,6 +15,14 @@ on:
     # Mỗi 6h: re-validate store URLs (drop 404 → empty, auto-detect khi app vừa lên store)
     - cron: '0 */6 * * *'
 
+# 21/10/2026: ci-templates dispatch workflow này sau MỖI build ⇒ có ngày 18 run, có lúc 2 run
+# chồng nhau (cùng gọi aab-trigger /api/package ⇒ cùng đốt hạn mức GitLab, cùng commit apps.json).
+# apps.json luôn dựng lại từ MỌI release nên run mới nhất là đủ ⇒ huỷ run cũ đang chạy.
+# 🔚 HUỶ KHI: ci-templates thôi dispatch workflow này sau từng build (gom theo lịch).
+concurrency:
+  group: update-apps-json
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -121,6 +129,7 @@ jobs:
       - name: Build apps.json from scratch
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           python3 << 'PYTHON_SCRIPT'
           import json
@@ -263,6 +272,61 @@ jobs:
               if raw.startswith("android:"):
                   return f"https://play.google.com/store/apps/details?id={raw[8:]}"
               return raw
+
+          # ── Sổ auto-discover (discovered_stores.json, commit cùng apps.json) ──
+          # 21/10/2026: trước đây MỖI run gọi /api/package cho MỌI app chưa có trong stores.json
+          # (adc: 17 app × 18 run/ngày), mỗi lời gọi = 4..vài chục lời gọi GitLab bằng token
+          # GITLAB_TOKEN dùng chung (GitLab.com Free ~100/phút) ⇒ cạn hạn mức, build fleet ăn 429.
+          # Nay ghi kết quả vào sổ: giá trị "android:<pkg>" / "ios:<bundle>" (resolve_store_link
+          # tự dựng URL, không chạm GitLab) hoặc "" (đã hỏi, chưa đọc được package).
+          #   - App đã có package trong sổ ⇒ KHÔNG gọi lại /api/package.
+          #   - App mới (chưa có trong sổ) ⇒ gọi, mọi loại run.
+          #   - App "" (lần trước không đọc được) ⇒ chỉ hỏi lại ở run `schedule`.
+          #   - Mỗi run gọi tối đa DISCOVER_MAX lần; lỗi mạng/429 thì KHÔNG ghi sổ (lần sau hỏi lại).
+          # Đổi package của một app ⇒ xoá dòng của nó trong discovered_stores.json.
+          # 🔚 HUỶ KHI: aab-trigger /api/package dùng token GitLab riêng có hạn mức đủ rộng
+          #    ⇒ có thể quay lại gọi mỗi run (vẫn nên giữ sổ cho nhanh).
+          DISCOVER_FILE = 'discovered_stores.json'
+          DISCOVER_MAX = 6
+          IS_SCHEDULE = os.environ.get('EVENT_NAME') == 'schedule'
+          DISCOVERED = {}
+          try:
+              with open(DISCOVER_FILE) as _df:
+                  DISCOVERED = json.load(_df)
+          except Exception:
+              DISCOVERED = {}
+          _discover_calls = [0]
+
+          def discover_cached(app_id):
+              if app_id in DISCOVERED and (DISCOVERED[app_id] or not IS_SCHEDULE):
+                  return resolve_store_link(DISCOVERED[app_id])
+              if _discover_calls[0] >= DISCOVER_MAX:
+                  print(f"  auto-discover skip {app_id}: đã đủ {DISCOVER_MAX} lần gọi /api/package ở run này")
+                  return ""
+              _discover_calls[0] += 1
+              raw = auto_discover_raw(app_id)
+              if raw is None:
+                  return ""                      # lỗi mạng/429 — không ghi sổ
+              DISCOVERED[app_id] = raw
+              return resolve_store_link(raw)
+
+          def auto_discover_raw(app_id):
+              # Trả "android:<pkg>" / "ios:<bundle>" / "" (không đọc được package) / None (lỗi gọi).
+              try:
+                  with _ur.urlopen(f"https://aab.tranquilmind.co/api/package?app_id={app_id}", timeout=15) as r:
+                      d = json.loads(r.read())
+                  plat = d.get("platform")
+                  pkg = d.get("package_id")
+                  if plat in ("android", "ios") and pkg:
+                      print(f"  auto-discover {plat}: {app_id} -> {pkg}")
+                      return f"{plat}:{pkg}"
+                  return ""
+              except Exception as e:
+                  code = getattr(e, 'code', None)
+                  print(f"  auto-discover error {app_id}: {e}")
+                  # 429/503 (GitLab giới hạn nhịp) hoặc lỗi mạng ⇒ chưa biết, không ghi sổ.
+                  # Lỗi khác (vd 500 "không tìm thấy repo") là lỗi bền ⇒ ghi "" để khỏi hỏi mỗi run.
+                  return None if code in (None, 429, 502, 503, 504) else ""
 
           def auto_discover(app_id):
               # Fallback nếu stores.json không có entry: gọi /api/package trên Vercel
@@ -420,7 +484,7 @@ jobs:
               store_link = resolve_store_link(store_link)
               if not store_link:
                   # Fallback auto-discover: gọi /api/package trên Vercel (đọc bundle ID từ GitLab)
-                  store_link = auto_discover(app_id)
+                  store_link = discover_cached(app_id)
               store_link = validate_store(store_link)
 
               # Format app name (video_downloader -> Video Downloader)
@@ -483,6 +547,10 @@ jobs:
           result = {'apps': apps}
           
           # Write to file
+          with open(DISCOVER_FILE, 'w') as _df:
+              json.dump(DISCOVERED, _df, indent=2, sort_keys=True)
+          print(f"auto-discover: {_discover_calls[0]} lần gọi /api/package, sổ có {len(DISCOVERED)} app")
+
           with open('apps.json', 'w') as f:
               json.dump(result, f, indent=2)
           
@@ -510,7 +578,7 @@ jobs:
           echo "Git status before add:"
           git status
           
-          git add apps.json icons scripts/localize_icons.py
+          git add apps.json discovered_stores.json icons scripts/localize_icons.py
 
           echo "Git status after add:"
           git status
@@ -542,8 +610,8 @@ jobs:
           # ghi trong comment; hậu quả là bản rỗng thắng (incident 2026-09-07).
           git pull --rebase --autostash origin $TARGET_BRANCH || {
             echo "⚠️ Conflict khi rebase — giữ bản apps.json vừa dựng"
-            git checkout --theirs -- apps.json 2>/dev/null || true
-            git add apps.json
+            git checkout --theirs -- apps.json discovered_stores.json 2>/dev/null || true
+            git add apps.json discovered_stores.json
             GIT_EDITOR=true git rebase --continue || git rebase --abort
           }
 
