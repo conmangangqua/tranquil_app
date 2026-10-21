@@ -70,5 +70,9 @@
   "pdf_kit_fox": {
     "sha": "94ab385d1e3827951a4b9d08dccfdc1c9e2e9faab37bda2b4094e874606dfc24",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/pdf_kit_fox_icon.png"
+  },
+  "twistmoon": {
+    "sha": "6a6cd2a52195cc7e6144c227b2cd1ecedaaf9db21fc9e1ccc1ef873e4afd87a4",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/twistmoon_icon.png"
   }
 }
