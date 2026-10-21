@@ -610,7 +610,8 @@ jobs:
           # ghi trong comment; hậu quả là bản rỗng thắng (incident 2026-09-07).
           git pull --rebase --autostash origin $TARGET_BRANCH || {
             echo "⚠️ Conflict khi rebase — giữ bản apps.json vừa dựng"
-            git checkout --theirs -- apps.json discovered_stores.json 2>/dev/null || true
+            git checkout --theirs -- apps.json 2>/dev/null || true
+            git checkout --theirs -- discovered_stores.json 2>/dev/null || true
             git add apps.json discovered_stores.json
             GIT_EDITOR=true git rebase --continue || git rebase --abort
           }
