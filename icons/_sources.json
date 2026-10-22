@@ -78,5 +78,9 @@
   "cliffsy": {
     "sha": "8e176992a5f5fd133af3893ccb8fb1d313e9d1626188ba770f691d3fcc6f5f28",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/cliffsy_icon.png"
+  },
+  "reelquill": {
+    "sha": "14578b7e32637705dbeab8d2935a5e230dfaa17edb3dbe49e72a8b13cfab573f",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/reelquill_icon.png"
   }
 }
