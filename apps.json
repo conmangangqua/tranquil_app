@@ -131,6 +131,25 @@
       "store_version": null
     },
     {
+      "id": "hushreel",
+      "name": "Hushreel",
+      "icon": "icons/hushreel.webp",
+      "platform": "Android",
+      "description": "",
+      "features": [],
+      "downloads": {
+        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/hushreel_dev.apk"
+      },
+      "versions": {
+        "dev": "1.0.0+1"
+      },
+      "store": "",
+      "category": null,
+      "category_source": null,
+      "store_updated": null,
+      "store_version": null
+    },
+    {
       "id": "pdf_kit_fox",
       "name": "Pdf Kit Fox",
       "icon": "icons/pdf_kit_fox.webp",

@@ -82,5 +82,9 @@
   "reelquill": {
     "sha": "14578b7e32637705dbeab8d2935a5e230dfaa17edb3dbe49e72a8b13cfab573f",
     "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/reelquill_icon.png"
+  },
+  "hushreel": {
+    "sha": "48a6d25877930e8d4d97eb1d22f96e41da90bca8cd0ea0dec8036903ca88fc27",
+    "src": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/hushreel_icon.png"
   }
 }
