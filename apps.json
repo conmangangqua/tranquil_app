@@ -21,7 +21,7 @@
       "category": "Personalization",
       "category_source": "store",
       "store_updated": "Oct 2, 2026",
-      "store_version": null
+      "store_version": "26100201 (1.0.0)"
     },
     {
       "id": "bingepop",
@@ -44,7 +44,7 @@
       "category": "Entertainment",
       "category_source": "store",
       "store_updated": "Sep 21, 2026",
-      "store_version": null
+      "store_version": "26092103 (1.0.1)"
     },
     {
       "id": "blissland",
@@ -105,27 +105,6 @@
       },
       "store": "",
       "category": "Caller ID",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
-    },
-    {
-      "id": "cliffsy",
-      "name": "Cliffsy",
-      "icon": "icons/cliffsy.webp",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/cliffsy_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/cliffsy_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": "",
-      "category": "Entertainment",
       "category_source": "gitlab",
       "store_updated": null,
       "store_version": null
@@ -193,7 +172,7 @@
       "category": "Tools",
       "category_source": "store",
       "store_updated": "Oct 5, 2026",
-      "store_version": null
+      "store_version": "1.0.1"
     },
     {
       "id": "reelquill",
@@ -237,28 +216,7 @@
       "category": "Caller ID",
       "category_source": "rule",
       "store_updated": "Sep 12, 2026",
-      "store_version": null
-    },
-    {
-      "id": "twistmoon",
-      "name": "Twistmoon",
-      "icon": "icons/twistmoon.webp",
-      "platform": "Android",
-      "description": "",
-      "features": [],
-      "downloads": {
-        "dev": "https://github.com/conmangangqua/tranquil_app/releases/download/dev/twistmoon_dev.apk",
-        "prod": "https://github.com/conmangangqua/tranquil_app/releases/download/prod/twistmoon_prod.apk"
-      },
-      "versions": {
-        "dev": "1.0.0+1",
-        "prod": "1.0.0+1"
-      },
-      "store": "",
-      "category": "Entertainment",
-      "category_source": "gitlab",
-      "store_updated": null,
-      "store_version": null
+      "store_version": "1.0.6"
     }
   ]
 }
